@@ -2,10 +2,12 @@ package com.retailco.bankrag.observability.config;
 
 import com.retailco.bankrag.assistant.ExtractiveStubLlmClient;
 import com.retailco.bankrag.assistant.LlmClient;
+import com.retailco.bankrag.assistant.OpenAiLlmClient;
 import com.retailco.bankrag.assistant.RagAssistant;
 import com.retailco.bankrag.assistant.TraceLogger;
 import com.retailco.bankrag.core.EmbeddingModel;
 import com.retailco.bankrag.core.LocalHashingEmbeddingModel;
+import com.retailco.bankrag.core.OpenAiEmbeddingModel;
 import com.retailco.bankrag.core.VectorStore;
 import com.retailco.bankrag.observability.CostEstimator;
 import com.retailco.bankrag.observability.MetricsRecorder;
@@ -58,7 +60,9 @@ public class ObservabilityConfig {
 
     @Bean
     public EmbeddingModel embeddingModel() {
-        return new LocalHashingEmbeddingModel(embeddingDimensions);
+        return OpenAiEmbeddingModel.isConfigured()
+                ? new OpenAiEmbeddingModel()
+                : new LocalHashingEmbeddingModel(embeddingDimensions);
     }
 
     @Bean
@@ -68,7 +72,9 @@ public class ObservabilityConfig {
 
     @Bean
     public LlmClient llmClient() {
-        return new ExtractiveStubLlmClient();
+        return OpenAiLlmClient.isConfigured()
+                ? new OpenAiLlmClient()
+                : new ExtractiveStubLlmClient();
     }
 
     @Bean

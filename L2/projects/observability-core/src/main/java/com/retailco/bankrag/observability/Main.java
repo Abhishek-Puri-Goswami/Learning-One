@@ -11,6 +11,9 @@ import com.retailco.bankrag.core.EmbeddingModel;
 import com.retailco.bankrag.core.HybridSearcher;
 import com.retailco.bankrag.core.KeywordSearcher;
 import com.retailco.bankrag.core.LocalHashingEmbeddingModel;
+import com.retailco.bankrag.core.OpenAiEmbeddingModel;
+import com.retailco.bankrag.assistant.LlmClient;
+import com.retailco.bankrag.assistant.OpenAiLlmClient;
 import com.retailco.bankrag.core.ScoredChunk;
 import com.retailco.bankrag.core.VectorStore;
 
@@ -33,7 +36,18 @@ public class Main {
     public static void main(String[] args) throws IOException {
         String corpusDir = args.length > 0 ? args[0] : "corpus";
 
-        EmbeddingModel embeddingModel = new LocalHashingEmbeddingModel(256);
+        EmbeddingModel embeddingModel = OpenAiEmbeddingModel.isConfigured()
+                ? new OpenAiEmbeddingModel()
+                : new LocalHashingEmbeddingModel(256);
+        LlmClient llmClient = OpenAiLlmClient.isConfigured()
+                ? new OpenAiLlmClient()
+                : new ExtractiveStubLlmClient();
+        System.out.println(OpenAiEmbeddingModel.isConfigured()
+                ? "OPENAI_API_KEY detected -- using real OpenAI embeddings."
+                : "OPENAI_API_KEY not set -- using offline LocalHashingEmbeddingModel stand-in.");
+        System.out.println(OpenAiLlmClient.isConfigured()
+                ? "OPENAI_API_KEY detected -- using real OpenAI chat completions."
+                : "OPENAI_API_KEY not set -- using offline ExtractiveStubLlmClient stand-in.");
         VectorStore vectorStore = new VectorStore(embeddingModel);
         ChunkingConfig config = ChunkingConfig.defaultConfig();
         Chunker chunker = new Chunker(config);
@@ -55,7 +69,7 @@ public class Main {
         System.out.println("EXPERIMENT 1: Caching + Metrics + Cost (ObservableRagAssistant)");
         System.out.println("=".repeat(100));
 
-        RagAssistant ragAssistant = new RagAssistant(vectorStore, new ExtractiveStubLlmClient(),
+        RagAssistant ragAssistant = new RagAssistant(vectorStore, llmClient,
                 new TraceLogger(traceLogPath), 0.6, 0.4, 0.15, 0.03, 3);
         QueryCache cache = new QueryCache(50, 3600);
         MetricsRecorder metricsRecorder = new MetricsRecorder();

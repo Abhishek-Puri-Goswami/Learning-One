@@ -2,6 +2,7 @@ package com.retailco.bankrag.service.config;
 
 import com.retailco.bankrag.core.EmbeddingModel;
 import com.retailco.bankrag.core.LocalHashingEmbeddingModel;
+import com.retailco.bankrag.core.OpenAiEmbeddingModel;
 import com.retailco.bankrag.core.VectorStore;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -16,14 +17,9 @@ import org.springframework.context.annotation.Configuration;
  * guide section 3.1) structurally enforced rather than merely a coding
  * convention.
  *
- * Today only the "local" profile is implemented (LocalHashingEmbeddingModel
- * -- see that class's Javadoc for why: no reachable embedding API or model
- * download in this sandbox). A "prod" profile bean
- * (OpenAiEmbeddingModel/AzureOpenAiEmbeddingModel/etc., selected via
- * spring.profiles.active=prod) is the documented next step in
- * design/embedding-generation-module.md's swap-in table and is intentionally
- * left as a follow-on so this use case's scope stays "foundation," not
- * "production embedding integration" (that belongs to later L2 use cases).
+ * When an {@code OPENAI_API_KEY} environment variable is present,
+ * {@link OpenAiEmbeddingModel} is used; otherwise this falls back to
+ * {@link LocalHashingEmbeddingModel} for fully offline operation.
  */
 @Configuration
 public class RagCoreConfig {
@@ -33,7 +29,9 @@ public class RagCoreConfig {
 
     @Bean
     public EmbeddingModel embeddingModel() {
-        return new LocalHashingEmbeddingModel(embeddingDimensions);
+        return OpenAiEmbeddingModel.isConfigured()
+                ? new OpenAiEmbeddingModel()
+                : new LocalHashingEmbeddingModel(embeddingDimensions);
     }
 
     @Bean

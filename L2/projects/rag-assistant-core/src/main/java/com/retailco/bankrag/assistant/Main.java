@@ -6,6 +6,7 @@ import com.retailco.bankrag.core.ChunkingConfig;
 import com.retailco.bankrag.core.DocumentLoader;
 import com.retailco.bankrag.core.EmbeddingModel;
 import com.retailco.bankrag.core.LocalHashingEmbeddingModel;
+import com.retailco.bankrag.core.OpenAiEmbeddingModel;
 import com.retailco.bankrag.core.VectorStore;
 
 import java.io.IOException;
@@ -27,7 +28,18 @@ public class Main {
     public static void main(String[] args) throws IOException {
         String corpusDir = args.length > 0 ? args[0] : "corpus";
 
-        EmbeddingModel embeddingModel = new LocalHashingEmbeddingModel(256);
+        EmbeddingModel embeddingModel = OpenAiEmbeddingModel.isConfigured()
+                ? new OpenAiEmbeddingModel()
+                : new LocalHashingEmbeddingModel(256);
+        LlmClient llmClient = OpenAiLlmClient.isConfigured()
+                ? new OpenAiLlmClient()
+                : new ExtractiveStubLlmClient();
+        System.out.println(OpenAiEmbeddingModel.isConfigured()
+                ? "OPENAI_API_KEY detected -- using real OpenAI embeddings."
+                : "OPENAI_API_KEY not set -- using offline LocalHashingEmbeddingModel stand-in.");
+        System.out.println(OpenAiLlmClient.isConfigured()
+                ? "OPENAI_API_KEY detected -- using real OpenAI chat completions."
+                : "OPENAI_API_KEY not set -- using offline ExtractiveStubLlmClient stand-in.");
         VectorStore vectorStore = new VectorStore(embeddingModel);
         ChunkingConfig config = ChunkingConfig.defaultConfig();
         com.retailco.bankrag.core.Chunker chunker = new Chunker(config);
@@ -50,7 +62,7 @@ public class Main {
         Path traceLogPath = reportsDir.resolve("langsmith-style-trace-log.jsonl");
         Files.deleteIfExists(traceLogPath); // fresh run each time, so the committed log matches this exact run
 
-        RagAssistant assistant = new RagAssistant(vectorStore, new ExtractiveStubLlmClient(),
+        RagAssistant assistant = new RagAssistant(vectorStore, llmClient,
                 new TraceLogger(traceLogPath),
                 0.6, 0.4,   // semantic/keyword weight, same defaults as UC1
                 0.15, 0.03, // similarity threshold + min score margin, same as UC1's guardrail design

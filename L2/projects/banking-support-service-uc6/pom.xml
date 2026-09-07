@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   L2 UC5 deliverable: "Fully functional AI Banking Support System" as a
-  single Spring Boot application -- the final integration point of every
+  single Spring Boot application — the final integration point of every
   Spring Boot module built across L2/UC1-UC4. Same Maven-Central-blocked
-  buildability caveat as every Spring Boot module in this submission --
+  buildability caveat as every Spring Boot module in this submission —
   see banking-support-core/ and ../reports/ for what was actually compiled
   and run (including this exact integration, in pure JDK).
 -->

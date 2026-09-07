@@ -2,10 +2,12 @@ package com.retailco.bankrag.assistant.config;
 
 import com.retailco.bankrag.assistant.ExtractiveStubLlmClient;
 import com.retailco.bankrag.assistant.LlmClient;
+import com.retailco.bankrag.assistant.OpenAiLlmClient;
 import com.retailco.bankrag.assistant.RagAssistant;
 import com.retailco.bankrag.assistant.TraceLogger;
 import com.retailco.bankrag.core.EmbeddingModel;
 import com.retailco.bankrag.core.LocalHashingEmbeddingModel;
+import com.retailco.bankrag.core.OpenAiEmbeddingModel;
 import com.retailco.bankrag.core.VectorStore;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -18,13 +20,10 @@ import java.nio.file.Path;
  * concrete LlmClient and EmbeddingModel implementations are chosen ONCE,
  * here, by profile -- never instantiated ad hoc inside a controller.
  *
- * Only the "local" profile is implemented today: LocalHashingEmbeddingModel
- * (UC1's stand-in) and ExtractiveStubLlmClient (UC2's stand-in) -- both
- * disclosed as non-production in their own Javadoc. A "prod" profile would
- * swap in a real embedding provider AND a real LlmClient implementation
- * (e.g. an OpenAiLlmClient calling the Chat Completions API) -- the
- * LlmClient interface is exactly what makes that swap mechanical, per
- * prompts/prompt-template-design.md.
+ * When an {@code OPENAI_API_KEY} environment variable is present,
+ * {@link OpenAiEmbeddingModel} and {@link OpenAiLlmClient} are used;
+ * otherwise this falls back to {@link LocalHashingEmbeddingModel} and
+ * {@link ExtractiveStubLlmClient} for fully offline operation.
  */
 @Configuration
 public class AssistantConfig {
@@ -52,7 +51,9 @@ public class AssistantConfig {
 
     @Bean
     public EmbeddingModel embeddingModel() {
-        return new LocalHashingEmbeddingModel(embeddingDimensions);
+        return OpenAiEmbeddingModel.isConfigured()
+                ? new OpenAiEmbeddingModel()
+                : new LocalHashingEmbeddingModel(embeddingDimensions);
     }
 
     @Bean
@@ -62,7 +63,9 @@ public class AssistantConfig {
 
     @Bean
     public LlmClient llmClient() {
-        return new ExtractiveStubLlmClient();
+        return OpenAiLlmClient.isConfigured()
+                ? new OpenAiLlmClient()
+                : new ExtractiveStubLlmClient();
     }
 
     @Bean

@@ -14,7 +14,8 @@ Same split as every prior L2 use case, for the same reason (Maven Central blocke
 
 - **`observability-core/` was actually compiled and run.** `SelfTests.java` (26 checks, hand-rolled) passed 26/26. `Main.java` ran three real experiments: (1) `ObservableRagAssistant` over 7 queries with real cache hits/misses and real cost numbers, (2) `ContextOptimizer` token-budget trimming against real retrieved chunks, (3) the threshold-tuning sweep above. Every number in `reports/` is that run's actual, unedited output.
 - **A real labeling mistake was caught and fixed during this exercise**: two of the six labeled "correct chunk" ground-truth values in `ThresholdTuningExperiment` were initially wrong (assumed the answer would be in each document's first chunk; the real corpus text showed both were generic front-matter). This was caught by manually walking the real chunk boundaries against the raw corpus text before trusting the experiment's conclusions — documented in the code comment and in `performance/performance-optimization-summary.md`, not quietly corrected without a trace.
-- **`observability-service/` (Spring Boot) could not be compile-verified** — same Maven Central block as every Spring Boot module in this submission. It reuses `observability-core`'s already-verified `QueryCache`/`MetricsRecorder`/`CostEstimator`/`ContextOptimizer`/`ObservableRagAssistant` classes unchanged.
+- **`observability-service/` (Spring Boot) is now `mvn compile`-verified** with real Maven Central access. It reuses `observability-core`'s already-verified `QueryCache`/`MetricsRecorder`/`CostEstimator`/`ContextOptimizer`/`ObservableRagAssistant` classes unchanged.
+- **OpenAI integration added and build-verified.** The `RagAssistant` wrapped by `ObservableRagAssistant` now uses a real `OpenAiEmbeddingModel`/`OpenAiLlmClient` whenever `OPENAI_API_KEY` is set (both `Main.java` and `observability-service`'s `ObservabilityConfig` select between real and offline stand-ins with the same `isConfigured()` check), falling back to `LocalHashingEmbeddingModel`/`ExtractiveStubLlmClient` otherwise. `observability-core` recompiled and self-tests re-run clean (26/26, offline-fallback path); `observability-service` `mvn compile`-verified. A live call against a real OpenAI-compatible endpoint was confirmed end-to-end in the sibling UC1/UC2 modules (`rag-service`/`rag-assistant-core`), which share this exact same client code (`OpenAiEmbeddingModel`/`OpenAiLlmClient`); this module's own live path was not independently re-run.
 
 ## Deliverables checklist (per L2 HLD UseCase4)
 
@@ -43,7 +44,7 @@ java -cp out com.retailco.bankrag.observability.Main corpus # expect: same outpu
 
 ## Known limitations (disclosed, not hidden)
 
-1. **Maven Central blocked** — `observability-service/` not compile-verified here; run `mvn clean verify` with real internet access before deployment.
+1. **`mvn compile` now verified** for `observability-service/` on a machine with real Maven Central access; run `mvn clean verify` before deployment.
 2. **Cost rate is illustrative**, not a live-priced API quote — see `cost/cost-estimation-document.md`.
 3. **Cost's prompt/completion split is approximated (80/20)**, not exact — a concrete, identified fix (extend `AssistantResponse` to carry the real split) is documented rather than silently left as a permanent gap.
 4. **`ContextOptimizer` is not yet wired into `RagAssistant`'s actual prompt-building** — demonstrated and tested standalone against real retrieved chunks; the integration point is identified in `performance/performance-optimization-summary.md`.

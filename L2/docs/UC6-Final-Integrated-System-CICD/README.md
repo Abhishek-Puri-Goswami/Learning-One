@@ -19,7 +19,8 @@ Gen-AI use case submission. Objective, per L2 HLD USECASE 6: "Deliver a fully in
 |---|---|
 | `banking-support-core/` (Java, pure JDK) | **Actually compiled and run.** `integration.SelfTests` 14/14, `rbac.RbacAndAuditSelfTests` 14/14, full 10-turn demo (adds a SUPPORT_AGENT RBAC scenario to UC5's 9 turns) — all real output in `banking-support-core/reports/` |
 | `banking-support-frontend/` (React + Vite) | **Actually built, linted, and run end-to-end.** `npm run build`/`npm run lint` both pass clean; a Playwright-driven browser session exercised both views against a contract-matching mock backend — screenshots in `banking-support-frontend/reports/frontend-screenshots/` |
-| `banking-support-service/` (Spring Boot) | **Not compile-verified** — Maven Central blocked in this sandbox, same limitation as every Spring Boot module across this entire submission |
+| `banking-support-service/` (Spring Boot) | **`mvn compile`-verified** on a machine with real Maven Central access |
+| OpenAI integration (`OpenAiEmbeddingModel`, `OpenAiLlmClient`) | **Implemented and build-verified** — real `/v1/embeddings` and `/v1/chat/completions` calls over pure-JDK `HttpClient`, used automatically when `OPENAI_API_KEY` is set (`isConfigured()` switch in `Main.java` and `IntegratedAssistantConfig`), falling back to `LocalHashingEmbeddingModel`/`ExtractiveStubLlmClient` otherwise. A live call against a real OpenAI-compatible endpoint was confirmed end-to-end in the sibling UC1/UC2 modules, which share this exact same client code; this module's own live path was not independently re-run |
 | `.github/workflows/ci-cd.yml` | **5 of 8 jobs' underlying commands were actually run directly** in this sandbox (lint, core-tests, rbac-and-security-tests, evaluation, frontend-build-and-lint); the other 3 (Maven build, Docker build, deploy) need infrastructure this sandbox doesn't have — see `cicd/README.md`'s table |
 | `deployment/docker-compose.yml`, `deployment/k8s/*.yaml` | **Syntax/schema-validated**, not build/run-verified (no Docker daemon, no k8s cluster here) |
 
@@ -58,8 +59,8 @@ npm run dev                    # http://localhost:5173
 
 ## Known limitations (disclosed, not hidden — several inherited from UC1-UC5, unchanged)
 
-1. **Maven Central blocked** — `banking-support-service/` not compile-verified here; `maven-build-service` and `docker-build` CI jobs' commands not literally executed in this sandbox.
-2. **No real LLM, no real LangSmith, no real embedding model** — same disclosed stand-ins as UC1/UC2, unchanged by RBAC/CI-CD additions.
+1. **`mvn compile` now verified** for `banking-support-service/` on a machine with real Maven Central access; the `docker-build` CI job's commands are still not literally executed in this sandbox.
+2. **No real LangSmith** — same disclosed stand-in as UC1/UC2. Real OpenAI embedding/LLM integration is now implemented (see table above); `LocalHashingEmbeddingModel`/`ExtractiveStubLlmClient` remain the automatic offline fallback when no API key is set.
 3. **`ContextOptimizer` (UC4) still not wired into prompt-building** — a tracked, not silently dropped, gap.
 4. **The 0.012 margin threshold is small-sample evidence-based** — see UC4's original caveat, still true here.
 5. **No real login/credential flow** — `DevTokenController` (`@Profile("dev")`) is dev-only, same disclosed risk as UC3/UC5.

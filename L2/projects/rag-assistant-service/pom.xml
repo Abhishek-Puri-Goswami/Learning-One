@@ -7,7 +7,7 @@
   Same buildability caveat as L2/UC1's rag-service: Maven Central is
   blocked in this sandbox, so `mvn compile`/`mvn test` could not be run
   here. rag-assistant-core (what this wraps) WAS actually compiled and run
-  with plain javac/java -- see rag-assistant-core/ and reports/. Run
+  with plain javac/java — see rag-assistant-core/ and reports/. Run
   `mvn clean verify` on a machine with real internet access before first
   deployment.
 -->

@@ -3,7 +3,7 @@
   L2 UC4 deliverable: production-shaped Spring Boot wrapper adding
   caching, metrics, and cost tracking around L2/UC2's rag-assistant-core
   pipeline. Same Maven-Central-blocked buildability caveat as every Spring
-  Boot module in this submission -- see observability-core/ and
+  Boot module in this submission — see observability-core/ and
   ../reports/ for what was actually compiled and run.
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"

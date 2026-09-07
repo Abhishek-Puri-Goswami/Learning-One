@@ -35,7 +35,12 @@ public class Main {
 
         ChunkingConfig config = ChunkingConfig.defaultConfig();
         Chunker chunker = new Chunker(config);
-        EmbeddingModel embeddingModel = new LocalHashingEmbeddingModel(256);
+        EmbeddingModel embeddingModel = OpenAiEmbeddingModel.isConfigured()
+                ? new OpenAiEmbeddingModel()
+                : new LocalHashingEmbeddingModel(256);
+        System.out.println(OpenAiEmbeddingModel.isConfigured()
+                ? "OPENAI_API_KEY detected -- using real OpenAI embeddings."
+                : "OPENAI_API_KEY not set -- using offline LocalHashingEmbeddingModel stand-in.");
         VectorStore vectorStore = new VectorStore(embeddingModel);
         KeywordSearcher keywordSearcher = new KeywordSearcher();
         HybridSearcher hybridSearcher = new HybridSearcher(vectorStore, keywordSearcher, 0.6, 0.4);

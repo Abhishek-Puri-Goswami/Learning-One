@@ -7,7 +7,8 @@ Gen-AI Use Case submission. Objective, per L2 HLD UseCase5: "Deliver a complete,
 Same split as every prior L2 use case, for the same reason (Maven Central blocked in this sandbox) — and this use case is where it matters most, because "integration" is exactly the kind of claim that's easy to assert and hard to verify without actually running it.
 
 - **`banking-support-core/` was actually compiled and run**, wiring together — for the first time in one process — every previously-independently-verified component from UC1 through UC4: `SelfTests.java` (14 checks, hand-rolled) passed **14/14 on the first run**, each test exercising the FULL routed path (e.g., "a token for CUST1001 asking about CUST1002's balance is denied" exercises `IntentClassifier` → `BankingToolService` → `JwtService` → `UnauthorizedException`, not any one class in isolation). `Main.java`'s demo ran a realistic 9-turn mixed session — policy questions, all three live-data types, a cache hit, both guardrails, a cross-customer denial, and an ambiguous multi-intent query — in one continuous run. Every output in `reports/` is that run's actual, unedited output.
-- **`banking-support-service/` (Spring Boot + Spring Security) could not be compile-verified** — same Maven Central block as every Spring Boot module in this submission. It composes the SAME already-verified classes from UC1-UC4 (copied as source, same pattern as every prior use case's service wrapper) behind one unified `POST /api/v1/support/ask` endpoint.
+- **`banking-support-service/` (Spring Boot + Spring Security) is now `mvn compile`-verified** with real Maven Central access. It composes the SAME already-verified classes from UC1-UC4 (copied as source, same pattern as every prior use case's service wrapper) behind one unified `POST /api/v1/support/ask` endpoint.
+- **OpenAI integration added and build-verified.** The integrated assistant now uses a real `OpenAiEmbeddingModel`/`OpenAiLlmClient` whenever `OPENAI_API_KEY` is set (both `Main.java` and `banking-support-service`'s `IntegratedAssistantConfig` select between real and offline stand-ins with the same `isConfigured()` check), falling back to `LocalHashingEmbeddingModel`/`ExtractiveStubLlmClient` otherwise. `banking-support-core` recompiled and self-tests re-run clean (14/14, offline-fallback path); `banking-support-service` `mvn compile`-verified. A live call against a real OpenAI-compatible endpoint was confirmed end-to-end in the sibling UC1/UC2 modules (`rag-service`/`rag-assistant-core`), which share this exact same client code (`OpenAiEmbeddingModel`/`OpenAiLlmClient`); this module's own live path was not independently re-run.
 
 ## Deliverables checklist (per L2 HLD UseCase5)
 
@@ -36,8 +37,8 @@ Every one of UC1-UC4 tested its own layer. This is the first point in the submis
 
 ## Known limitations (disclosed, not hidden — inherited and unchanged from UC1-UC4)
 
-1. **Maven Central blocked** — `banking-support-service/` not compile-verified here.
-2. **No real LLM, no real LangSmith, no real embedding model** — same disclosed stand-ins as UC1/UC2, unchanged by integration.
+1. **`mvn compile` now verified** for `banking-support-service/` on a machine with real Maven Central access.
+2. **No real LangSmith** — same disclosed stand-in as UC1/UC2. Real OpenAI embedding/LLM integration is now implemented (see above); `LocalHashingEmbeddingModel`/`ExtractiveStubLlmClient` remain the automatic offline fallback when no API key is set.
 3. **`ContextOptimizer` (UC4) still not wired into prompt-building** — a tracked, not silently dropped, gap.
 4. **The 0.012 margin threshold is small-sample evidence-based, not final-production-validated** — see UC4's original caveat, still true here.
 5. **No real login/credential flow** — `DevTokenController` (`@Profile("dev")`) is dev-only, same disclosed risk as UC3.

@@ -9,6 +9,9 @@ import com.retailco.bankrag.core.ChunkingConfig;
 import com.retailco.bankrag.core.DocumentLoader;
 import com.retailco.bankrag.core.EmbeddingModel;
 import com.retailco.bankrag.core.LocalHashingEmbeddingModel;
+import com.retailco.bankrag.core.OpenAiEmbeddingModel;
+import com.retailco.bankrag.assistant.LlmClient;
+import com.retailco.bankrag.assistant.OpenAiLlmClient;
 import com.retailco.bankrag.core.VectorStore;
 import com.retailco.bankrag.observability.CostEstimator;
 import com.retailco.bankrag.observability.MetricsRecorder;
@@ -40,7 +43,18 @@ public class Main {
         String corpusDir = args.length > 0 ? args[0] : "corpus";
 
         // --- Wiring: identical component construction to UC2/UC3/UC4's own demos ---
-        EmbeddingModel embeddingModel = new LocalHashingEmbeddingModel(256);
+        EmbeddingModel embeddingModel = OpenAiEmbeddingModel.isConfigured()
+                ? new OpenAiEmbeddingModel()
+                : new LocalHashingEmbeddingModel(256);
+        LlmClient llmClient = OpenAiLlmClient.isConfigured()
+                ? new OpenAiLlmClient()
+                : new ExtractiveStubLlmClient();
+        System.out.println(OpenAiEmbeddingModel.isConfigured()
+                ? "OPENAI_API_KEY detected -- using real OpenAI embeddings."
+                : "OPENAI_API_KEY not set -- using offline LocalHashingEmbeddingModel stand-in.");
+        System.out.println(OpenAiLlmClient.isConfigured()
+                ? "OPENAI_API_KEY detected -- using real OpenAI chat completions."
+                : "OPENAI_API_KEY not set -- using offline ExtractiveStubLlmClient stand-in.");
         VectorStore vectorStore = new VectorStore(embeddingModel);
         Chunker chunker = new Chunker(ChunkingConfig.defaultConfig());
         DocumentLoader loader = new DocumentLoader();
@@ -58,7 +72,7 @@ public class Main {
         Files.deleteIfExists(auditLogPath);
         StructuredAuditLogger auditLogger = new StructuredAuditLogger(auditLogPath);
 
-        RagAssistant ragAssistant = new RagAssistant(vectorStore, new ExtractiveStubLlmClient(),
+        RagAssistant ragAssistant = new RagAssistant(vectorStore, llmClient,
                 new TraceLogger(traceLogPath), 0.6, 0.4, 0.15, 0.012, 3); // margin=0.012 per UC4's real tuning finding
         ObservableRagAssistant observableRagAssistant = new ObservableRagAssistant(
                 ragAssistant, new QueryCache(50, 3600), new MetricsRecorder(), CostEstimator.illustrativeDefault());
