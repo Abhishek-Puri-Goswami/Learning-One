@@ -2,6 +2,11 @@ package com.retailco.emailagent.resilience;
 
 import java.util.function.Supplier;
 
+// CONCEPT: Retry-with-backoff -- a standard resilience pattern for calls
+// that might fail transiently (a real API can time out occasionally).
+// HOW IT WORKS: calls `action`, and if it throws, waits a bit longer each
+// time (linear backoff: baseDelay * attempt number) before trying again,
+// up to maxAttempts. If every attempt fails, the last failure is rethrown.
 /**
  * A small, real retry-with-backoff wrapper for tool calls that might fail
  * transiently (a real calendar/inbox API can time out or 5xx). Not a

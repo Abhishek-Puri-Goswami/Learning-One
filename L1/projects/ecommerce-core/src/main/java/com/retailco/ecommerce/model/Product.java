@@ -3,18 +3,14 @@ package com.retailco.ecommerce.model;
 import java.math.BigDecimal;
 import java.time.Instant;
 
-/**
- * Mirrors the field names/types already present in this submission's
- * L1/UC2 {@code product-service}'s existing (written-but-never-compiled)
- * {@code Product} POJO: id, name, description, price, category,
- * stockQuantity, createdAt, updatedAt. This core module keeps the same
- * shape so the L1/UC2 Spring Boot wrapper can sit on top of it without a
- * field-by-field remap.
- *
- * <p>Mutable on purpose (mirrors a JPA-style entity) but stock mutation is
- * only ever done through {@link com.retailco.ecommerce.catalog.ProductCatalog#reserveStock}
- * so a single choke point can enforce "never go negative."
- */
+// CONCEPT: Domain model with self-validation in the constructor.
+// PURPOSE: Represents one product (id, name, price, stock, etc.) and makes
+// sure it can never exist in an invalid state -- the constructor rejects
+// a blank id, negative price, or negative stock right away.
+// WHY stock can only change via adjustStock(): keeping ALL stock changes
+// going through one method (rather than a public setter) is what lets
+// ProductCatalog guarantee stock never goes negative -- one choke point,
+// one place to enforce the rule.
 public class Product {
 
     private final String id;
@@ -60,13 +56,11 @@ public class Product {
     public Instant getCreatedAt() { return createdAt; }
     public Instant getUpdatedAt() { return updatedAt; }
 
-    /**
-     * The single choke point for stock mutation. {@code delta} is negative for a
-     * reservation (checkout consuming stock) and positive for a restock. Throws
-     * rather than silently clamping so {@link com.retailco.ecommerce.catalog.ProductCatalog}
-     * can translate this into an {@code InsufficientStockException} instead of
-     * ever persisting a negative quantity.
-     */
+    // The only way stock quantity ever changes. `delta` is negative when
+    // checkout reserves stock, positive when stock is restocked/released.
+    // Throws instead of silently clamping to 0, so the caller
+    // (ProductCatalog) can turn this into a proper error rather than let
+    // stock quietly go wrong.
     public void adjustStock(int delta, Instant now) {
         int next = this.stockQuantity + delta;
         if (next < 0) {

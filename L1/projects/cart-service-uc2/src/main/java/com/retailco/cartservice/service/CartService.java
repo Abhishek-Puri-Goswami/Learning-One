@@ -4,6 +4,8 @@ import com.retailco.cartservice.dto.CartItemRequest;
 import com.retailco.cartservice.dto.CartItemUpdateRequest;
 import com.retailco.cartservice.dto.CartResponse;
 
+// CONCEPT: Service interface -- CartController depends on this, not on
+// CartServiceImpl directly.
 public interface CartService {
 
     CartResponse getCart(String userId);

@@ -9,6 +9,8 @@ import org.springframework.web.client.RestTemplate;
 
 import java.time.Duration;
 
+// CONCEPT: Spring Boot entry point. Boots the app and scans for
+// @Controller/@Service/@Repository classes.
 @SpringBootApplication
 public class OrderServiceApplication {
 
@@ -16,6 +18,9 @@ public class OrderServiceApplication {
         SpringApplication.run(OrderServiceApplication.class, args);
     }
 
+    // CONCEPT: @Bean method with configurable timeouts -- without these,
+    // an HTTP call (e.g. to a hung payment gateway) could block forever
+    // instead of failing fast with a clear error.
     /**
      * L1/UC5 fix (see edge-cases/edge-case-catalog.md, "Payment timeout"):
      * the plain `new RestTemplate()` used in L1/UC2 and L1/UC4 has NO

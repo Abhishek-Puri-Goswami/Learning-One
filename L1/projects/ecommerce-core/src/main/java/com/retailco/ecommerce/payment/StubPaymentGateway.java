@@ -3,21 +3,12 @@ package com.retailco.ecommerce.payment;
 import java.math.BigDecimal;
 import java.util.UUID;
 
-/**
- * Deterministic stand-in for a real payment gateway (disclosed in this
- * module's README as illustrative-only, same disclosure pattern as this
- * submission's other external-dependency stubs -- e.g. L3's mock
- * calendar/inbox tools). Two deterministic decline rules, both needed by
- * L1/UC5's edge-case catalog:
- *
- * <ol>
- *   <li>Any charge over {@link #DECLINE_ABOVE} is declined ("card limit exceeded"),
- *       so a large-order edge case is reproducible without randomness.</li>
- *   <li>Any charge for the sentinel user {@link #FORCED_DECLINE_USER_ID} is declined
- *       regardless of amount, so tests can force the "payment fails after stock
- *       was already reserved" path deterministically.</li>
- * </ol>
- */
+// CONCEPT: Fake/stub implementation of an interface, used because there's
+// no real external payment provider connected.
+// PURPOSE: Always approves, EXCEPT for two deterministic rules used to
+// test edge cases on purpose: charges above DECLINE_ABOVE are declined
+// (simulates a card limit), and any charge for FORCED_DECLINE_USER_ID is
+// always declined (a fixed way to test "what happens when payment fails").
 public class StubPaymentGateway implements PaymentGateway {
 
     public static final BigDecimal DECLINE_ABOVE = new BigDecimal("10000.00");

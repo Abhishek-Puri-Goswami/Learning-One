@@ -8,11 +8,13 @@ import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
 
-/**
- * Request DTO for POST/PUT /api/v1/products.
- * Mirrors the "ProductRequest" schema in openapi/product-service.yaml exactly,
- * so the contract-first spec and the implementation cannot silently drift apart.
- */
+// CONCEPT: Request DTO with Bean Validation annotations (@NotBlank,
+// @Min, etc.).
+// PURPOSE: Defines what a valid "create/update product" request looks
+// like. Spring checks these annotations automatically (because the
+// controller marks this parameter @Valid) before the request reaches any
+// business logic -- an invalid request (e.g. missing name, negative
+// price) is rejected with a 400 automatically.
 public class ProductRequest {
 
     @NotBlank(message = "name is required")

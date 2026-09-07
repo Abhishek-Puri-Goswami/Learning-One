@@ -17,6 +17,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+// CONCEPT: An "AI tool" -- a plain method the agent calls to get real
+// information (here: calendar availability), rather than the LLM
+// inventing an answer. HOW IT WORKS: searches business hours over the
+// next few days, scores each free slot by how well it matches the
+// sender's requested day/time (scoreSlot()), and widens the search window
+// automatically if fewer than 2 slots are found.
 /**
  * Stands in for the LLD's `/calendar/availability` tool contract: a
  * free/busy store per participant plus a slot-finding search. Mock/

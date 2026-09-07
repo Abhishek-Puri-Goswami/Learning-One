@@ -3,12 +3,13 @@ package com.retailco.productservice.model;
 import java.math.BigDecimal;
 import java.time.Instant;
 
-/**
- * Domain entity for a catalog product.
- * NOTE: In-memory for this scaffold (L1 UC2). Production wiring to PostgreSQL
- * (Spring Data JPA) is defined per ADR-002 in L1/UC1 and left as an integration
- * step outside the scope of this contract-first scaffolding exercise.
- */
+// CONCEPT: Domain model (entity) -- a plain Java class representing one
+// product in the catalog.
+// PURPOSE: Holds a product's data (name, price, stock, etc.) as it's kept
+// in storage. Every field has a getter/setter pair (standard JavaBean
+// style) so frameworks and other code can read/update it field by field.
+// WHY: In-memory for now, not yet a real database entity. A real system
+// would eventually store this in PostgreSQL via Spring Data JPA.
 public class Product {
 
     private String id;

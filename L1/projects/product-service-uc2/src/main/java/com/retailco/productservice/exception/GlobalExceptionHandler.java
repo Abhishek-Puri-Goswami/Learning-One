@@ -11,10 +11,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.time.Instant;
 import java.util.List;
 
-/**
- * Validation layer: translates Bean Validation failures and domain exceptions
- * into the shared structured ErrorResponse contract defined in openapi/product-service.yaml.
- */
+// CONCEPT: Global exception handling with @RestControllerAdvice.
+// PURPOSE: Catches exceptions thrown anywhere in this app's controllers
+// and turns each one into a consistent JSON error response (same shape
+// every time: timestamp, status, error, message, path). Without this,
+// every controller method would need its own try/catch, and error
+// responses would look different everywhere.
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 

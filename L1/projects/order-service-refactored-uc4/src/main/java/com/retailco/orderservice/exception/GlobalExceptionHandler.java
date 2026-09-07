@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.time.Instant;
 import java.util.List;
 
+// CONCEPT: Global exception handling -- converts exceptions from any
+// controller into a consistent JSON error response.
 /**
  * FIX (was AI-QA-2): order-service now has the same validation-error handling
  * pattern as product-service/cart-service in L1/UC2, for consistency.

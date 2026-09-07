@@ -5,6 +5,8 @@ import com.retailco.emailagent.model.EmailMessage;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+// CONCEPT: Intent classification -- deciding what KIND of request an
+// email is, before deciding what to do about it. Same idea as a router.
 /**
  * Rule-based intent classification (keyword/phrase matching), not an LLM
  * call -- disclosed as a stand-in the same way L2's UC3 live-data intent

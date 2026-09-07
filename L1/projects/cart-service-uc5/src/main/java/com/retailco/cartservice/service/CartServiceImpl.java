@@ -18,6 +18,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+// CONCEPT: Service layer -- business logic between Controller and
+// Repository, using `synchronized` blocks to make each cart's
+// read-then-write operations thread-safe (see the comment inside
+// addItem() below for exactly why this matters).
 @Service
 public class CartServiceImpl implements CartService {
 

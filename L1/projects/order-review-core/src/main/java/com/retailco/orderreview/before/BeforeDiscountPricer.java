@@ -2,6 +2,9 @@ package com.retailco.orderreview.before;
 
 import java.math.BigDecimal;
 
+// CONCEPT: A "before" snapshot of messy code (deep nested if/else) kept
+// runnable on purpose, so a test can prove the "after" refactor computes
+// the exact same results despite being restructured.
 /**
  * A pure-JDK, behavior-preserving port of the nested if/else discount logic
  * that lived inline inside {@code order-service-before}'s

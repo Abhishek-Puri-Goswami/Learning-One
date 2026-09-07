@@ -9,19 +9,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * In-memory repository for this contract-first scaffold, now backed by
- * ecommerce-core's real, compiled-and-tested {@link Cart} domain type
- * (see ecommerce-core/reports/) instead of a hand-rolled, never-run
- * duplicate. This use case's own local {@code cartservice.model.Cart}/
- * {@code CartItem} classes were deleted in this rework rather than kept as
- * a parallel, drifting copy of the same shape -- one real Cart model, not
- * two claimed ones.
- *
- * <p>Production target is still Redis (per ADR-002 in L1/UC1), since cart
- * state is ephemeral and benefits from TTL-based expiry -- unchanged from
- * the original scaffold's plan.
- */
+// CONCEPT: Repository pattern -- stores carts in memory, keyed by userId.
+// PURPOSE: save/find/get-or-create a Cart. Uses ecommerce-core's Cart
+// class directly rather than a separate copy, so there's only one Cart
+// model in the whole system.
+// WHY: production would use Redis instead (cart data is temporary and
+// benefits from automatic expiry) -- callers wouldn't need to change.
 @Repository
 public class CartRepository {
 

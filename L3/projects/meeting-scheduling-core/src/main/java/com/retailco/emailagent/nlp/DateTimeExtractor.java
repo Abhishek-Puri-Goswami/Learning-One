@@ -7,6 +7,13 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+// CONCEPT: Simple rule-based text extraction (regex/keyword matching) --
+// pulls a rough day/time hint out of free-form email text.
+// WHY it prefers finding NOTHING over guessing wrong: CalendarTool treats
+// an empty hint as "no preference, just show me any slots" -- which is a
+// safe fallback. A wrong guess (e.g. misreading "not Monday" as "Monday")
+// would actively mislead the calendar search, which is worse than finding
+// nothing.
 /**
  * A deliberately conservative, rule-based (regex/keyword) date-time hint
  * extractor -- NOT a general NLP date parser. This sandbox has no LLM API

@@ -4,11 +4,10 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Cart is intentionally NOT the system of record for price/stock (see L1/UC1
- * ADR + architecture.json risk: "Stale price/stock shown in cart"). Backed by
- * an in-memory map here; production target is Redis per ADR-002.
- */
+// CONCEPT: Domain model -- one user's cart (a list of CartItem lines).
+// IMPORTANT: a Cart is only a snapshot of price/product info, not the
+// live source of truth (that's the product catalog) -- see
+// CartServiceImpl for where price is re-fetched.
 public class Cart {
 
     private String userId;

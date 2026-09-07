@@ -20,6 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+// CONCEPT: Service layer -- orchestrates checkout: fetch cart, check
+// stock, price lines, charge, save order. Each step is its own small
+// private method (see below).
 /**
  * Carried forward from L1/UC4 (decomposed checkout(), externalized secrets,
  * propagated payment failures). L1/UC5 addition: a stock-revalidation step

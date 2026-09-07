@@ -1,5 +1,6 @@
 package com.retailco.orderservice.exception;
 
+// CONCEPT: Custom exception wrapping a payment failure's original cause.
 /**
  * FIX (was AI-SEC-2 / squid:S1166 + squid:S3516): PaymentGatewayClient now
  * throws this on any failure instead of swallowing the exception and

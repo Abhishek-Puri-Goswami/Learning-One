@@ -6,6 +6,9 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.time.Instant;
 
+// CONCEPT: Observability / tracing -- one JSON line per agent step, so a
+// run can be replayed and understood after the fact (same idea as L2's
+// TraceLogger, simpler here).
 /**
  * Hand-rolled JSONL trace logger -- same disclosed local-file stand-in
  * pattern L2/UC2 introduced for its LangSmith-equivalent tracing (this

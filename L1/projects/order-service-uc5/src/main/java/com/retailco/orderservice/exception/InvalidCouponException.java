@@ -1,5 +1,7 @@
 package com.retailco.orderservice.exception;
 
+// CONCEPT: Custom exception -- thrown for an unrecognized/expired coupon
+// code, so it fails loudly instead of silently applying no discount.
 /**
  * L1/UC5 fix (see edge-cases/edge-case-catalog.md, "Invalid coupon"): the
  * L1/UC4 DiscountCalculator silently ignored any coupon code it didn't

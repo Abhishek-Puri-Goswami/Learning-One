@@ -4,6 +4,8 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+// CONCEPT: Request DTO with validation -- checked automatically before
+// CartController's addItemToCart() method runs.
 public class CartItemRequest {
 
     @NotBlank(message = "productId is required")

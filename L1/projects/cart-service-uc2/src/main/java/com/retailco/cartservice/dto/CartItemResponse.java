@@ -2,6 +2,7 @@ package com.retailco.cartservice.dto;
 
 import java.math.BigDecimal;
 
+// CONCEPT: Response DTO -- one line of a cart, as returned to API callers.
 public class CartItemResponse {
 
     private String itemId;

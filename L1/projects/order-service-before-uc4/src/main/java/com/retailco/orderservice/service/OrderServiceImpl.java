@@ -17,6 +17,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+// CONCEPT: Service layer -- but this is the deliberately BUGGY "before"
+// version of the checkout logic, used as a refactoring case study (see
+// the FINDING comments throughout this file for each specific problem:
+// missing null checks, an untested/hallucinated API call, one giant
+// method doing five different jobs, and a payment result that's trusted
+// even when it shouldn't be). Compare with
+// order-service-refactored-uc4/.../OrderServiceImpl.java to see the fix
+// for each of these.
 @Service
 public class OrderServiceImpl implements OrderService {
 

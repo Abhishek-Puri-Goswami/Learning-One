@@ -2,15 +2,9 @@ package com.retailco.ecommerce.model;
 
 import java.math.BigDecimal;
 
-/**
- * Mirrors L1/UC2 {@code cart-service}'s existing {@code CartItem} POJO
- * (itemId, productId, productName, unitPrice, quantity) including its
- * {@code getLineTotal()} calculation. As in the original, {@code unitPrice}
- * is a price *snapshot* taken when the item was added -- this class is not
- * the system of record for current product price/stock (that's
- * {@link com.retailco.ecommerce.catalog.ProductCatalog}), matching the
- * comment already present on the source {@code Cart} model.
- */
+// CONCEPT: Domain model -- one line in a Cart (one product + quantity).
+// IMPORTANT: `unitPrice` is a snapshot of the price at the moment the item
+// was added, not a live lookup -- see Cart's comment for why that matters.
 public class CartItem {
 
     private final String itemId;

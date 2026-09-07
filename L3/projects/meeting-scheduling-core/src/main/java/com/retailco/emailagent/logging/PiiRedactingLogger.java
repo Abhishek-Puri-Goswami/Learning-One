@@ -4,6 +4,12 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+// CONCEPT: PII redaction -- automatically scrubbing sensitive data (email
+// addresses) before it's stored anywhere, so nothing needs to remember to
+// do it manually every time.
+// IMPORTANT: `log()` is the only way to write a line, and it always calls
+// `redact()` first -- there's no method that writes unredacted text, so
+// this guarantee can't accidentally be skipped by a caller.
 /**
  * Per the HLD's "PII redaction in logs" guardrail: this agent's logs must
  * never contain a raw email address or the raw body text of a message --

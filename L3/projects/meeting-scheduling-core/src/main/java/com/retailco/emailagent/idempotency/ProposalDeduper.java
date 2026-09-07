@@ -5,6 +5,9 @@ import com.retailco.emailagent.model.MeetingProposal;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+// CONCEPT: Idempotency guard -- prevents the same action from happening
+// twice. Here: don't draft the same meeting proposal again if it's
+// already been drafted (e.g. the agent re-runs over the same inbox).
 /**
  * Per the LLD's idempotency rule: dedupe meeting proposals by
  * {@code (threadId, attendees, duration, day)} -- see

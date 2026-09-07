@@ -7,6 +7,8 @@ import org.springframework.web.client.RestTemplate;
 import java.math.BigDecimal;
 import java.util.List;
 
+// CONCEPT: HTTP client wrapper -- calls cart-service over REST. This is
+// the FIXED version of this refactoring case study.
 /**
  * FIX (was AI-API-1 / hallucinated endpoint): now calls the REAL, contract-
  * defined GET /api/v1/cart/{userId} from L1/UC2's openapi/cart-service.yaml,

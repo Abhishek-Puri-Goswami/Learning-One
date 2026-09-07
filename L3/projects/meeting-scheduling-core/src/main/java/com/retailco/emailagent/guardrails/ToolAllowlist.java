@@ -2,6 +2,11 @@ package com.retailco.emailagent.guardrails;
 
 import java.util.Set;
 
+// CONCEPT: Guardrail via an allowlist enum -- documents exactly which
+// actions the agent is permitted to take (read inbox, read calendar,
+// draft a reply) and, just as importantly, which it is NOT (send email,
+// modify calendar). This is a safety pattern common to AI agents: limit
+// what the agent CAN do, don't just tell it what it SHOULD do.
 /**
  * Per the HLD's "allowlisted tool actions" guardrail: the agent may only
  * invoke a fixed, named set of read/draft actions -- never a generic

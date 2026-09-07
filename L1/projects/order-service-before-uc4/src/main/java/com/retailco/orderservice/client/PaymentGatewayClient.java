@@ -6,6 +6,11 @@ import org.springframework.web.client.RestTemplate;
 import java.math.BigDecimal;
 import java.util.Map;
 
+// CONCEPT: HTTP client wrapper -- calls an external payment gateway. This
+// is the deliberately BUGGY "before" version (hardcoded API key, and
+// charge() always returns true even when the call fails) used as a
+// refactoring case study -- see order-service-refactored-uc4's version
+// for the fix.
 @Component
 public class PaymentGatewayClient {
 

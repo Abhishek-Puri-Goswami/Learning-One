@@ -36,7 +36,7 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-validation</artifactId>
     </dependency>
-    <!-- iTextPDF (AGPL-3.0) removed -- it was unused and created an
+    <!-- iTextPDF (AGPL-3.0) removed — it was unused and created an
          unapproved copyleft licensing obligation. See reviews/ai-review-report.json
          (AI-LIC-1) and reviews/sonarqube-style-report.md (#9). -->
     <dependency>

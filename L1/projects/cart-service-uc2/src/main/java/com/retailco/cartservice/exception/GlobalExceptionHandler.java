@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.time.Instant;
 import java.util.List;
 
+// CONCEPT: Global exception handling. Converts exceptions thrown by any
+// controller into a consistent JSON error shape (ErrorResponse), instead
+// of each endpoint handling errors differently.
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 

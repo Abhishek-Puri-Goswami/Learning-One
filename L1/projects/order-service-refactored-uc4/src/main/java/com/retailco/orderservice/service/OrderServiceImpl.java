@@ -18,6 +18,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+// CONCEPT: Service layer, refactored into small single-purpose private
+// methods (fetchNonEmptyCart, priceLines, buildConfirmedOrder, toResponse)
+// instead of one long method -- each step of checkout is readable and
+// testable on its own.
 /**
  * FIX (was AI-QA / squid:S3776, squid:S138 "high complexity"): checkout() is
  * decomposed into small, single-purpose private methods, each independently

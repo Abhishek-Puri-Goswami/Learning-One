@@ -4,11 +4,11 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
-/**
- * Result of a committed checkout ({@link com.retailco.ecommerce.order.CheckoutService#checkout}).
- * Mutable only in {@code status} (set by {@link com.retailco.ecommerce.order.CheckoutService}
- * after the payment gateway responds) -- lines and total are frozen at creation.
- */
+// CONCEPT: Domain model -- a placed order.
+// PURPOSE: Holds the order's lines and total, frozen at creation time.
+// Only `status` can change afterward (set by CheckoutService once payment
+// succeeds or fails) -- everything else about an order never changes once
+// it's placed.
 public class Order {
 
     private final String orderId;

@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 // be removed") -- java.util.List is never referenced in this file.
 import java.util.List;
 
+// CONCEPT: Controller -- HTTP entry point for placing an order. "Before"
+// version of this refactoring case study (missing request validation --
+// see FINDING comment below).
 @RestController
 @RequestMapping("/api/v1/orders")
 public class OrderController {

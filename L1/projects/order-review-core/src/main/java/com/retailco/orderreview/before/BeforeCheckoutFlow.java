@@ -1,5 +1,8 @@
 package com.retailco.orderreview.before;
 
+// CONCEPT: Minimal, isolated reproduction of a real bug (missing null
+// check) so it can be demonstrated and tested on its own, without needing
+// the whole Spring Boot app running.
 /**
  * Reproduces AI review finding AI-QA-1: {@code order-service-before}'s
  * {@code OrderServiceImpl.checkout()} calls

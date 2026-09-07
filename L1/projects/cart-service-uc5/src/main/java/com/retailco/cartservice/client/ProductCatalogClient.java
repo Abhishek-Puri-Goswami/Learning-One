@@ -9,15 +9,17 @@ import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 
-/**
- * L1/UC5 fix (see edge-cases/edge-case-catalog.md, "Invalid product ID"):
- * a genuine 404 from product-service now throws InvalidProductException
- * (propagated by CartServiceImpl as a 404 to the caller) instead of being
- * silently treated the same as a transient network failure. A real
- * infra/network failure (timeout, connection refused, 5xx) still degrades
- * gracefully to the fallback snapshot, since that is a resilience concern,
- * not a data-validity concern -- conflating the two was the original bug.
- */
+// CONCEPT: HTTP client wrapper, now distinguishing two different failure
+// kinds instead of treating every failure the same way:
+// - A genuine 404 (product truly doesn't exist) -> throws
+//   InvalidProductException, which becomes a real error response.
+// - Any other failure (timeout, connection refused, server error) ->
+//   falls back to a placeholder, so the cart stays usable during an
+//   outage.
+// WHY separate them: an invalid product id is a data problem that should
+// be rejected; a network hiccup is an availability problem that should
+// degrade gracefully. Treating both the same way (as the earlier version
+// of this class did) let bad product ids silently slip through at price 0.
 @Component
 public class ProductCatalogClient {
 

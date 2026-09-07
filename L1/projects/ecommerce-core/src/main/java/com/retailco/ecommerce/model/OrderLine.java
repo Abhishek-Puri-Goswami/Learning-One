@@ -2,11 +2,10 @@ package com.retailco.ecommerce.model;
 
 import java.math.BigDecimal;
 
-/**
- * A committed line item on an {@link Order} -- a frozen copy of the
- * {@link CartItem} it came from (price and quantity locked at checkout
- * time, immutable from here on, unlike a cart line which can still change).
- */
+// CONCEPT: Immutable value object (record) -- a frozen copy of a CartItem
+// at the moment of checkout. Unlike a CartItem, an OrderLine's price and
+// quantity never change afterward, since an order shouldn't change after
+// it's placed.
 public record OrderLine(String productId, String productName, BigDecimal unitPrice, int quantity) {
 
     public OrderLine {

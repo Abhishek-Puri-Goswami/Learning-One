@@ -2,6 +2,8 @@ package com.retailco.emailagent.model;
 
 import java.time.Instant;
 
+// CONCEPT: Value object (record) with self-validation -- a candidate
+// meeting time window plus a relevance score.
 /**
  * A candidate meeting slot returned by the calendar tool. Field names match
  * the LLD's `/calendar/availability` response shape (`start`, `end`,

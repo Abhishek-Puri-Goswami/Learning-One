@@ -4,6 +4,9 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
+// CONCEPT: Domain model -- a placed order (lines, shipping info, total,
+// status). `idempotencyKey` lets a client safely retry a checkout request
+// without accidentally placing the order twice.
 public class Order {
 
     private String id;

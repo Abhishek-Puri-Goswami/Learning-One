@@ -2,7 +2,9 @@ package com.retailco.productservice.dto;
 
 import java.util.List;
 
-/** Mirrors the "ProductPage" schema in openapi/product-service.yaml. */
+// CONCEPT: Response DTO for a paginated list -- carries one "page" of
+// results plus metadata (page number, size, total count/pages) so a
+// caller knows how to fetch the next page.
 public class ProductPageResponse {
 
     private List<ProductResponse> content;

@@ -10,6 +10,9 @@ import org.springframework.web.client.RestTemplate;
 import java.math.BigDecimal;
 import java.util.Map;
 
+// CONCEPT: HTTP client wrapper -- now distinguishes a TIMEOUT
+// (ResourceAccessException) from other failures, so a slow gateway
+// produces a clearer error than a generic failure would.
 /**
  * Carried forward from L1/UC4 (externalized API key, no more swallowed
  * exceptions). L1/UC5 addition: ResourceAccessException (what RestTemplate

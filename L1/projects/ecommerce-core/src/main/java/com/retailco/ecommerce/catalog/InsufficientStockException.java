@@ -1,5 +1,8 @@
 package com.retailco.ecommerce.catalog;
 
+// CONCEPT: Custom exception carrying extra data (productId, requested,
+// available) so a caller can build a helpful error message without
+// re-parsing the exception's text.
 public class InsufficientStockException extends RuntimeException {
 
     private final String productId;

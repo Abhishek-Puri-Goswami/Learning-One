@@ -4,6 +4,9 @@ import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.Optional;
 
+// CONCEPT: Value object (record) using Optional fields to represent "this
+// piece of information might not be present" explicitly, instead of using
+// null (which is easy to forget to check).
 /**
  * A parsed hint about when the sender wants to meet -- not a resolved
  * calendar slot (that's {@code calendar.CalendarTool}'s job), just what

@@ -8,28 +8,19 @@ import java.time.Clock;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Adapter over {@code ecommerce-core}'s {@link com.retailco.ecommerce.catalog.ProductCatalog}
- * -- the real, compiled-and-tested (see ecommerce-core/reports/) in-memory
- * store this submission's rework introduced to close the gap the original
- * scaffold had: this repository's logic ("products keyed by id, category
- * filter case-insensitive, never oversell") was written but never actually
- * compiled or run anywhere.
- *
- * <p>This class itself is still Spring (`@Repository`) and therefore still
- * NOT compile-verified in this sandbox (Maven Central is blocked -- see
- * this use case's README). What changed is that the logic it delegates to
- * IS verified, so this class's own job has shrunk to translation between
- * the REST-facing {@link Product} entity and ecommerce-core's domain
- * {@code Product} -- there is no remaining untested business rule hiding
- * behind what looks like a dumb map wrapper.
- *
- * <p>Production target is still PostgreSQL via Spring Data JPA (ADR-002,
- * L1/UC1) plus an Elasticsearch-backed search index for
- * {@code /products/search} -- unchanged from the original scaffold's plan;
- * only the interim in-memory implementation changed, from "untested" to
- * "delegates to a tested core."
- */
+// CONCEPT: Repository pattern -- the layer that talks to storage, hiding
+// HOW data is stored from the rest of the app.
+// PURPOSE: Provides save/find/search operations for products. Internally,
+// it just forwards to `ecommerce-core`'s ProductCatalog (a real,
+// already-tested in-memory store), and converts between this module's
+// `Product` DTO-like entity and ecommerce-core's own `Product` class.
+// WHY delegate instead of reimplementing storage here: reusing an
+// already-tested class means this repository doesn't need to re-prove
+// basic rules like "never oversell" or "lookup by id" -- it only needs to
+// get the conversion between the two `Product` shapes right.
+// IMPORTANT: production would swap this out for a real database
+// (PostgreSQL + Spring Data JPA) -- callers (ProductServiceImpl) would
+// not need to change, since they only depend on this class's methods.
 @Repository
 public class ProductRepository {
 

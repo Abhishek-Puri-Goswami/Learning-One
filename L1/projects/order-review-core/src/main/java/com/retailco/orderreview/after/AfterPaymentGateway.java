@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.util.concurrent.TimeoutException;
 import java.util.function.BiConsumer;
 
+// CONCEPT: The "after" fix -- failures are thrown, never swallowed, and a
+// timeout gets a distinguishable message from other failures.
 /**
  * Pure-JDK port of {@code order-service-refactored}'s fixed
  * {@code PaymentGatewayClient.charge()} -- the FIX for AI-SEC-2: any

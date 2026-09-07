@@ -4,6 +4,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+// CONCEPT: HTTP client wrapper -- calls product-service to check CURRENT
+// stock right before charging, instead of trusting a possibly-stale
+// snapshot from the cart.
 /**
  * L1/UC5 addition: order-service did not previously call product-service at
  * all -- it trusted cart-service's snapshot of price/name unconditionally

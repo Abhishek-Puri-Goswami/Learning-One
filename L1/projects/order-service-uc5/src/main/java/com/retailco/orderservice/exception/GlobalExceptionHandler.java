@@ -11,6 +11,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.time.Instant;
 import java.util.List;
 
+// CONCEPT: Global exception handling -- converts exceptions from any
+// controller into a consistent JSON error response. Each new exception
+// type added over time (OutOfStock, InvalidCoupon) gets its own handler
+// mapped to the most fitting HTTP status.
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 

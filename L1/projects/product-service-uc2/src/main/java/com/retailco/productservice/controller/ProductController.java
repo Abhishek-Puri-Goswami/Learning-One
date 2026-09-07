@@ -9,10 +9,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-/**
- * Generated to satisfy the operationIds in openapi/product-service.yaml:
- * listProducts, createProduct, getProductById, updateProduct, searchProducts.
- */
+// CONCEPT: Controller -- the entry point for HTTP requests
+// (GET/POST/PUT/etc.).
+// PURPOSE: Exposes the product API (list, create, get by id, update,
+// search). Each method just reads the request and calls ProductService --
+// no business logic lives here, only HTTP handling.
+// WHY: keeps HTTP concerns (status codes, request params) separate from
+// business rules (which live in ProductServiceImpl).
 @RestController
 @RequestMapping("/api/v1/products")
 public class ProductController {

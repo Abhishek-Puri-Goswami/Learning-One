@@ -1,5 +1,6 @@
 package com.retailco.orderreview.after;
 
+// CONCEPT: Custom exception wrapping the original payment failure cause.
 /**
  * Pure-JDK mirror of {@code order-service-refactored}'s
  * {@code exception.PaymentFailedException} -- unchanged in shape, just

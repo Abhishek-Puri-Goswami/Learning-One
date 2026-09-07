@@ -5,6 +5,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
+// CONCEPT: Request DTO with Bean Validation -- now with @NotNull/@Valid/
+// @Pattern annotations checked automatically before this data reaches
+// business logic.
 /**
  * FIX (was AI-QA-1 / squid:S2259, AI-QA-2): shippingAddress is now @NotNull
  * and @Valid so a missing/incomplete address is rejected with a clean 400

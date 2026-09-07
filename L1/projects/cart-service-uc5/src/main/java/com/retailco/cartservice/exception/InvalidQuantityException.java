@@ -1,10 +1,9 @@
 package com.retailco.cartservice.exception;
 
-/**
- * L1/UC5 defense-in-depth: enforced again at the service layer (not just via
- * @Max on the DTO) so any internal/non-HTTP caller of CartService is also
- * protected. See edge-cases/edge-case-catalog.md, "Large quantity".
- */
+// CONCEPT: Custom exception -- thrown when a requested quantity exceeds
+// the allowed maximum. Checked again in the service layer (not only via a
+// DTO validation annotation) so any caller of CartService is protected,
+// not only ones going through the REST controller.
 public class InvalidQuantityException extends RuntimeException {
     public InvalidQuantityException(int requestedQuantity, int max) {
         super("Requested quantity " + requestedQuantity + " exceeds the maximum of " + max + " per line item");

@@ -9,14 +9,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * In-memory system of record for products and stock, standing in for
- * L1/UC2's {@code product-service} JPA repository (this submission has no
- * database, and Maven Central -- so no Spring Data JPA -- is blocked; see
- * this module's README). {@link #reserveStock} is the single choke point
- * every stock decrement goes through, so "never oversell" is enforced here
- * once rather than re-implemented at every caller.
- */
+// CONCEPT: In-memory repository -- stands in for a real database table.
+// PURPOSE: Stores products keyed by id and is the ONE place stock
+// quantities get checked and changed, via reserveStock()/releaseStock().
+// WHY `synchronized` on reserveStock/releaseStock/restock: several
+// requests could try to buy the same product at the same time. Without
+// synchronization, two threads could both "check stock is enough" before
+// either one decrements it, causing an oversell. `synchronized` makes the
+// whole check-then-decrement sequence atomic (one thread at a time).
 public class ProductCatalog {
 
     private final Map<String, Product> products = new ConcurrentHashMap<>();
@@ -48,15 +48,9 @@ public class ProductCatalog {
         return List.copyOf(products.values());
     }
 
-    /**
-     * Atomically decrements stock for a single product. Synchronized per-catalog
-     * (not just per-product) -- this is a small illustrative in-memory store, not
-     * a throughput-critical one, so a coarse lock keeping the "check then decrement"
-     * sequence atomic is preferable to a subtler per-row lock that's easy to get wrong.
-     *
-     * @throws ProductNotFoundException if productId is unknown
-     * @throws InsufficientStockException if requestedQuantity exceeds current stock
-     */
+    // Reduces stock for one product -- checks there's enough stock FIRST,
+    // then decrements, all inside one `synchronized` call so no other
+    // thread can interleave and cause an oversell.
     public synchronized void reserveStock(String productId, int requestedQuantity) {
         if (requestedQuantity <= 0) {
             throw new IllegalArgumentException("requestedQuantity must be positive: " + requestedQuantity);

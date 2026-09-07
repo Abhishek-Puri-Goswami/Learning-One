@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
+// CONCEPT: Response DTO -- the JSON shape returned for a whole cart
+// (all items plus a computed subtotal/count).
 public class CartResponse {
 
     private String userId;

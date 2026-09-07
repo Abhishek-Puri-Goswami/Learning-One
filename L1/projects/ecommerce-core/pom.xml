@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   Documented, NOT compile-verified (same disclosure as every Spring-Boot-facing
-  pom.xml elsewhere in this submission -- Maven Central is blocked in this
+  pom.xml elsewhere in this submission — Maven Central is blocked in this
   sandbox: `mvn -version` works, but `mvn compile` 403s with
   X-Proxy-Error: blocked-by-allowlist against repo.maven.apache.org, confirmed
   both here and on the user's own device).
 
-  This module itself has ZERO external dependencies -- every class under
+  This module itself has ZERO external dependencies — every class under
   src/main/java compiles and runs with plain `javac`/`java` (see
   reports/core-javac-lint-log.txt, reports/selftests-run-log.txt,
   reports/demo-run-log.txt for the real, actually-executed proof). This

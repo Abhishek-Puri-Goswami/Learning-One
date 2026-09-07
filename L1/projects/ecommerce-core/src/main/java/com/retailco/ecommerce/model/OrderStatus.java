@@ -1,11 +1,8 @@
 package com.retailco.ecommerce.model;
 
-/**
- * Order lifecycle used by {@link com.retailco.ecommerce.order.CheckoutService}.
- * Deliberately small -- this submission's L1/UC4 "order-service" refactor
- * scenario and L1/UC5 edge-case catalog only need enough states to express
- * "stock reserved, payment pending/settled/failed."
- */
+// CONCEPT: Enum -- a fixed, closed set of possible order states.
+// PURPOSE: Tracks where an order is in its lifecycle: waiting on payment,
+// paid, payment failed, or cancelled.
 public enum OrderStatus {
     PENDING_PAYMENT,
     PAID,

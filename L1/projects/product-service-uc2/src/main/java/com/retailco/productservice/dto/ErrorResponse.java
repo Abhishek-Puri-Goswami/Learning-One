@@ -3,10 +3,9 @@ package com.retailco.productservice.dto;
 import java.time.Instant;
 import java.util.List;
 
-/**
- * Structured error model shared across all services (see cross_cutting_concerns
- * in L1/UC1 architecture.json: "Structured JSON error model shared across all services").
- */
+// CONCEPT: Structured error response DTO -- the same shape used by every
+// service's GlobalExceptionHandler, so API clients always get errors in
+// one consistent format (timestamp, status, error, message, path, details).
 public class ErrorResponse {
 
     private Instant timestamp;

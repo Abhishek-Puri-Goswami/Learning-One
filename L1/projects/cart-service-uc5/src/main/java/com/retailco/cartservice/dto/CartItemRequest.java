@@ -5,6 +5,9 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+// CONCEPT: Request DTO with validation -- @Max here rejects an
+// obviously-too-large quantity immediately (400), before it ever reaches
+// the service layer.
 public class CartItemRequest {
 
     @NotBlank(message = "productId is required")

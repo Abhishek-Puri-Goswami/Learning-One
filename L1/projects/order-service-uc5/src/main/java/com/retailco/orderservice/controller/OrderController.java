@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+// CONCEPT: Controller -- HTTP entry point for placing an order. FIXED
+// version of this refactoring case study.
 /**
  * FIX (was AI-QA-2 & AI-QA-3): @Valid added on the request body (consistent
  * with product-service/cart-service in L1/UC2), and the unused

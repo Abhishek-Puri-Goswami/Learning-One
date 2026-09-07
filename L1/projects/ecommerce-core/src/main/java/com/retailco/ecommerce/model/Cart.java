@@ -6,14 +6,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Mirrors L1/UC2 {@code cart-service}'s existing {@code Cart} POJO
- * (userId, items, updatedAt). As documented on that original class, a
- * {@code Cart} is not the system of record for price/stock -- it only
- * holds a snapshot taken at add-to-cart time; {@link com.retailco.ecommerce.catalog.ProductCatalog}
- * is authoritative, and {@link com.retailco.ecommerce.order.CheckoutService}
- * re-validates against it before committing an order.
- */
+// CONCEPT: Domain model -- one user's shopping cart, holding a list of
+// CartItem lines.
+// IMPORTANT: a Cart only stores a SNAPSHOT of price/product info taken
+// when each item was added. It is NOT the source of truth for current
+// price or stock -- ProductCatalog is. CheckoutService re-checks against
+// ProductCatalog before actually placing an order, so a cart can't be
+// used to buy at a stale price or buy more than is actually in stock.
 public class Cart {
 
     private final String userId;
@@ -54,13 +53,8 @@ public class Cart {
         return removed;
     }
 
-    /**
-     * Looks up a line by its own generated {@code itemId} rather than by
-     * {@code productId} -- needed by callers (e.g. L1/UC2's cart-service
-     * REST contract) whose update/delete endpoints are addressed by the
-     * cart *line*, not the product, so that removing/updating one line
-     * among several for the same product is unambiguous.
-     */
+    // Looks up a line by its own itemId (not productId) -- needed so
+    // update/delete requests can target one specific line unambiguously.
     public Optional<CartItem> findByItemId(String itemId) {
         return items.stream().filter(i -> i.getItemId().equals(itemId)).findFirst();
     }

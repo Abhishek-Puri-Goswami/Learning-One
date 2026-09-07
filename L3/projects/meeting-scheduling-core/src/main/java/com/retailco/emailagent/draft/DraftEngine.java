@@ -8,6 +8,12 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
+// CONCEPT: Template-based text generation (no LLM call) -- builds a reply
+// by filling in a fixed template with real data (subject, candidate
+// times), rather than generating free-form text.
+// IMPORTANT: the draft is explicitly labeled "not sent, awaiting human
+// approval" -- this class only ever produces a String; nothing in this
+// codebase ever sends it (see ToolAllowlist).
 /**
  * Template-based reply composition -- no LLM call (this sandbox has no LLM
  * API access; a production version would prompt an LLM to phrase this

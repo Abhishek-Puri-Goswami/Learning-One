@@ -2,6 +2,8 @@ package com.retailco.orderreview.after;
 
 import java.math.BigDecimal;
 
+// CONCEPT: The "after" refactor -- each coupon rule as its own small
+// method instead of one deeply nested block.
 /**
  * Pure-JDK port of {@code order-service-refactored}'s
  * {@code DiscountCalculator} (see

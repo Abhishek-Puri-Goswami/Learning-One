@@ -3,6 +3,11 @@ package com.retailco.emailagent.model;
 import java.time.Duration;
 import java.util.List;
 
+// CONCEPT: Value object (record) with self-validation -- the agent's
+// final output for one email. Notice there is no "sent" field/flag here
+// at all -- only a draft. That's a structural safety property: this type
+// cannot represent "an email that got sent," because the agent never
+// sends anything.
 /**
  * The agent's output for one scheduling-intent email: the candidate slots
  * it found (LLD acceptance criterion: at least 2 valid slots) and the

@@ -2,13 +2,11 @@ package com.retailco.emailagent.agent;
 
 import com.retailco.emailagent.model.MeetingProposal;
 
-/**
- * What {@link SchedulingAgent} decided for one email, mirroring the
- * sealed-interface decision pattern this submission uses elsewhere (e.g.
- * L2/UC6's {@code AccessPolicy.Decision}) so every outcome is a named,
- * exhaustively-switchable type rather than a boolean plus a nullable
- * field.
- */
+// CONCEPT: Sealed interface -- a fixed, closed set of possible outcomes.
+// PURPOSE: Every email the agent processes ends in exactly one of these 5
+// outcomes. A `switch` over an AgentDecision can be checked exhaustively
+// by the compiler (no forgotten case, no `default` needed), which is
+// safer than a boolean flag plus a nullable "reason" field.
 public sealed interface AgentDecision {
 
     record Proposed(MeetingProposal proposal) implements AgentDecision {}

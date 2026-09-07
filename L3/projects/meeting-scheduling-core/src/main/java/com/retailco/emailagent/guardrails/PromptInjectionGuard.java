@@ -3,6 +3,9 @@ package com.retailco.emailagent.guardrails;
 import java.util.List;
 import java.util.Locale;
 
+// CONCEPT: Guardrail -- prompt-injection detection for an email-reading
+// AI agent. Same idea as a regular input-validation check: scan for known
+// suspicious phrases before treating the email as safe to act on.
 /**
  * Per the HLD's guardrail requirement ("prompt-injection defense"): an
  * incoming email is untrusted input, and its body can contain text

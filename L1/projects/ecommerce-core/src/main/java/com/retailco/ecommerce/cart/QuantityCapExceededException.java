@@ -1,12 +1,9 @@
 package com.retailco.ecommerce.cart;
 
-/**
- * Mirrors L1/UC5's edge-case catalog: {@code largeQuantity_overCap_throwsInvalidQuantityException}
- * and {@code largeQuantity_sumAcrossTwoAdds_overCap_throwsOnSecondAdd}. The
- * cap applies to a line's running total, not just a single request -- adding
- * 60 then 60 more of the same product must reject the second call, not
- * silently accept 120.
- */
+// CONCEPT: Custom exception -- thrown when a cart line's quantity would
+// exceed CartService.MAX_QUANTITY_PER_LINE. Applies to the RUNNING TOTAL,
+// so adding 60 then 60 more of the same product fails on the second add,
+// not just a single add of over 99.
 public class QuantityCapExceededException extends RuntimeException {
 
     private final String productId;

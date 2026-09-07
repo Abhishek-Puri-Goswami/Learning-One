@@ -6,15 +6,14 @@ import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 
-/**
- * Client to the Product Catalog Service, used to revalidate price/name at
- * add-to-cart time (see architecture.json risk: "Stale price/stock shown in
- * cart if catalog isn't re-checked at checkout" -- we mitigate at add-time too).
- *
- * A resilient fallback (cached/mock lookup) is used if the Catalog Service is
- * unreachable, so Cart remains usable in a degraded mode; the price is always
- * re-validated for real at checkout time in order-management-service.
- */
+// CONCEPT: HTTP client wrapper -- calls another microservice
+// (product-service) over REST, instead of a local method call.
+// PURPOSE: Fetches a product's current name/price when adding it to a
+// cart, so the cart shows up-to-date info.
+// WHY the try/catch fallback: if product-service is down or slow, this
+// still returns something (a placeholder "Unknown product") instead of
+// crashing the whole add-to-cart request. This is a simple form of
+// graceful degradation -- the cart stays usable even if a dependency fails.
 @Component
 public class ProductCatalogClient {
 

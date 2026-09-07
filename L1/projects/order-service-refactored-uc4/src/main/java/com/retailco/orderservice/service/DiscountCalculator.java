@@ -4,6 +4,9 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 
+// CONCEPT: Extracting a helper class to reduce complexity -- each pricing
+// rule (SAVE10, VIP) gets its own small method instead of one giant
+// method with nested if/else for everything.
 /**
  * FIX (part of resolving AI-QA "high complexity" / squid:S3776, squid:S138):
  * extracted from the original ~65-line checkout() method. Each coupon rule

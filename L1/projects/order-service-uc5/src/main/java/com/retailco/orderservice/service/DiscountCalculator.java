@@ -6,6 +6,9 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.util.Set;
 
+// CONCEPT: Service helper class -- pricing/discount rules kept separate
+// from checkout logic, now with an explicit "known coupons" allowlist
+// instead of silently ignoring anything unrecognized.
 /**
  * Carried forward from L1/UC4 (extracted from checkout() to reduce
  * complexity). L1/UC5 fix (see edge-cases/edge-case-catalog.md, "Invalid

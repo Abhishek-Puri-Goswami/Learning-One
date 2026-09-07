@@ -3,6 +3,8 @@ package com.retailco.emailagent.model;
 import java.time.Instant;
 import java.util.List;
 
+// CONCEPT: Domain model (record) -- one email, in the same shape a real
+// email API would return.
 /**
  * Deliverable: "Conceptual Data Model / Email" (L3 HLD section 10; LLD
  * section 8.1's inbox contract). Field names match the LLD's JSON schema

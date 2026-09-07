@@ -9,6 +9,9 @@ import org.springframework.web.client.RestTemplate;
 import java.math.BigDecimal;
 import java.util.Map;
 
+// CONCEPT: HTTP client wrapper -- calls an external payment gateway. This
+// is the FIXED version: config-driven API key, and failures now throw
+// instead of being silently swallowed.
 /**
  * FIX (was AI-SEC-1 / squid:S2068): the API key is no longer a source-code
  * literal. It is injected from configuration (@Value), which in turn should

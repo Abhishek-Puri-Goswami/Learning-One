@@ -9,10 +9,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-/**
- * Generated to satisfy the operationIds in openapi/cart-service.yaml:
- * getCart, addItemToCart, updateCartItem, removeCartItem.
- */
+// CONCEPT: Controller -- handles HTTP requests for the cart API
+// (get/add/update/remove). Thin by design: it just calls CartService and
+// wraps the result in the right HTTP status code (e.g. 201 for a
+// successful add).
 @RestController
 @RequestMapping("/api/v1/cart")
 public class CartController {

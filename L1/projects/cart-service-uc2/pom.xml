@@ -22,7 +22,7 @@
   </properties>
 
   <dependencies>
-    <!-- The real, compiled-and-tested domain core this service wraps --
+    <!-- The real, compiled-and-tested domain core this service wraps —
          see ../../ecommerce-core (a plain-JDK module, zero external deps,
          built and self-tested independently of Maven Central reachability;
          reports/ under that module has the real javac/test/demo output). -->

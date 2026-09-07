@@ -11,25 +11,21 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Stands in for L1/UC2's {@code cart-service} controller/service layer.
- * Reads current price/name from {@link ProductCatalog} at add-time (a
- * snapshot, per {@link Cart}'s documented contract) but does NOT reserve
- * stock -- stock is only reserved at checkout, by
- * {@link com.retailco.ecommerce.order.CheckoutService}, matching how a real
- * cart lets you add more of an item than is currently in stock (you find
- * out at checkout, not at add-to-cart).
- *
- * <p>Two rules added for L1/UC5's edge-case catalog: a per-line quantity
- * cap ({@link #MAX_QUANTITY_PER_LINE}) that applies to the *running total*
- * across repeated adds of the same product, not just a single request; and
- * {@code addItem} is synchronized per-user so many threads adding the same
- * product concurrently merge into one line with no lost updates, rather
- * than racing on the cart's item list.
- */
+// CONCEPT: Service layer -- business logic for managing shopping carts.
+// PURPOSE: Add/remove items, get-or-create a cart per user. Reads the
+// current price/name from ProductCatalog when adding an item (a snapshot,
+// see CartItem), but does NOT check or reserve stock here -- stock is only
+// checked at checkout (CheckoutService). That matches how a real cart
+// works: you can add more than what's in stock, and find out at checkout.
+// WHY the per-user lock in addItem(): several requests could add the same
+// product to the same user's cart at the same time. Locking per user
+// (not globally) means different users never block each other, but two
+// requests for the SAME user are handled one at a time -- so merging
+// quantities into one line never loses an update.
 public class CartService {
 
-    /** Mirrors L1/UC5's edge-case catalog: 99 is the inclusive boundary. */
+    // Business rule: a single cart line can't exceed this quantity, even
+    // after merging repeated "add this product again" calls.
     public static final int MAX_QUANTITY_PER_LINE = 99;
 
     private final Map<String, Cart> cartsByUserId = new ConcurrentHashMap<>();

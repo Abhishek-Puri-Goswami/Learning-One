@@ -1,5 +1,7 @@
 package com.retailco.orderreview.after;
 
+// CONCEPT: Minimal reproduction of the FIX, so the "before had a bug,
+// after doesn't" claim is something a test can actually run and check.
 /**
  * Pure-JDK mirror of the FIX for AI-QA-1: in
  * {@code order-service-refactored}, {@code shippingAddress} is guaranteed

@@ -18,22 +18,13 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
-/**
- * Delegates all cart-mutation logic (merge-on-add, remove-by-lineId,
- * update-quantity-by-lineId, subtotal) to ecommerce-core's {@link Cart}
- * domain type -- the same real, compiled-and-tested class
- * {@code ecommerce-core/reports/selftests-run-log.txt} proves correct,
- * including two tests added specifically for this use case's itemId-based
- * update/remove contract (`removeItemById`, `setItemQuantity`). Before this
- * rework, the equivalent merge/remove logic lived only here, duplicated,
- * and had never been compiled or run.
- *
- * <p>{@link ProductCatalogClient} (an HTTP call to product-service) is kept
- * as-is: that's a real microservice boundary (cart-service and
- * product-service are separate deployables), not duplicated business logic,
- * so it stays documented-but-not-compile-verified like the rest of this
- * Spring layer.
- */
+// CONCEPT: Service layer -- business logic between Controller and Repository.
+// PURPOSE: Implements add/update/remove/get for a user's cart. Notice the
+// actual cart mutation logic (merging items, removing by line id) is NOT
+// reimplemented here -- it calls ecommerce-core's Cart methods
+// (addOrMergeItem, setItemQuantity, removeItemById), which are already
+// tested. This class's own job is: fetch the cart, call the right Cart
+// method, save it back, and convert to a response DTO.
 @Service
 public class CartServiceImpl implements CartService {
 

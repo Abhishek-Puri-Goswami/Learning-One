@@ -5,6 +5,9 @@ import com.retailco.emailagent.model.EmailMessage;
 import java.util.ArrayList;
 import java.util.List;
 
+// CONCEPT: An "AI tool" -- gives the agent read access to emails, without
+// the agent needing to know whether they come from a mock list or a real
+// mailbox API.
 /**
  * Stands in for the LLD's `/inbox/latest` tool contract. A real adapter
  * would call Microsoft Graph or the Gmail API; per the HLD's "mock/

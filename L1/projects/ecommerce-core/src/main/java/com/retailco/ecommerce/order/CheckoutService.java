@@ -16,19 +16,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * The order-placement flow this submission's L1/UC4 refactor scenario and
- * L1/UC5 edge-case catalog exercise: reserve stock for every line, attempt
- * payment, and roll the reservation back line-by-line if payment fails --
- * so a declined card never leaves stock permanently short.
- *
- * <p>Reservation happens BEFORE payment (not after) deliberately: it holds
- * the item for this checkout attempt so two concurrent buyers of the last
- * unit can't both be told "payment succeeded." This is the same ordering
- * L1/UC4's refactored {@code order-service} documents in its AI review
- * report as a correction over the "before" version, which charged first
- * and only then checked stock.
- */
+// CONCEPT: Service layer -- orchestrates the checkout business process
+// across several other classes (ProductCatalog, PaymentGateway).
+// PURPOSE (see checkout() below, step by step):
+// 1. Reserve stock for every line in the cart.
+// 2. If any line can't be reserved, undo (release) whatever WAS already
+//    reserved in this same attempt, then fail -- a checkout must never
+//    leave a partial reservation behind.
+// 3. Build the Order and attempt payment.
+// 4. If payment succeeds: mark the order PAID and empty the cart.
+//    If payment fails: mark it PAYMENT_FAILED and release the stock back
+//    (a declined card must never permanently reduce stock).
+// WHY reserve stock BEFORE charging payment (not after): if payment ran
+// first, two people buying the last unit at the same time could both be
+// charged successfully before either one's stock check ran. Reserving
+// first means only one of them can actually get the stock -- the other
+// fails immediately with "insufficient stock," before any money moves.
 public class CheckoutService {
 
     private final ProductCatalog catalog;

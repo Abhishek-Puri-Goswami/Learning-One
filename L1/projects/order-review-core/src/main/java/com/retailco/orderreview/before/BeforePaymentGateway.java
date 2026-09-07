@@ -3,6 +3,8 @@ package com.retailco.orderreview.before;
 import java.math.BigDecimal;
 import java.util.function.BiConsumer;
 
+// CONCEPT: Minimal reproduction of a real bug -- an empty catch block that
+// swallows exceptions -- isolated so it can be demonstrated with a test.
 /**
  * Reproduces the exact bug AI review finding AI-SEC-2 describes in
  * {@code order-service-before}'s {@code PaymentGatewayClient.charge()}: any

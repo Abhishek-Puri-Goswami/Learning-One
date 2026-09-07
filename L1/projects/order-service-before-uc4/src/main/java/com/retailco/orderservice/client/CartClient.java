@@ -5,6 +5,10 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
 
+// CONCEPT: HTTP client wrapper -- calls cart-service over REST. This is
+// the deliberately BUGGY "before" version of this class (see the FINDING
+// comment below) used as a refactoring case study; compare with
+// order-service-refactored-uc4's version of this file for the fix.
 @Component
 public class CartClient {
 

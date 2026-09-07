@@ -7,11 +7,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * In-memory repository for this contract-first scaffold. Production target is
- * Redis (per ADR-002 in L1/UC1) since cart state is ephemeral and benefits
- * from TTL-based expiry.
- */
+// CONCEPT: Repository pattern -- stores carts in memory, keyed by userId.
+// WHY: production would use Redis instead, since cart data is temporary
+// and benefits from automatic expiry.
 @Repository
 public class CartRepository {
 

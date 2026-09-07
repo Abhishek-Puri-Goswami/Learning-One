@@ -1,5 +1,6 @@
 package com.retailco.orderreview.after;
 
+// CONCEPT: Custom exception -- thrown for an unrecognized coupon code.
 /**
  * Mirrors L1/UC5's edge-case catalog: an unrecognized coupon code (e.g. a
  * typo, "SAVE1O" with a letter O instead of zero) must be rejected with a

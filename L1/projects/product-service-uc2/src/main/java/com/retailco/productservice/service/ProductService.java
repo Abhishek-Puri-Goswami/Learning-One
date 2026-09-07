@@ -4,6 +4,11 @@ import com.retailco.productservice.dto.ProductPageResponse;
 import com.retailco.productservice.dto.ProductRequest;
 import com.retailco.productservice.dto.ProductResponse;
 
+// CONCEPT: Service interface -- defines WHAT operations exist, not HOW.
+// PURPOSE: ProductController depends only on this interface, not on
+// ProductServiceImpl directly. This makes it easy to swap the
+// implementation (e.g. for a test with a fake) without touching the
+// controller.
 public interface ProductService {
 
     ProductPageResponse listProducts(int page, int size, String category);

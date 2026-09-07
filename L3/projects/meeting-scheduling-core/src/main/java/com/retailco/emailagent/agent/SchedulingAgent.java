@@ -22,15 +22,33 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-/**
- * The single-agent orchestrator for L3 Stage 1 ("Single Agent - Meeting
- * Scheduling"). Per the LLD: read the inbox, classify each email, and for
- * a scheduling-intent email, find at least 2 candidate slots and draft a
- * reply referencing them -- never send it (see
- * {@code guardrails.ToolAllowlist}'s Javadoc: there is no send capability
- * anywhere in this class or the tools it calls). Every step is traced and
- * every guardrail decision is logged through the PII-redacting logger.
- */
+// CONCEPT: AI Agent orchestrator -- the class to read FIRST to understand
+// this whole module. An "agent" here just means: read input (emails),
+// decide what to do (classify intent), call tools (calendar lookup), and
+// produce an action (a draft reply) -- all coordinated by one class.
+//
+// FLOW (see processOne() below, step by step):
+// 1. Classify the email's intent. Not a scheduling request? Stop here.
+// 2. Check the email body for prompt-injection attempts (a guardrail) --
+//    blocked? Stop here.
+// 3. Extract a rough time hint from the email text (e.g. "Tuesday
+//    afternoon").
+// 4. Ask the calendar tool for available slots (with automatic retry).
+// 5. Fewer than 2 slots found? Stop here.
+// 6. Compose a draft reply referencing the top slots.
+// 7. Check the dedupe guard so the same proposal isn't drafted twice.
+// 8. Return a Proposed decision -- a DRAFT only.
+//
+// IMPORTANT: this agent NEVER sends an email or books a calendar slot on
+// its own -- every path either stops early or ends in a draft awaiting
+// human approval. There is no "send" tool available to it at all (see
+// ToolAllowlist), so this is a safety property enforced by what tools
+// exist, not just by how this class happens to be written.
+//
+// WHY every step calls traceLogger/auditLog: this makes the agent's
+// reasoning inspectable after the fact -- you can see exactly why it did
+// or didn't act on a given email, which matters a lot for an autonomous
+// system making decisions on someone's behalf.
 public class SchedulingAgent {
 
     private static final Duration DEFAULT_MEETING_DURATION = Duration.ofMinutes(30);

@@ -3,7 +3,8 @@ package com.retailco.orderservice.dto;
 import java.time.Instant;
 import java.util.List;
 
-/** Same shared structured error shape used in product-service/cart-service (L1/UC2). */
+// CONCEPT: Structured error response DTO -- same consistent shape used
+// across every service's GlobalExceptionHandler.
 public class ErrorResponse {
     private Instant timestamp;
     private int status;
