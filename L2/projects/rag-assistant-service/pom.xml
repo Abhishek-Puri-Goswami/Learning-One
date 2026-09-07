@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  L2 UC2 deliverable: production-shaped Spring Boot wrapper around
+  rag-assistant-core's guardrail -> retrieval -> prompt -> generation ->
+  citation -> trace -> evaluation pipeline.
+
+  Same buildability caveat as L2/UC1's rag-service: Maven Central is
+  blocked in this sandbox, so `mvn compile`/`mvn test` could not be run
+  here. rag-assistant-core (what this wraps) WAS actually compiled and run
+  with plain javac/java -- see rag-assistant-core/ and reports/. Run
+  `mvn clean verify` on a machine with real internet access before first
+  deployment.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.3.4</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>com.retailco.bankrag</groupId>
+    <artifactId>rag-assistant-service</artifactId>
+    <version>0.1.0</version>
+    <name>rag-assistant-service</name>
+    <description>
+        L2 UC2 (End-to-End RAG Banking Assistant) production-shaped REST
+        wrapper. Exposes POST /api/v1/assistant/ingest and
+        POST /api/v1/assistant/ask, wiring the same rag-assistant-core
+        classes that were actually compiled and run against the real
+        Secure Bank policy corpus (see ../reports/).
+    </description>
+
+    <properties>
+        <java.version>17</java.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>

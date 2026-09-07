@@ -1,0 +1,92 @@
+{
+  "reviewed_service": "order-service",
+  "reviewed_version": "0.9.0-pre-review",
+  "review_prompt_used": "Review the following Order Service code. Checklist: Code coverage issues, Cyclomatic complexity, Security flaws, Hallucinated APIs, Licensing concerns. Output in structured JSON.",
+  "security_issues": [
+    {
+      "id": "AI-SEC-1",
+      "file": "client/PaymentGatewayClient.java",
+      "line": 17,
+      "description": "Payment gateway API key is hard-coded as a String literal in source code. It is committed to version control in plaintext, cannot be rotated without a redeploy, and is visible to anyone with repo read access.",
+      "severity": "CRITICAL",
+      "maps_to_sonar_rule": "squid:S2068"
+    },
+    {
+      "id": "AI-SEC-2",
+      "file": "client/PaymentGatewayClient.java",
+      "line": 25,
+      "description": "charge() catches every exception and returns true regardless of outcome, so a failed or errored payment call is recorded as a successful order. This is a financial-correctness defect on top of being a security/audit gap -- there is no way to distinguish a real charge from a silently-failed one.",
+      "severity": "CRITICAL",
+      "maps_to_sonar_rule": "squid:S1166"
+    }
+  ],
+  "complexity_score": {
+    "method": "OrderServiceImpl.checkout()",
+    "estimated_cyclomatic_complexity": 19,
+    "estimated_cognitive_complexity": 24,
+    "threshold_exceeded": true,
+    "notes": "Single method combines cart retrieval, discount/coupon logic (3 nested coupon branches x payment-method sub-branches), membership/city-based pricing, address handling, and payment invocation. Recommend extracting: CartSummaryResolver, DiscountCalculator, PaymentProcessor as described in refactor_suggestions."
+  },
+  "hallucinated_apis": [
+    {
+      "id": "AI-API-1",
+      "file": "client/CartClient.java",
+      "line": 18,
+      "description": "Calls GET /api/v1/cart/{userId}/checkout-summary on cart-service. This endpoint does not exist in L1/UC2's openapi/cart-service.yaml -- the only documented cart-service GET endpoint is /api/v1/cart/{userId}, returning a CartResponse (items, itemCount, subtotal, updatedAt), not a 'checkout-summary' shape. This will 404 against the real service.",
+      "severity": "CRITICAL",
+      "confidence": "high - cross-checked directly against the OpenAPI contract in L1/UC2"
+    }
+  ],
+  "licensing_concerns": [
+    {
+      "id": "AI-LIC-1",
+      "dependency": "com.itextpdf:itextpdf:5.5.13.3",
+      "description": "iText 5 (the 'itextpdf' artifact) is licensed under AGPL-3.0 unless a commercial license is purchased from the vendor. Including it in a proprietary, closed-source backend service creates a copyleft licensing obligation that was not identified or approved. No code in this module actually uses it yet -- it appears to be speculative/unused.",
+      "recommendation": "Remove the dependency entirely (unused), or replace with a permissively-licensed alternative (e.g. Apache PDFBox, Apache-2.0) if PDF receipt generation is genuinely needed, and get legal sign-off before adding any AGPL/GPL dependency in the future.",
+      "severity": "HIGH"
+    }
+  ],
+  "other_findings": [
+    {
+      "id": "AI-QA-1",
+      "file": "service/OrderServiceImpl.java",
+      "line": 39,
+      "description": "request.getShippingAddress().getCity() is called without checking whether getShippingAddress() is null. A request missing shippingAddress throws an unhandled NullPointerException (500) instead of a clean validation error.",
+      "severity": "HIGH",
+      "maps_to_sonar_rule": "squid:S2259"
+    },
+    {
+      "id": "AI-QA-2",
+      "file": "controller/OrderController.java",
+      "line": 22,
+      "description": "createOrder() has no @Valid / Bean Validation on OrderRequest, unlike product-service and cart-service in L1/UC2. This is inconsistent with the project's established validation pattern and pushes malformed-input handling into business logic.",
+      "severity": "MEDIUM"
+    },
+    {
+      "id": "AI-QA-3",
+      "file": "controller/OrderController.java",
+      "line": 14,
+      "description": "Unused import java.util.List.",
+      "severity": "LOW",
+      "maps_to_sonar_rule": "squid:S1128"
+    },
+    {
+      "id": "AI-QA-4",
+      "file": "(project-wide)",
+      "description": "No unit tests exist for order-service at all -- 0% code coverage. checkout() is the highest-risk method in the codebase (financial logic, external calls) and has zero test coverage.",
+      "severity": "HIGH"
+    }
+  ],
+  "refactor_suggestions": [
+    "Move the payment API key out of source code into an environment variable / secrets manager (e.g. Spring Config + Vault), injected via @Value, never hard-coded.",
+    "Make PaymentGatewayClient.charge() propagate failures explicitly (return a typed result or throw a specific PaymentFailedException) instead of catching-and-returning-true.",
+    "Fix CartClient to call the real, contract-defined GET /api/v1/cart/{userId} endpoint and map the documented CartResponse shape.",
+    "Add a null check (or Bean Validation @NotNull on OrderRequest.shippingAddress) before dereferencing shippingAddress, returning a 400 with a structured ErrorResponse on failure.",
+    "Decompose checkout() into smaller, independently testable methods: resolveCart(), applyDiscount(), processPayment(), buildOrder() -- each with a single responsibility and cyclomatic complexity under ~8.",
+    "Remove the unused iTextPDF (AGPL) dependency from pom.xml, or replace with Apache PDFBox if PDF generation is actually required.",
+    "Add @Valid to the OrderController request body and a @RestControllerAdvice-based GlobalExceptionHandler mirroring product-service/cart-service from L1/UC2, for consistency across services.",
+    "Add unit tests for checkout(): happy path, missing shippingAddress, empty cart, coupon application (SAVE10/VIP branches), and a failed payment gateway call."
+  ],
+  "risk_level": "CRITICAL",
+  "risk_level_rationale": "Two CRITICAL findings (hard-coded payment credential; payment failures silently reported as order success) mean this service must not be deployed as-is -- both are direct financial/security risks, not style issues. The hallucinated cart-service endpoint means the checkout flow does not function against the real system at all."
+}

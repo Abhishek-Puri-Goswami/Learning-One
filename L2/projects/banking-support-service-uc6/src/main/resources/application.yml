@@ -1,0 +1,27 @@
+server:
+  port: 8085
+
+spring:
+  application:
+    name: banking-support-service
+  profiles:
+    active: dev # enables DevTokenController -- MUST change for production, see security note in UC3
+
+bankrag:
+  embedding:
+    dimensions: 256
+  assistant:
+    similarity-threshold: 0.15
+    min-score-margin: 0.012 # UC4's data-driven corrected default
+    semantic-weight: 0.6
+    keyword-weight: 0.4
+    top-k: 3
+  cache:
+    max-entries: 500
+    ttl-seconds: 3600
+  cost:
+    per-1k-prompt-tokens-usd: 0.15
+    per-1k-completion-tokens-usd: 0.60
+  security:
+    jwt-secret: ${BANKRAG_JWT_SECRET:demo-only-secret-key-not-for-production-use-32chars-min}
+    jwt-expiry-seconds: 900

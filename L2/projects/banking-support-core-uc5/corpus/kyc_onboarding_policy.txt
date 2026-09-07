@@ -1,0 +1,126 @@
+acting on behalf of Secure Bank. 
+As part of Secure Bank’s ongoing commitment to excellence, transparency, and risk 
+mitigation, this manual is periodically reviewed and updated to remain aligned with 
+evolving Reserve Bank of India (RBI) guidelines, national and international financial 
+regulations, market practices, and internal audit findings. 
+ 
+Objectives 
+The primary objectives of the Secure Bank Policy & Operations Manual include, but are 
+not limited to, the following: 
+1. Regulatory Compliance 
+• Ensure strict adherence to RBI regulations , Banking Regulation Act, KYC/AML 
+guidelines, cybersecurity directives, consumer protection norms, and all 
+applicable statutory requirements. 
+• Provide employees with clear compliance steps to avoid legal violations, 
+penalties, or reputational risks. 
+2. Standardization of Internal Processes 
+• Establish uniform procedures across all branches and business units for 
+customer onboarding, account servicing, cash operations, lending, card 
+issuance, digital banking, and grievance handling. 
+• Reduce process deviations and ensure consistent customer experience 
+regardless of geographic location. 
+3. Strengthening Internal Controls 
+• Define clear checks and balances for authorization, transaction verification, 
+record-keeping, and audit readiness. 
+• Minimize operational risks such as fraud, data breaches, financial 
+misstatements, and process failures. 
+• Promote a culture of accountability and controlled execution. 
+4. Operational Efficiency 
+• Streamline workflows to enhance service delivery speed, reduce turnaround 
+times, and improve productivity. 
+• Clearly define branch -level, department -level, and individual -level 
+responsibilities to avoid duplication of work and confusion. 
+5. Risk Management & Security 
+• Incorporate proactive risk identification, mitigation, and monitoring 
+mechanisms. 
+• Ensure that physical, digital, financial, and informational assets are safeguarded 
+from both internal and external threats. 
+• Promote strong cybersecurity practices, customer data privacy, and secure 
+transaction processing. 
+6. Employee Guidance & Training 
+• Provide employees —new and existing —with comprehensive procedural 
+guidance to enhance skill levels and operational competency. 
+• Support continuous learning through updated policy amendments, training 
+schedules, and communication protocols. 
+ 
+Scope 
+The Secure Bank Policy & Operations Manual applies to the following entities, functions, 
+and operational layers: 
+1. Organizational Coverage 
+• All Secure Bank branches , regional offices, head office departments, and 
+corporate units. 
+• Support divisions such as Operations, IT, HR, Risk, Compliance, Finance, 
+Treasury, Customer Support, and Digital Banking. 
+2. Personnel Coverage 
+• All permanent and probationary employees of Secure Bank. 
+• Contractual staff , outsourced personnel, business correspondents, and 
+third-party service providers acting on behalf of the bank. 
+• Temporary workers, interns, and consultants who handle bank data, systems, or 
+customer interactions. 
+3. Functional Coverage 
+• Customer onboarding, KYC verification, and due diligence procedures. 
+• Cash management, vault operations, teller activities, ATM operations, and cash 
+reconciliation. 
+• Loan origination, underwriting, disbursement, monitoring, and recovery 
+functions. 
+• Card services, digital channels, mobile/online banking operations, cybersecurity 
+protocols. 
+• Record management, MIS reporting, internal audit support, and regulatory 
+submissions. 
+4. Technology & Security Coverage 
+• Use of bank -approved hardware, software, communication channels, and digital 
+platforms. 
+• Data privacy, information security, system access controls, password policies, 
+backup operations, and incident reporting mechanisms. 
+5. External Interaction Coverage 
+• Customer -facing operations, grievance handling, service quality guidelines, and 
+escalation matrices. 
+• Interaction with regulators, auditors, law -enforcement agencies, and other 
+financial institutions. 
+ 
+ 
+ 
+ 
+ 
+ 
+2.2 KYC Process Flow 
+The following steps must be completed during onboarding: 
+1. Customer Identity Verification (CIV) 
+• Verification of identity documents using official databases / digital KYC methods. 
+• Face-match verification (if applicable) through approved systems. 
+2. Address Verification 
+• Validation through documents such as Aadhaar, Passport, Driving License, or 
+utility bills. 
+• For non-residents, permitted foreign documents may be used. 
+3. Screening Against Watchlists 
+• Mandatory checks against: 
+o Secure Bank internal risk lists 
+o National watchlists 
+o Global sanctions lists (UN, OFAC, etc.) 
+• Any positive match must be escalated to the compliance officer. 
+4. Customer Risk Categorization 
+Customers are assigned a risk level based on profile, geography, occupation, 
+transaction pattern, and screening results: 
+• Low Risk – Salaried individuals, retirees 
+• Medium Risk – Small business owners, self -employed 
+• High Risk – Politically Exposed Persons (PEPs), high -value traders, foreign 
+nationals in high -risk jurisdictions 
+5. Enhanced Due Diligence (EDD) 
+Applied to high-risk customers , requiring: 
+• Additional identity/address documents 
+• Source of funds verification 
+• Managerial approval before onboarding 
+• Increased transaction monitoring 
+ 
+2.3 Periodic KYC Requirements 
+To ensure ongoing compliance: 
+Risk Category KYC Update Frequency 
+Low Risk Every 3 years 
+Medium Risk Every 2 years 
+High Risk Every 1 year or as required 
+Additional periodic checks: 
+• Re-screening against watchlists 
+• Review of unusual transaction patterns 
+• Verification of updated contact details 
+ 
+2.4 A

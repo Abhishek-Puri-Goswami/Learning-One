@@ -1,0 +1,16 @@
+[PASS] integration: policy question routes to PolicyAnswer
+[PASS] integration: policy answer is neither blocked nor fallback for a well-covered query
+[PASS] integration: live-data question routes to LiveDataAnswer
+[PASS] integration: balance data is a non-empty masked account list
+[PASS] integration: cross-customer live-data request denied end-to-end
+[PASS] integration: unsafe-advice question blocked via PolicyAnswer.blocked
+[PASS] integration: prompt-injection attempt blocked via PolicyAnswer.blocked
+[PASS] integration: multi-intent query flagged ambiguous end-to-end
+[PASS] integration: first ask is not a cache hit
+[PASS] integration: repeated ask is a cache hit
+[PASS] integration: ADMIN token can access a customer's loan data end-to-end
+[PASS] integration: mismatched account ownership denied end-to-end even for the account owner's own token
+[PASS] integration: metrics only reflect the 2 policy-question calls, not the live-data call
+[PASS] integration: one of those 2 was a cache hit
+
+14 passed, 0 failed

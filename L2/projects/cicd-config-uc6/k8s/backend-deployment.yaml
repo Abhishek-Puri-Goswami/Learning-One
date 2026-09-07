@@ -1,0 +1,76 @@
+# L2 HLD UseCase6 LLD 7.2: "Kubernetes manifests (optional)." Illustrative --
+# not deployed or validated against a live cluster in this sandbox (no
+# cluster available); validated only for YAML/schema shape. A real rollout
+# needs a real image registry reference (replace the `image:` below) and a
+# real Secret for BANKRAG_JWT_SECRET (never the literal demo value).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: banking-support-service
+  labels:
+    app: banking-support-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: banking-support-service
+  template:
+    metadata:
+      labels:
+        app: banking-support-service
+    spec:
+      containers:
+        - name: banking-support-service
+          image: REPLACE_WITH_REGISTRY/banking-support-service:latest
+          ports:
+            - containerPort: 8085
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: prod
+            - name: BANKRAG_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: banking-support-secrets
+                  key: jwt-secret
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8085
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8085
+            initialDelaySeconds: 30
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "384Mi"
+            limits:
+              cpu: "1"
+              memory: "768Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: banking-support-service
+spec:
+  selector:
+    app: banking-support-service
+  ports:
+    - port: 8085
+      targetPort: 8085
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: banking-support-secrets
+type: Opaque
+stringData:
+  # PLACEHOLDER -- replace before applying. Never commit a real secret here;
+  # a real deployment injects this via a secrets manager / sealed-secrets,
+  # not a plain committed manifest.
+  jwt-secret: REPLACE_WITH_REAL_SECRET_AT_LEAST_32_CHARS

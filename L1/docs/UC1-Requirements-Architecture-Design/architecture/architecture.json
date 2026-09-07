@@ -1,0 +1,117 @@
+{
+  "system": "Online Shopping System",
+  "architecture_style": "Microservices",
+  "constraints": {
+    "concurrent_users": 10000,
+    "api_style": "REST only",
+    "design_approach": "Contract-first (OpenAPI 3.0)"
+  },
+  "services": [
+    {
+      "name": "api-gateway",
+      "responsibility": "Single entry point for all client traffic. Routes requests, terminates TLS, enforces rate limiting and authentication token validation before forwarding to downstream services.",
+      "api_boundaries": [
+        "ALL /api/v1/** -> routed to appropriate downstream service"
+      ],
+      "database": "None (stateless)",
+      "tech_notes": "Spring Cloud Gateway",
+      "risks": [
+        "Single point of failure if not deployed with redundancy",
+        "Becomes a bottleneck if rate limiting / auth checks are not cached"
+      ]
+    },
+    {
+      "name": "user-management-service",
+      "responsibility": "Registration, authentication (JWT issuance), profile management, address book, role management.",
+      "api_boundaries": [
+        "POST /api/v1/users/register",
+        "POST /api/v1/users/login",
+        "GET /api/v1/users/{id}",
+        "PUT /api/v1/users/{id}",
+        "GET /api/v1/users/{id}/addresses"
+      ],
+      "database": "PostgreSQL (users, addresses, roles)",
+      "tech_notes": "Spring Boot, Spring Security, JWT (RS256)",
+      "risks": [
+        "Password/credential leakage if hashing/storage is misconfigured",
+        "PII exposure across service boundaries if not masked in logs"
+      ]
+    },
+    {
+      "name": "product-catalog-service",
+      "responsibility": "Manages product listings, categories, pricing, inventory count (read-optimized), and search.",
+      "api_boundaries": [
+        "GET /api/v1/products",
+        "GET /api/v1/products/{id}",
+        "POST /api/v1/products",
+        "PUT /api/v1/products/{id}",
+        "GET /api/v1/products/search?q="
+      ],
+      "database": "PostgreSQL (system of record) + Elasticsearch (search index, eventually consistent)",
+      "tech_notes": "Spring Boot, Spring Data JPA; catalog changes published to a 'product-updated' event topic",
+      "risks": [
+        "Search index can drift from source of truth (eventual consistency lag)",
+        "High read volume during flash sales requires caching (Redis/CDN) to avoid DB overload"
+      ]
+    },
+    {
+      "name": "cart-service",
+      "responsibility": "Manages shopping cart state per user/session: add/remove items, quantity updates, coupon application (validation delegated to Order/Promotion logic).",
+      "api_boundaries": [
+        "GET /api/v1/cart/{userId}",
+        "POST /api/v1/cart/{userId}/items",
+        "PUT /api/v1/cart/{userId}/items/{itemId}",
+        "DELETE /api/v1/cart/{userId}/items/{itemId}"
+      ],
+      "database": "Redis (ephemeral, TTL-based cart state)",
+      "tech_notes": "Spring Boot; cart is intentionally not the system of record for price/stock -- always revalidated at checkout",
+      "risks": [
+        "Stale price/stock shown in cart if catalog isn't re-checked at checkout",
+        "Concurrent modification of the same cart from multiple tabs/devices"
+      ]
+    },
+    {
+      "name": "order-management-service",
+      "responsibility": "Creates orders from validated carts, orchestrates the checkout saga (inventory reservation -> payment -> confirmation), tracks order status and history.",
+      "api_boundaries": [
+        "POST /api/v1/orders",
+        "GET /api/v1/orders/{id}",
+        "GET /api/v1/users/{userId}/orders",
+        "PATCH /api/v1/orders/{id}/status"
+      ],
+      "database": "PostgreSQL (orders, order_items, order_status_history)",
+      "tech_notes": "Spring Boot; implements the Saga pattern (choreography via events) to coordinate inventory reservation and payment without distributed transactions",
+      "risks": [
+        "Distributed transaction consistency across catalog (stock), payment, and order records",
+        "Duplicate order creation on client retries without idempotency keys"
+      ]
+    },
+    {
+      "name": "payment-service",
+      "responsibility": "Executes payment authorization/capture via a licensed payment gateway (e.g., Stripe/Razorpay), records transaction state, handles refunds.",
+      "api_boundaries": [
+        "POST /api/v1/payments/authorize",
+        "POST /api/v1/payments/capture",
+        "POST /api/v1/payments/{id}/refund",
+        "GET /api/v1/payments/{id}"
+      ],
+      "database": "PostgreSQL (transactions, refunds) -- no raw card data stored (PCI-DSS SAQ-A via tokenization)",
+      "tech_notes": "Spring Boot; deterministic, rule-based logic only. See ADR-003 -- AI is explicitly excluded from generating or altering payment decision logic.",
+      "risks": [
+        "Regulatory/compliance risk (PCI-DSS) if implemented incorrectly",
+        "Financial loss from incorrect double-charge or failed idempotency handling"
+      ]
+    }
+  ],
+  "cross_cutting_concerns": [
+    "Centralized auth via JWT validated at API Gateway and re-verified at each service",
+    "Distributed tracing (OpenTelemetry) across all services for observability",
+    "Idempotency keys required on all state-mutating POST endpoints (Order, Payment)",
+    "Structured JSON error model shared across all services"
+  ],
+  "risks_overall": [
+    "Network latency and partial failure handling between microservices",
+    "Operational overhead of running 6 independently deployable services vs a monolith",
+    "Need for a saga/compensation strategy since 2-phase-commit is not used across services"
+  ]
+}

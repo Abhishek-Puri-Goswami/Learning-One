@@ -1,0 +1,11 @@
+
+ RUN  v2.1.9 /tmp/uc3_build/online-shopping-frontend
+
+ ✓ src/components/__tests__/CheckoutForm.test.jsx (3 tests) 532ms
+ ✓ src/components/__tests__/ProductListing.test.jsx (3 tests) 265ms
+
+ Test Files  2 passed (2)
+      Tests  6 passed (6)
+   Start at  17:24:17
+   Duration  3.14s (transform 175ms, setup 136ms, collect 625ms, tests 797ms, environment 961ms, prepare 148ms)
+

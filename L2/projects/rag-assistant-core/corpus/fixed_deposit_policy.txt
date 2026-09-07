@@ -1,0 +1,70 @@
+11. FIXED DEPOSIT (FD) & TERM DEPOSIT POLICY 
+The Fixed Deposit (FD) & Term Deposit Policy governs interest rate structures, tenure -
+based returns, penalties, and premature withdrawal conditions for all deposit products 
+at Secure Bank. These guidelines ensure consistency, transparency, and compliance 
+across all branches . 
+ 
+11.1 FD Product Overview 
+Secure Bank offers multiple categories of Fixed/Term Deposits catering to resident 
+individuals, senior citizens, and Non -Resident Indians (NRIs). Key attributes include: 
+• Guaranteed returns for a defined tenure 
+• Flexible tenure options 
+• Higher interest rates for senior citizens (+0.50%) 
+• Multi-currency options for FCNR deposits 
+• Compliant with RBI interest rate and premature withdrawal norms 
+ 
+11.2 FD Tenure vs Interest Rate Matrix 
+Tenure Range Resident FD Interest Rate Senior Citizen FD Rate Notes 
+7 – 45 days 2.5% – 3.0% p.a. +0.50% extra Short-term FD 
+46 – 179 days 3.0% – 3.5% p.a. +0.50% extra Higher liquidity 
+180 – 364 days 3.5% – 4.0% p.a. +0.50% extra Popular tenure 
+1 – 2 years 4.0% – 4.5% p.a. +0.50% extra Regular FD cycle 
+2 – 5 years 4.0% – 5.0% p.a. +0.50% extra Medium-term FD 
+5 – 10 years 4.5% – 5.5% p.a. +0.50% extra Long-term deposit 
+NRE FD Interest Range: 4% – 5.5% p.a. \ NRO FD Interest Range: 2.75% – 4% p.a.\ 
+FCNR (USD/GBP/EUR): Currency -linked rates, tenure 1 –5 years 
+ 
+11.3 Premature Withdrawal Policy 
+Premature withdrawal is permitted under certain conditions unless restricted by 
+specific schemes. 
+Rules: 
+• No interest payable if withdrawn before 7 days . 
+• Premature closure after minimum lock -in attracts a penalty of 0.5% – 1% on 
+applicable interest rate. 
+• Senior citizen bonus (+0.50%) is not applicable on prematurely closed deposits. 
+• FCNR premature withdrawals follow RBI lock -in conditions (no interest if 
+withdrawn before 1 year). 
+ 
+11.4 Penalties & Violation Fees 
+A. Premature Withdrawal Penalty 
+• FD < 1 year: 0.50% penal adjustment 
+• FD ≥ 1 year: 1.00% penal adjustment 
+B. Minimum Balance Violation Fee (If Linked Savings Account Insufficient) 
+(Taken from Savings MAB rules) Shortfall up to 25% → ₹100 
+• 25%–50% shortfall → ₹150 
+• Above 50% → ₹200 
+C. Auto-Renewal Failure / Maturity Default 
+• If customer’s instructions are missing, FD may auto -renew at prevailing rate . 
+• Penalty of ₹200 for reversal of auto -renewal if done after 30 days. 
+D. Missed Documentation / KYC Violations 
+• FD cannot be renewed if KYC is outdated. 
+• Delay beyond permissible period may lead to account restrictions . 
+ 
+11.5 NRI-Specific FD Rules 
+A. NRE Fixed Deposit 
+• Interest: 4% – 5.5% p.a. 
+• Fully repatriable 
+• Tax-free interest in India ] 
+B. NRO Fixed Deposit 
+• Interest: 2.75% – 4% p.a. 
+• Interest subject to TDS 
+• Partially repatriable under RBI guidelines 
+C. FCNR Deposit 
+• Tenure: 1–5 years 
+• Interest varies by currency (USD/GBP/EUR) 
+• Currency fluctuation protection included 
+ 
+11.6 Interest Calculation Rules 
+• Calculated using daily/quarterly compounding as per scheme 
+• Credited quarterly or at maturity 
+• No interest for dormant or restricted accounts

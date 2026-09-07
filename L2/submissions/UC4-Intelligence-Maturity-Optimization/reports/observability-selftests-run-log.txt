@@ -1,0 +1,28 @@
+[PASS] cache: miss on first get
+[PASS] cache: hit on second get
+[PASS] cache: normalized lookup hits (case/whitespace insensitive)
+[PASS] cache: LRU eviction keeps recently-used entry
+[PASS] cache: LRU eviction removes least-recently-used entry
+[PASS] cache: eviction count recorded
+[PASS] cache: entry expired after TTL
+[PASS] cache: expiration counted
+[PASS] metrics: total queries counted
+[PASS] metrics: total tokens summed
+[PASS] metrics: avg latency correct
+[PASS] metrics: p50 is a real median-ish value from the sample
+[PASS] metrics: p95 is the highest sample for this small set
+[PASS] cost: computed cost matches manual calculation ($1.00 + $1.00 = $2.00)
+[PASS] cost: monthly projection = avgCost * queriesPerDay * 30
+[PASS] context: keeps only the higher-scored chunk under a tight budget
+[PASS] context: dropped chunk counted
+[PASS] context: generous budget keeps everything
+[PASS] context: zero budget drops everything
+[PASS] threshold-experiment: reproduces UC2's known wrong-top-chunk finding
+[PASS] threshold-experiment: higher threshold answers no more queries than a lower one
+[PASS] observable: first call is a cache miss
+[PASS] observable: repeated call is a cache hit
+[PASS] observable: cached response has identical answer text
+[PASS] observable: metrics recorded for both calls
+[PASS] observable: one cache hit recorded
+
+26 passed, 0 failed

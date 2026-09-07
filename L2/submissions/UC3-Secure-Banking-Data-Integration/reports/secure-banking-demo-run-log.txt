@@ -1,0 +1,38 @@
+====================================================================================================
+SCENARIO 1: Intent classification routing
+====================================================================================================
+QUERY: "What is my account balance?" -> ACCOUNT_BALANCE
+QUERY: "Show me my recent transactions" -> TRANSACTION_HISTORY
+QUERY: "How much is left on my loan?" -> LOAN_OUTSTANDING
+QUERY: "What is the interest rate range for a home loan?" -> POLICY_QUESTION
+QUERY: "Should I invest my savings in mutual funds right now?" -> POLICY_QUESTION
+
+====================================================================================================
+SCENARIO 2: Legitimate token, own-customer data access (happy path)
+====================================================================================================
+Issued token for CUST1001: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJDVVNUMTAwMSIsInJvbGVzIjpbIkNVU1RPTUVSIl0sImlhdCI6MTc4ODExNzAyNiwiZXhwIjoxNzg4MTE3MzI2fQ.12ndYIYJw4MpefQmHoknB43ign4T3LThXH3DYNzWTZ0
+get_account_balance -> {"customerId":"CUST1001","accounts":[{"accountNumber":"XXXXXXXX0456","accountType":"SAVINGS","balance":184250.75,"currency":"INR"},{"accountNumber":"XXXXXXXX0789","accountType":"CURRENT","balance":52310.00,"currency":"INR"}]}
+get_transaction_history (limit 3) -> {"customerId":"CUST1001","accountNumber":"XXXXXXXX0456","transactions":[{"transactionId":"TXN9001","date":"2026-08-25","description":"Salary Credit","amount":95000.00,"type":"CREDIT"},{"transactionId":"TXN9002","date":"2026-08-24","description":"Electricity Bill Payment","amount":-3200.50,"type":"DEBIT"},{"transactionId":"TXN9003","date":"2026-08-20","description":"ATM Withdrawal","amount":-10000.00,"type":"DEBIT"}]}
+get_loan_outstanding -> {"customerId":"CUST1001","loans":[{"loanId":"LOAN5001","loanType":"HOME_LOAN","principal":4500000.00,"outstanding":3120450.00,"interestRatePercent":8.75}]}
+
+====================================================================================================
+SCENARIO 3: Cross-customer access attempt (authorization failure, real rejection)
+====================================================================================================
+Correctly rejected: Token subject 'CUST1001' is not authorized to access customer 'CUST1002'
+
+====================================================================================================
+SCENARIO 4: Tampered/forged token (real cryptographic verification failure)
+====================================================================================================
+Correctly rejected forged token: Authentication failed: Signature verification failed -- token was tampered with or signed by a different key
+
+====================================================================================================
+SCENARIO 5: Expired token (real clock-based expiry check)
+====================================================================================================
+Correctly rejected expired token: Authentication failed: Token expired at 2026-08-30T19:10:25Z
+
+====================================================================================================
+SCENARIO 6: ADMIN role can access any customer's data
+====================================================================================================
+ADMIN get_account_balance(CUST1002) -> {"customerId":"CUST1002","accounts":[{"accountNumber":"XXXXXXXX0999","accountType":"SAVINGS","balance":12800.00,"currency":"INR"}]}
+
+All scenarios completed.

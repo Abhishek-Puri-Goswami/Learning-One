@@ -1,0 +1,20 @@
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/root/.ccr/java-truststore.p12 -Djavax.net.ssl.trustStorePassword=changeit -Djavax.net.ssl.trustStoreType=PKCS12 -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=42331 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+=== ecommerce-core demo ===
+Initial catalog:
+  Product[id=P-100, name=Wireless Mouse, price=25.00, category=Electronics, stockQuantity=10]
+  Product[id=P-200, name=Mechanical Keyboard, price=89.99, category=Electronics, stockQuantity=3]
+
+Turn 1: CUST-1 adds 2x Wireless Mouse, checks out
+  cart before checkout: Cart[userId=CUST-1, items=1, subtotal=50.00]
+  order: Order[orderId=ORD-ce90efb0-67d8-4737-9d8b-173a7cb7fb3a, userId=CUST-1, lines=1, total=50.00, status=PAID]
+  P-100 stock after: 8
+
+Turn 2: CUST-2 tries to buy 5x Mechanical Keyboard (only 3 in stock)
+  [EXPECTED] checkout rejected: insufficient stock for product P-200: requested 5 but only 3 available
+  P-200 stock after (unchanged): 3
+
+Turn 3: CUST-3's card is declined (forced-decline sentinel user)
+  order: Order[orderId=ORD-182a63f0-eee8-4c89-904e-d80e86d2f064, userId=USER_FORCED_DECLINE, lines=1, total=75.00, status=PAYMENT_FAILED]
+  P-100 stock after (released back): 8
+
+=== demo complete ===

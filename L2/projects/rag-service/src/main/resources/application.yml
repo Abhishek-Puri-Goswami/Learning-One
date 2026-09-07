@@ -1,0 +1,39 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: rag-service
+
+bankrag:
+  embedding:
+    # LocalHashingEmbeddingModel dimensions -- see RagCoreConfig.java and
+    # design/embedding-generation-module.md. Swap to a real provider's
+    # dimensionality (e.g. 1536 for text-embedding-3-small, matching
+    # design/vector-database-schema.sql) when the "prod" profile bean is added.
+    dimensions: 256
+  search:
+    # Guardrail thresholds -- see reports/hallucination-risk-analysis.md.
+    # 0.15 is the threshold exercised in rag-core/Main.java's demo run;
+    # min-score-margin is the additional Recommendation 2 check that report
+    # concluded is necessary because a single absolute threshold could not
+    # reliably separate the 0.199 (legitimate) vs 0.224 (out-of-scope) cases.
+    similarity-threshold: 0.15
+    min-score-margin: 0.03
+    semantic-weight: 0.6
+    keyword-weight: 0.4
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+# Placeholder for the production profile referenced in
+# design/embedding-generation-module.md -- not usable until a real
+# EmbeddingModel bean (OpenAI/Azure/local BGE) is added to RagCoreConfig
+# and network egress / API credentials are available. Left here as the
+# documented extension point rather than omitted silently.
+bankrag:
+  embedding:
+    dimensions: 1536

@@ -1,0 +1,17 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: rag-assistant-service
+
+bankrag:
+  embedding:
+    dimensions: 256
+  assistant:
+    similarity-threshold: 0.15
+    min-score-margin: 0.03
+    semantic-weight: 0.6
+    keyword-weight: 0.4
+    top-k: 3
+    trace-log-path: reports/langsmith-style-trace-log.jsonl

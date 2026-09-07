@@ -1,0 +1,112 @@
+e lending, regulatory 
+compliance, and robust credit risk management. 
+ 
+4.1 Loan Categories 
+Secure Bank offers multiple retail loan products. Each product includes specific 
+interest bands, collateral rules, LTV limits, and fee structures (illustrative, generic 
+values). 
+ 
+a) Home Loan 
+Typical Interest Rate Range: 8.25% – 10.75% p.a. (floating) 
+Processing Fee: 0.25% – 0.50% of loan amount 
+Maximum Tenure: Up to 30 years 
+LTV (Loan -to-Value) Norms: 
+• Property value < ₹30 lakh → up to 90% 
+• ₹30–75 lakh → up to 80% 
+• Above ₹75 lakh → up to 75% 
+Key Conditions 
+• Registered mortgage mandatory. 
+• Property insurance coverage must be active. 
+• EMI based on reducing balance method. 
+ 
+b) Personal Loan 
+Typical Interest Rate Range: 11.5% – 22% p.a. 
+Processing Fee: 1% – 2.5% 
+Tenure: Up to 5 years 
+Risk Notes 
+• Fully unsecured → requires strong credit score (700+). 
+• CIBIL score below 650 may cause higher rate bands or reduced loan quantum. 
+• FOIR limit generally ≤ 40% for personal loans. 
+ 
+c) Auto Loan 
+New Vehicle Loan Rate: 8.75% – 12.5% p.a. 
+Used Vehicle Loan Rate: 11% – 16% p.a. 
+Processing Fee: 0.5% – 1% 
+LTV Limits 
+• New four -wheeler: up to 85–90% of on-road price 
+• Two-wheeler: up to 80–85% 
+• Used vehicle: 60–70% of assessed value 
+Key Conditions 
+• Vehicle hypothecation until closure. 
+• Mandatory valuation for pre -owned vehicles. 
+ 
+d) Education Loan 
+Interest Rate Range: 9% – 14% p.a. (linked to program/institution rating) 
+Processing Fee: Nil to 1% (varies by scheme) 
+Moratorium: Course period + 6–12 months 
+Funding Coverage 
+• Tuition fees, hostel fees, exam fees, books, equipment, travel (foreign). 
+• Co-applicant(s) required for most students. 
+ 
+4.2 Eligibility Assessment 
+(No repetition; only numerical details added) 
+a) Income Verification (Numerical Thresholds) 
+• Minimum monthly net income (indicative): 
+o Personal Loan: ₹20,000 – ₹30,000 
+o Auto Loan: ₹18,000 – ₹25,000 
+o Home Loan: ₹25,000+ (varies by location) 
+b) Credit Score Requirements 
+• Ideal score: 700+ 
+• High-risk band: <650 → may require collateral/guarantor or enhanced rate. 
+• Excessive credit enquiries (>4 –6 in last 6 months) trigger deeper scrutiny. 
+c) FOIR Standards 
+• Personal Loan: ≤ 40% 
+• Auto Loan: ≤ 45% 
+• Home Loan: ≤ 50% (flexible up to 55% if income is high and stable) 
+d) Documentation SLA 
+• KYC verification: within 24 –48 hours 
+• FI report: within 3–5 working days 
+ 
+4.3 Sanction Rules 
+Additional numerical elements added. 
+b) Collateral Valuation 
+• Two independent valuations mandatory for properties > ₹1 crore . 
+• Valuation validity: 6 months . 
+c) Processing Fee 
+• Home Loan: 0.25% – 0.50% 
+• Personal Loan: 1–2.5% 
+• Auto Loan: 0.5–1% 
+• Minimum charge slab: ₹999 – ₹2,500 
+e) Pre-Disbursement Compliance 
+• LTV must not exceed policy limits. 
+• Insurance coverage sum insured = property value or loan amount (whichever 
+higher). 
+• Correct interest type (fixed/floating) must be encoded in CBS. 
+ 
+4.4 Disbursement Process 
+(Numerical details added where applicable) 
+• Home Loan disbursements for under -construction property follow progress -
+based releases (10 –25% per stage) . 
+• Personal and auto loan disbursements typically completed within 24–48 hours 
+after documentation. 
+ 
+4.5 Loan Monitoring & Portfolio Management 
+a) EMI Monitoring Thresholds 
+• 1st EMI bounce → customer call + SMS 
+• 2 consecutive bounces → account flagged as high-risk 
+• 3 consecutive bounces → case forwarded to CMU 
+b) SMA / NPA Classification Timeline 
+• SMA-0: 1–30 days overdue 
+• SMA-1: 31–60 days 
+• SMA-2: 61–90 days 
+• NPA: >90 days overdue 
+c) Recovery Actions 
+• Soft recovery: 0–60 days 
+• Hard recovery/legal: >90 days 
+ 
+4.6 Documentation & Audit Compliance 
+Added quantifiable details: 
+• Every loan file must contain minimum 10 mandatory documents (KYC, FI, 
+sanction note, valuation, EMI mandate, etc.). 
+• Document storage retention: 8 years post loan closure (generic industry norm). 
+• Audit findings must be resolved within

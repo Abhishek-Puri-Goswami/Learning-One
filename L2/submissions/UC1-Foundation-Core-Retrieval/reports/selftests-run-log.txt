@@ -1,0 +1,17 @@
+  [PASS] chunker produces expected chunk count
+  [PASS] first chunk has exactly chunkSizeTokens tokens
+  [PASS] chunks carry the correct source document id
+  [PASS] short text yields exactly one chunk
+  [PASS] same text embeds to the same vector
+  [PASS] embedding is L2-normalized (norm ~= 1.0)
+  [PASS] most relevant chunk (loans) ranks first
+  [PASS] unrelated query with a high threshold returns no results
+  [PASS] keyword search finds the chunk containing the exact terms
+  [PASS] repeated-word text does not throw (HashSet, not Set.of)
+  [PASS] repeated-word chunk still matches
+  [PASS] hybrid search returns results
+  [PASS] hybrid search ranks the term-matching chunk first
+
+============================================================
+RESULTS: 13 passed, 0 failed
+============================================================

@@ -1,0 +1,24 @@
+# L2 HLD UseCase6 / LLD 7.2: the profile the Dockerfile activates
+# (SPRING_PROFILES_ACTIVE=prod). Overrides application.yml's dev-only
+# defaults -- most importantly, this profile does NOT include "dev" in
+# spring.profiles.active, so DevTokenController (@Profile("dev")) never
+# registers, and BANKRAG_JWT_SECRET has no safe fallback: it MUST be
+# supplied as a real environment variable/secret at deploy time or startup
+# fails fast rather than silently running with the demo-only secret.
+spring:
+  profiles:
+    active: prod
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
+
+bankrag:
+  security:
+    jwt-secret: ${BANKRAG_JWT_SECRET}
+    jwt-expiry-seconds: 900

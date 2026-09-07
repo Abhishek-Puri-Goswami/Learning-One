@@ -1,0 +1,13 @@
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/root/.ccr/java-truststore.p12 -Djavax.net.ssl.trustStorePassword=changeit -Djavax.net.ssl.trustStoreType=PKCS12 -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=42331 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+[PASS] refactor preserves discount behavior: before/after produce identical totals across all branches
+[PASS] AI-SEC-2 (before): a failing gateway call is still reported as a successful charge
+[PASS] AI-SEC-2 (after): a failing gateway call throws PaymentFailedException, never reports success
+[PASS] AI-SEC-2 (after): a genuinely successful gateway call does not throw
+[PASS] AI-QA-1 (before): a null shippingAddress throws an unguarded NullPointerException
+[PASS] AI-QA-1 (after): a null shippingAddress fails with a named validation error, not a bare NPE
+[PASS] unrecognized coupon code (typo 'SAVE1O') is rejected with InvalidCouponException
+[PASS] blank/absent coupon code is treated as 'no coupon', not an error
+[PASS] recognized coupon codes (SAVE10, VIP) pass validation without error
+[PASS] payment gateway timeout produces a distinct 'timed out' message vs a generic gateway failure
+
+Results: 10 passed, 0 failed

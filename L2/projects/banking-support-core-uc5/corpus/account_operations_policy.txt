@@ -1,0 +1,143 @@
+dditional Onboarding Controls 
+• In-person verification or Video -KYC is required for certain account types. 
+• Accounts may be restricted until KYC is fully completed. 
+• Any discrepancy in documents must be resolved before activation. 
+• Third-party or proxy onboarding is strictly prohibited , except for legally approved 
+methods. 
+ 
+2.5 Record Retention 
+All KYC and onboarding documents must be stored securely for a minimum of 10 years, 
+digitally or physically, in compliance with data protection norms. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+3. ACCOUNT OPERATIONS POLICY 
+The Account Operations Policy defines the standardized rules, financial parameters, 
+and operational controls governing all deposit accounts at Secure Bank. These 
+guidelines ensure transparent, compliant, and customer -centric handling of account 
+lifecycle a ctivities across all branches. 
+ 
+3.1 Permitted Account Types 
+Secure Bank supports multiple categories of accounts tailored to diverse customer 
+requirements. Each account type has specific eligibility criteria, minimum balance 
+rules, interest calculations, and fee structures. 
+ 
+1. Savings Account 
+Designed for resident individuals seeking secure savings with moderate interest 
+earnings. 
+Key Features 
+• Interest earned on daily closing balance; credited quarterly. 
+• Typical interest range: 2.5% – 4% per annum (bank -declared, subject to change). 
+• Minimum Average Balance (MAB): 
+o Urban branches: ₹10,000 
+o Semi-urban: ₹5,000 
+o Rural: ₹2,000 
+• MAB Penalties (illustrative): 
+o Shortfall up to 25% → ₹100 fee 
+o Shortfall 25 –50% → ₹150 fee 
+o Above 50% → ₹200 fee 
+• ATM withdrawal limit: ₹25,000 per day (may vary by card type). 
+ 
+ 
+ 
+2. Current Account 
+Intended for businesses requiring high -volume transactions. 
+Key Features 
+• No interest payable. 
+• Higher transaction limits; NEFT/RTGS limits based on customer profile. 
+• Minimum Monthly Average Balance: 
+o Standard Current Account → ₹25,000 
+o Premium Current Account → ₹50,000 
+• Overdraft eligibility is case -to-case based on financials and collateral. 
+ 
+3. Salary Account 
+Zero-balance payroll account for salaried employees of empaneled organizations. 
+Key Features 
+• No minimum balance requirement. 
+• Interest rate same as regular Savings Account. 
+• Converts to a Savings Account after 90 days of salary inactivity. 
+• Upon conversion, Savings Account MAB rules apply. 
+ 
+4. Senior Citizen Account 
+Special variant for customers aged 60 years and above. 
+Key Features 
+• Additional interest rate benefit: +0.50% on Savings & FD rates. 
+• Cheque book issuance with reduced fees. 
+• Higher ATM withdrawal limits (up to ₹40,000/day). 
+• Lower MAB requirement: ₹5,000 (urban & semi -urban). 
+ 
+5. NRI Account Types 
+a. NRE (Non -Resident External) Account 
+• Maintained in INR; fully repatriable. 
+• Interest rate: 4% – 5.5%, tax -free in India. 
+• Only foreign income deposits allowed. 
+b. NRO (Non -Resident Ordinary) Account 
+• For managing income earned in India. 
+• Interest rate: 2.75% – 4% (subject to TDS). 
+• Repatriation restricted to permitted limits. 
+c. FCNR (Foreign Currency Non -Resident) Account 
+• Fixed deposits maintained in foreign currency. 
+• Tenure: 1 –5 years. 
+• Interest rates vary by currency (USD, GBP, EUR, etc.). 
+• Protection from currency fluctuation risk. 
+ 
+3.2 General Rules Applicable to All Deposit Accounts 
+1. Interest Calculation 
+• Savings interest calculated on daily closing balance. 
+• Credited quarterly or as per regulatory norms. 
+• No interest on accounts classified as dormant. 
+2. Minimum Balance Monitoring 
+• Monitored monthly or quarterly based on account type. 
+• Non-maintenance charges apply automatically. 
+3. Dormant / Inactive Account Classification 
+• Inactive after 12 months of no customer -initiated transactions. 
+• Dormant after 24 months of inactivity. 
+• Withdrawals from dormant accounts require enhanced verification. 
+4. Transaction Limits 
+• Cash deposit/withdrawal limits depend on branch jurisdiction, AML rules. 
+• Electronic payments (NEFT/IMPS/RTGS) follow RBI/Regulator guidelines. 
+5. Cheque Book Operations 
+• Cheque books issued post -KYC validation. 
+• Charges apply beyond free cheque leaves. 
+6. Account Closure 
+• Customer request + identity verification mandatory. 
+• Dues, penalties, and charges adjusted before closure. 
+ 
+3.3 Account Closure Policy 
+Account closure must follow controlled, documented processes ensuring all customer 
+liabilities and compliance checks are completed. 
+1. Customer Request 
+• A written and signed closure request is mandatory. 
+• For joint accounts, all account holders must sign unless the mandate states 
+otherwise. 
+2. Pre-Closure Verification 
+Before processing the closure, branch operations must confirm: 
+• No pending charges or overdraft dues 
+• No lien or freeze instructions 
+• No ongoing investigation or suspicious transaction alert 
+• No pending cheques or card settlements 
+3. KYC Verification 
+• If the last KYC update is older than 2 years , updated KYC is mandatory before 
+closure (except where exempted by regulations). 
+4. Settlement of Balance 
+• Positive balances must be transferred to another account or provided via 
+banker’s cheque/NEFT as requested. 
+• For NRI customers, repatriation rules apply based on account type. 
+5. Closure Confirmation 
+• System must record closure reason. 
+• Customer must receive: 
+o Account closure acknowledgement 
+o Final statement (if requested) 
+ 
+3.4 Record Retention 
+• Account opening forms, KYC documents, modification forms, and closure 
+documents must be retained for 10 years , in line with regulatory requirements 
+ 
+4. LOAN PROCESSING & CREDIT POLICY 
+The Loan Processing & Credit Policy defines standardized rules for evaluating, 
+approving, disbursing, and monitoring loans. It ensures responsibl

@@ -1,0 +1,12 @@
+{"timestamp":"2026-09-01T06:26:07.363878335Z","threadId":"T1","step":"intent_classification_started","detail":"subject=Quick sync on Q3 budget"}
+{"timestamp":"2026-09-01T06:26:07.407026782Z","threadId":"T1","step":"time_hint_extracted","detail":"dayOfWeek=Optional[TUESDAY] partOfDay=Optional[AFTERNOON] explicitTime=Optional.empty"}
+{"timestamp":"2026-09-01T06:26:07.418158606Z","threadId":"T1","step":"calendar_lookup_completed","detail":"slotsFound=80"}
+{"timestamp":"2026-09-01T06:26:07.459330303Z","threadId":"T1","step":"draft_composed","detail":"slotsOffered=3"}
+{"timestamp":"2026-09-01T06:26:07.460527949Z","threadId":"T2","step":"intent_classification_started","detail":"subject=Lunch?"}
+{"timestamp":"2026-09-01T06:26:07.460898438Z","threadId":"T2","step":"not_scheduling_related","detail":""}
+{"timestamp":"2026-09-01T06:26:07.465960061Z","threadId":"T3","step":"intent_classification_started","detail":"subject=Vendor call"}
+{"timestamp":"2026-09-01T06:26:07.466397463Z","threadId":"T3","step":"time_hint_extracted","detail":"dayOfWeek=Optional[WEDNESDAY] partOfDay=Optional.empty explicitTime=Optional[14:00]"}
+{"timestamp":"2026-09-01T06:26:07.470441536Z","threadId":"T3","step":"calendar_lookup_completed","detail":"slotsFound=80"}
+{"timestamp":"2026-09-01T06:26:07.471046183Z","threadId":"T3","step":"draft_composed","detail":"slotsOffered=3"}
+{"timestamp":"2026-09-01T06:26:07.471219018Z","threadId":"T4","step":"intent_classification_started","detail":"subject=Meeting request"}
+{"timestamp":"2026-09-01T06:26:07.471471404Z","threadId":"T4","step":"blocked_by_guardrail","detail":"prompt-injection pattern detected"}

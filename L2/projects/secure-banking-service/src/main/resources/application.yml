@@ -1,0 +1,18 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: secure-banking-service
+  profiles:
+    active: dev # enables DevTokenController -- MUST be removed/changed for a production deployment
+
+bankrag:
+  security:
+    # NEVER commit a real secret -- externalize via environment variable
+    # (BANKRAG_JWT_SECRET) or a secrets manager (AWS Secrets Manager,
+    # Azure Key Vault, HashiCorp Vault) in any real deployment. This
+    # placeholder is for local/demo use only and matches the one actually
+    # exercised in secure-banking-core/reports/secure-banking-demo-run-log.txt.
+    jwt-secret: ${BANKRAG_JWT_SECRET:demo-only-secret-key-not-for-production-use-32chars-min}
+    jwt-expiry-seconds: 900 # 15 minutes -- short-lived per security/security-validation-checklist.md

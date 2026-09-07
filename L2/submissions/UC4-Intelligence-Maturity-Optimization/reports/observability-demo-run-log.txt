@@ -1,0 +1,52 @@
+Loaded 7 documents into VectorStore.
+====================================================================================================
+EXPERIMENT 1: Caching + Metrics + Cost (ObservableRagAssistant)
+====================================================================================================
+[MISS] "How do I file a complaint and what is the escalation process?"
+[MISS] "What is the minimum monthly income required for a personal loan?"
+[CACHE HIT] "How do I file a complaint and what is the escalation process?"
+[MISS] "What documents are required for KYC verification?"
+[CACHE HIT] "What is the minimum monthly income required for a personal loan?"
+[MISS] "Should I invest my savings in mutual funds right now?"
+[CACHE HIT] "Should I invest my savings in mutual funds right now?"
+
+Cache stats: CacheStats[hits=3, misses=4, evictions=0, expirations=0, currentSize=4, hitRate=0.42857142857142855]
+Metrics report: AggregateReport[totalQueries=7, cacheHits=3, cacheMisses=4, blockedByGuardrail=2, fallbackResponses=2, answeredQueries=3, totalTokens=1408, avgTokensPerAnsweredQuery=469.3333333333333, avgLatencyMs=12.0, p50LatencyMs=0, p95LatencyMs=50, totalEstimatedCostUsd=0.33765]
+
+====================================================================================================
+EXPERIMENT 2: Context optimization (token-budget trimming)
+====================================================================================================
+Retrieved 5 chunks, 791 tokens total (unoptimized).
+Budget=600 tokens -> kept 3/5 chunks (540 tokens), dropped 2 chunks (251 tokens)
+Budget=400 tokens -> kept 2/5 chunks (360 tokens), dropped 3 chunks (431 tokens)
+Budget=200 tokens -> kept 1/5 chunks (180 tokens), dropped 4 chunks (611 tokens)
+
+====================================================================================================
+EXPERIMENT 3: Similarity/margin threshold tuning sweep
+====================================================================================================
+Per-query outcomes (real retrieval results):
+  "What is the interest rate range for a home loan?"
+    expected=loan_processing_policy.txt#0 actual=fixed_deposit_policy.txt#0 correct=false topScore=0.4144 margin=0.0057
+  "What is the minimum monthly income required for a personal loan?"
+    expected=loan_processing_policy.txt#2 actual=loan_processing_policy.txt#2 correct=true topScore=0.4685 margin=0.0155
+  "How do I file a complaint and what is the escalation process?"
+    expected=customer_grievance_policy.txt#0 actual=customer_grievance_policy.txt#0 correct=true topScore=0.4403 margin=0.0355
+  "What happens if I withdraw my fixed deposit before maturity?"
+    expected=fixed_deposit_policy.txt#2 actual=fixed_deposit_policy.txt#2 correct=true topScore=0.2705 margin=0.0712
+  "What documents are required for KYC verification?"
+    expected=kyc_onboarding_policy.txt#4 actual=kyc_onboarding_policy.txt#4 correct=true topScore=0.4814 margin=0.0847
+  "What should I do if my debit card is lost or stolen?"
+    expected=card_issuance_fraud_policy.txt#2 actual=information_security_policy.txt#3 correct=false topScore=0.2490 margin=0.0009
+
+Threshold sweep (candidate margin thresholds):
+margin     correctlyAnswered  correctlyBlocked   incorrectlyBlocked incorrectlyAnswered
+0.000      4                  0                  0                  2                 
+0.005      4                  1                  0                  1                 
+0.010      4                  2                  0                  0                 
+0.015      4                  2                  0                  0                 
+0.020      3                  2                  1                  0                 
+0.030      3                  2                  1                  0                 
+0.050      2                  2                  2                  0                 
+0.080      1                  2                  3                  0                 
+
+All experiments completed. Trace log: /tmp/uc9_build/observability-core/reports/observability-trace-log.jsonl

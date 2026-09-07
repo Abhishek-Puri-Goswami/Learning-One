@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  L2 UC1 deliverable: production-shaped Spring Boot wrapper around rag-core.
+
+  NOTE ON BUILDABILITY: this sandbox has no reachable Maven Central
+  (repo.maven.apache.org returns 403/connection failure — confirmed
+  repeatedly across every L1 use case and again here), so this module,
+  like every other Spring Boot module in this submission, could NOT be
+  compiled/verified in this environment. rag-core (the module this wraps)
+  WAS actually compiled and run, with real captured output, using plain
+  javac against the JDK only — see rag-core/ and reports/. This module is
+  a thin, deliberately simple wiring layer on top of that already-verified
+  logic: it should be reviewed carefully and built with `mvn clean verify`
+  on a machine with real internet access before first deployment.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.3.4</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>com.retailco.bankrag</groupId>
+    <artifactId>rag-service</artifactId>
+    <version>0.1.0</version>
+    <name>rag-service</name>
+    <description>
+        L2 UC1 (Foundation &amp; Core Retrieval) production-shaped REST wrapper
+        around rag-core's chunking/embedding/retrieval pipeline. Exposes
+        ingestion and search endpoints; the underlying retrieval logic is
+        the same rag-core classes that were actually compiled and run
+        against the real Secure Bank policy corpus (see ../reports/).
+    </description>
+
+    <properties>
+        <java.version>17</java.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
+        <!--
+          rag-core is consumed as a source-level sibling module in this
+          submission (its .java files are copied under
+          src/main/java/com/retailco/bankrag/core/ below) rather than as a
+          separate Maven artifact, since there is no reachable Maven/Nexus
+          repository in this environment to install it into. In a real
+          multi-module build this would instead be:
+
+            <dependency>
+                <groupId>com.retailco.bankrag</groupId>
+                <artifactId>rag-core</artifactId>
+                <version>0.1.0</version>
+            </dependency>
+
+          with rag-core promoted to a proper sibling <module> under a
+          parent aggregator pom.xml.
+        -->
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>

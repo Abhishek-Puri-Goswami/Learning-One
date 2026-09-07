@@ -1,0 +1,180 @@
+30 days of report issuance. 
+ 
+5. CARD ISSUANCE & FRAUD PREVENTION POLICY 
+This policy outlines the issuance, usage, security, monitoring, interest charging rules, 
+and dispute mechanisms governing Debit and Credit Cards issued by Secure Bank. 
+ 
+5.1 Card Types Offered 
+1. Debit Cards 
+Linked directly to the customer's Savings or Current Account. 
+Typical Numerical Limits 
+• ATM Withdrawal Limit: ₹20,000 – ₹50,000 per day 
+• POS/Online Purchase Limit: ₹50,000 – ₹2,00,000 per day 
+• International FX Markup: 2% – 3.5% (if international usage enabled) 
+• Annual Fee: ₹150 – ₹500 (variant -dependent) 
+Features: 
+• ATM, POS, UPI, NFC support 
+• Zero-liability protection for fraudulent transactions reported within 24 hours 
+ 
+2. Credit Cards (Gold / Platinum Variants) 
+Credit facility offered with interest -based repayment. 
+Typical Numerical Features 
+• APR (Interest Rate): 30% – 42% per annum (2.5% – 3.5% per month) 
+• Interest-Free Grace Period: 20–50 days 
+• Late Payment Fee: ₹200 – ₹1,000 (tiered by bill amount) 
+• Cash Advance Fee: 2.5% – 3% of withdrawn amount 
+• FX Markup (International): 3% – 3.5% 
+• Annual Fee: 
+o Gold: ₹500 – ₹1,000 
+o Platinum: ₹2,000 – ₹5,000 
+• Minimum Due Payment: Usually 5% of outstanding balance 
+Benefits: 
+• Lounge access for Platinum 
+• EMI conversion at 12% – 18% p.a. 
+• Reward points (1 –5 points per ₹100 spent) 
+ 
+5.2 Card Lifecycle Stages 
+1. Application & Identity Verification 
+• KYC + PAN mandatory 
+• Credit Cards require: 
+o Minimum Income Criteria: ₹20,000 – ₹40,000 per month 
+o Minimum Credit Score: 700+ recommended 
+ 
+2. Card Printing & Secure Dispatch 
+• Printed at PCI -DSS compliant facility 
+• Undelivered cards destroyed after 30–45 days 
+ 
+3. PIN Generation 
+• Mandatory OTP authentication 
+• PIN reset validity checks every 6 months for security 
+ 
+4. Transaction Monitoring (Real -Time) 
+Fraud engine monitors: 
+• High-value transactions: >₹25,000 
+• Unusual spend spikes: 3+ transactions in 2 minutes 
+• International attempts without prior enablement 
+• Multiple incorrect PIN attempts (3 –5 times) → automatic temporary block 
+ 
+5.3 Fraud Detection & Prevention Rules 
+1. Geo-Location Mismatch Alerts 
+Triggered if: 
+• Transactions occur in 2 different cities/countries within 10–15 minutes 
+2. Rapid Transaction Bursts 
+• More than 5 attempts within 60 seconds 
+• System triggers auto -block 
+3. High-Value MCC Scrutiny 
+Extra verification for transactions above: 
+• Domestic: >₹50,000 
+• International: >₹25,000 – ₹30,000 
+4. Mandatory 2 -Factor Authentication (2FA) 
+• OTP required for online transactions 
+• International e -commerce uses 3 -D Secure or CVV -based approval 
+5. Lost/Stolen Card Protocol 
+• Blocking within 5 minutes of customer reporting 
+• Replacement dispatched within 3–5 working days 
+ 
+5.4 Chargeback & Dispute Resolution Policy 
+1. Chargeback Request Window 
+• Must be filed within 30 days of transaction 
+• International card network timelines: 45–120 days depending on network 
+2. Required Documents 
+• Dispute form 
+• Proof of non -participation 
+• Transaction SMS / Statement excerpt 
+3. Bank Responsibilities 
+• Acknowledge within 24 hours 
+• Provide provisional credit within 7–10 days, where applicable 
+• Final resolution as per network SLA: 
+o Visa/Mastercard: 45–90 days 
+o Rupay: 30–60 days 
+ 
+5.5 Record Retention 
+• Card issuance, KYC, PIN logs, chargeback documents kept for minimum 10 
+years 
+• ATM CCTV footage retention: 90 days (industry standard) 
+ 
+6. BRANCH OPERATIONS POLICY 
+The Branch Operations Policy governs the daily functioning, safety standards, cash 
+handling procedures, customer -facing operations, and backend administrative 
+protocols across all Secure Bank branches. All branch personnel must strictly adhere 
+to these guidelines to maintain operational integrity, ensure security, and comply with 
+regulatory expectations. 
+ 
+6.1 Teller Operations 
+Tellers play a critical role in cash management and customer transactions. The 
+following controls ensure secure and compliant handling of cash: 
+1. Cash Holding Limits 
+• Maximum cash that a teller may hold at any time: ₹2,00,000 . 
+• Excess cash must be moved to the branch vault immediately through a 
+documented cash transfer slip. 
+2. Cash Replenishment 
+• Cash received from the vault must be: 
+o Verified by both teller and vault custodian 
+o Logged in the Cash Replenishment Register 
+o Reflected in the Core Banking System (CBS) 
+• Replenishment must only be done during authorized time windows unless in 
+emergencies approved by the Operations Manager. 
+3. Dual Custody Protocol 
+• Vault keys must always remain under dual custody : 
+o Primary Key Holder (Operations Manager) 
+o Secondary Key Holder (Designated Teller / Officer) 
+• Keys must never be kept together or left unattended. 
+• Access to the vault requires presence and signature of both custodians. 
+ 
+6.2 Locker Operations 
+Secure Bank provides safe deposit locker services under a regulated and 
+audit-compliant framework. 
+1. KYC Requirements 
+• Locker allocation is permitted only after full KYC verification of the customer. 
+• For joint locker holders, KYC must be completed for all applicants . 
+• High-risk customers must undergo enhanced due diligence before allocation. 
+2. Access Logging 
+Every locker visit must be recorded in the Locker Access Register , capturing: 
+• Date & time of access 
+• Customer’s signature 
+• Officer’s signature 
+• Locker number 
+• Any observations or irregular behavior 
+Electronic logs (if available) must be reconciled weekly. 
+3. Locker Break -Open Procedure 
+A locker may be forced open under the following conditions: 
+• Non-payment of rent despite due notices 
+• Customer request (lost key) 
+• Regulatory or court order 
+Break-open must strictly follow RBI-mandated guidelines , including: 
+• Presence of branch manager + authorized officer 
+• Videography of the entire procedure 
+• Detailed written inventory of locker contents 
+• 7-day prior notice to customer (unless prohibited by law) 
+ 
+6.3 End-of-Day (EOD) Procedures 
+End-of-Day processes ensure accuracy, prevent financial discrepancies, and maintain 
+audit readiness. 
+1. Cash Tally 
+• All cash drawers must be tallied with the CBS (Core Banking System) . 
+• Variations (excess/short) must be: 
+o Reported immediately 
+o Recorded in the Cash Variation Register 
+o Escalated to the Branch Manager 
+2. Suspense Account Clearance 
+• All suspense entries must be reviewed and cleared the same day . 
+• Outstanding suspense items must be: 
+o Documented with reason 
+o Escalated if pending beyond 24 hours 
+3. Audit Log Backup 
+• System audit logs, transaction summaries, and CCTV retention logs must be: 
+o Backed up to the secure central server 
+o Verified by the Operations Manager 
+o Stored in compliance with record -retention policy 
+4. Physical Security Checks 
+Before closing the branch: 
+• All cash safes, strong room doors, and lockers must be secured. 
+• Alarms and CCTV systems must be checked. 
+• Visitor registers and manual logs must be closed and archived. 
+ 
+6.4 Staff Responsibilities 
+• Tellers must maintain accuracy, confidentiality, and professional conduct. 
+• Operations Manager ensures compliance with internal controls and RBI 
+guidelines. 
+• Branch Manager oversees custodial duties, escalations, and adherence to 
+polic

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Documented, NOT compile-verified (same disclosure as every Spring-Boot-facing
+  pom.xml elsewhere in this submission -- Maven Central is blocked in this
+  sandbox: `mvn -version` works, but `mvn compile` 403s with
+  X-Proxy-Error: blocked-by-allowlist against repo.maven.apache.org, confirmed
+  both here and on the user's own device).
+
+  This module itself has ZERO external dependencies -- every class under
+  src/main/java compiles and runs with plain `javac`/`java` (see
+  reports/core-javac-lint-log.txt, reports/selftests-run-log.txt,
+  reports/demo-run-log.txt for the real, actually-executed proof). This
+  pom.xml exists only so a real Maven build (in an environment with Central
+  reachable) can produce a jar other modules' poms can depend on, and so
+  this module looks and builds like a normal Maven module rather than a
+  one-off script.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.retailco</groupId>
+    <artifactId>ecommerce-core</artifactId>
+    <version>1.0.0</version>
+    <packaging>jar</packaging>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <!-- Deliberately empty: this module has no external runtime dependency. -->
+    <dependencies>
+    </dependencies>
+</project>

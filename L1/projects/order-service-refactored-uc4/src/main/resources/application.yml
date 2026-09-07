@@ -1,0 +1,19 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: order-service
+
+services:
+  cart:
+    base-url: ${CART_SERVICE_BASE_URL:http://localhost:8082}
+
+payment:
+  gateway:
+    # FIX (was AI-SEC-1): no literal key here. Resolved from the
+    # PAYMENT_GATEWAY_API_KEY environment variable (or a secrets manager in
+    # real deployments) -- never committed to source control. Local/dev
+    # developers should set this in their own untracked .env / shell profile.
+    api-key: ${PAYMENT_GATEWAY_API_KEY}
+    base-url: ${PAYMENT_GATEWAY_BASE_URL:https://payments.example.com}

@@ -1,0 +1,63 @@
+Loaded 7 source documents from corpus
+  account_operations_policy.txt       -> 840 tokens -> 6 chunks
+  card_issuance_fraud_policy.txt      -> 1107 tokens -> 8 chunks
+  customer_grievance_policy.txt       -> 491 tokens -> 4 chunks
+  fixed_deposit_policy.txt            -> 502 tokens -> 4 chunks
+  information_security_policy.txt     -> 584 tokens -> 4 chunks
+  kyc_onboarding_policy.txt           -> 747 tokens -> 6 chunks
+  loan_processing_policy.txt          -> 632 tokens -> 5 chunks
+Total chunks indexed: 37
+====================================================================================================
+QUERY: What is the minimum monthly income required for a personal loan?
+  KEYWORD : score=0.545  [account_operations_policy.txt#0]  "dditional Onboarding Controls ? In-person verification or Video -KYC is required for certa..."
+  KEYWORD : score=0.545  [loan_processing_policy.txt#1]  "score (700+). ? CIBIL score below 650 may cause higher rate bands or reduced loan quantum...."
+  KEYWORD : score=0.545  [loan_processing_policy.txt#2]  "numerical details added) a) Income Verification (Numerical Thresholds) ? Minimum monthly n..."
+  SEMANTIC: score=0.417  [loan_processing_policy.txt#2]  "numerical details added) a) Income Verification (Numerical Thresholds) ? Minimum monthly n..."
+  SEMANTIC: score=0.391  [loan_processing_policy.txt#1]  "score (700+). ? CIBIL score below 650 may cause higher rate bands or reduced loan quantum...."
+  SEMANTIC: score=0.330  [loan_processing_policy.txt#3]  "? Home Loan: 0.25% ? 0.50% ? Personal Loan: 1?2.5% ? Auto Loan: 0.5?1% ? Minimum charge sl..."
+  HYBRID  : score=0.469  [loan_processing_policy.txt#2]  "numerical details added) a) Income Verification (Numerical Thresholds) ? Minimum monthly n..."
+  HYBRID  : score=0.453  [loan_processing_policy.txt#1]  "score (700+). ? CIBIL score below 650 may cause higher rate bands or reduced loan quantum...."
+  HYBRID  : score=0.377  [account_operations_policy.txt#0]  "dditional Onboarding Controls ? In-person verification or Video -KYC is required for certa..."
+----------------------------------------------------------------------------------------------------
+QUERY: What is the interest rate range for a home loan?
+  KEYWORD : score=0.600  [fixed_deposit_policy.txt#0]  "11. FIXED DEPOSIT (FD) & TERM DEPOSIT POLICY The Fixed Deposit (FD) & Term Deposit Policy ..."
+  KEYWORD : score=0.500  [account_operations_policy.txt#0]  "dditional Onboarding Controls ? In-person verification or Video -KYC is required for certa..."
+  KEYWORD : score=0.500  [account_operations_policy.txt#2]  "? ?50,000 ? Overdraft eligibility is case -to-case based on financials and collateral. 3. ..."
+  SEMANTIC: score=0.406  [loan_processing_policy.txt#0]  "e lending, regulatory compliance, and robust credit risk management. 4.1 Loan Categories S..."
+  SEMANTIC: score=0.398  [fixed_deposit_policy.txt#3]  "Fixed Deposit ? Interest: 4% ? 5.5% p.a. ? Fully repatriable ? Tax-free interest in India ..."
+  SEMANTIC: score=0.348  [account_operations_policy.txt#0]  "dditional Onboarding Controls ? In-person verification or Video -KYC is required for certa..."
+  HYBRID  : score=0.414  [fixed_deposit_policy.txt#0]  "11. FIXED DEPOSIT (FD) & TERM DEPOSIT POLICY The Fixed Deposit (FD) & Term Deposit Policy ..."
+  HYBRID  : score=0.409  [account_operations_policy.txt#0]  "dditional Onboarding Controls ? In-person verification or Video -KYC is required for certa..."
+  HYBRID  : score=0.404  [loan_processing_policy.txt#0]  "e lending, regulatory compliance, and robust credit risk management. 4.1 Loan Categories S..."
+----------------------------------------------------------------------------------------------------
+QUERY: What happens if I withdraw my fixed deposit before maturity?
+  KEYWORD : score=0.400  [fixed_deposit_policy.txt#2]  "closed deposits. ? FCNR premature withdrawals follow RBI lock -in conditions (no interest ..."
+  KEYWORD : score=0.300  [fixed_deposit_policy.txt#1]  "179 days 3.0% ? 3.5% p.a. +0.50% extra Higher liquidity 180 ? 364 days 3.5% ? 4.0% p.a. +0..."
+  KEYWORD : score=0.200  [account_operations_policy.txt#0]  "dditional Onboarding Controls ? In-person verification or Video -KYC is required for certa..."
+  SEMANTIC: score=0.199  [fixed_deposit_policy.txt#3]  "Fixed Deposit ? Interest: 4% ? 5.5% p.a. ? Fully repatriable ? Tax-free interest in India ..."
+  SEMANTIC: score=0.184  [fixed_deposit_policy.txt#2]  "closed deposits. ? FCNR premature withdrawals follow RBI lock -in conditions (no interest ..."
+  HYBRID  : score=0.270  [fixed_deposit_policy.txt#2]  "closed deposits. ? FCNR premature withdrawals follow RBI lock -in conditions (no interest ..."
+  HYBRID  : score=0.199  [fixed_deposit_policy.txt#3]  "Fixed Deposit ? Interest: 4% ? 5.5% p.a. ? Fully repatriable ? Tax-free interest in India ..."
+  HYBRID  : score=0.120  [fixed_deposit_policy.txt#1]  "179 days 3.0% ? 3.5% p.a. +0.50% extra Higher liquidity 180 ? 364 days 3.5% ? 4.0% p.a. +0..."
+----------------------------------------------------------------------------------------------------
+QUERY: How do I file a complaint and what is the escalation process?
+  KEYWORD : score=0.500  [customer_grievance_policy.txt#0]  "es 8. CUSTOMER GRIEVANCE REDRESSAL POLICY Secure Bank is committed to providing transparen..."
+  KEYWORD : score=0.500  [customer_grievance_policy.txt#3]  "Resolution within the defined TAT (as per escalation matrix). ? Reasoned communication if ..."
+  KEYWORD : score=0.417  [customer_grievance_policy.txt#2]  "merchant errors 3. Loan-Related Complaints ? Delay in loan processing ? Incorrect EMI calc..."
+  SEMANTIC: score=0.401  [customer_grievance_policy.txt#0]  "es 8. CUSTOMER GRIEVANCE REDRESSAL POLICY Secure Bank is committed to providing transparen..."
+  SEMANTIC: score=0.369  [information_security_policy.txt#3]  "ongoing attack 3. Incident Handling Steps 1. Containment ? isolate affected systems 2. Inv..."
+  SEMANTIC: score=0.367  [information_security_policy.txt#0]  "y. 7. INFORMATION SECURITY POLICY The Information Security Policy outlines the mandatory c..."
+  HYBRID  : score=0.440  [customer_grievance_policy.txt#0]  "es 8. CUSTOMER GRIEVANCE REDRESSAL POLICY Secure Bank is committed to providing transparen..."
+  HYBRID  : score=0.405  [customer_grievance_policy.txt#3]  "Resolution within the defined TAT (as per escalation matrix). ? Reasoned communication if ..."
+  HYBRID  : score=0.388  [information_security_policy.txt#3]  "ongoing attack 3. Incident Handling Steps 1. Containment ? isolate affected systems 2. Inv..."
+----------------------------------------------------------------------------------------------------
+QUERY: Should I invest my savings in mutual funds right now?
+  KEYWORD : score=0.200  [account_operations_policy.txt#0]  "dditional Onboarding Controls ? In-person verification or Video -KYC is required for certa..."
+  KEYWORD : score=0.200  [account_operations_policy.txt#2]  "? ?50,000 ? Overdraft eligibility is case -to-case based on financials and collateral. 3. ..."
+  KEYWORD : score=0.200  [account_operations_policy.txt#3]  "deposits allowed. b. NRO (Non -Resident Ordinary) Account ? For managing income earned in ..."
+  SEMANTIC: score=0.224  [account_operations_policy.txt#2]  "? ?50,000 ? Overdraft eligibility is case -to-case based on financials and collateral. 3. ..."
+  SEMANTIC: score=0.151  [fixed_deposit_policy.txt#2]  "closed deposits. ? FCNR premature withdrawals follow RBI lock -in conditions (no interest ..."
+  HYBRID  : score=0.215  [account_operations_policy.txt#2]  "? ?50,000 ? Overdraft eligibility is case -to-case based on financials and collateral. 3. ..."
+  HYBRID  : score=0.171  [fixed_deposit_policy.txt#2]  "closed deposits. ? FCNR premature withdrawals follow RBI lock -in conditions (no interest ..."
+  HYBRID  : score=0.080  [account_operations_policy.txt#0]  "dditional Onboarding Controls ? In-person verification or Video -KYC is required for certa..."
+----------------------------------------------------------------------------------------------------

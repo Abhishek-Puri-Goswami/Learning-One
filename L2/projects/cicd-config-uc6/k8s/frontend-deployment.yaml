@@ -1,0 +1,46 @@
+# Illustrative, same disclosed caveat as backend-deployment.yaml.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: banking-support-frontend
+  labels:
+    app: banking-support-frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: banking-support-frontend
+  template:
+    metadata:
+      labels:
+        app: banking-support-frontend
+    spec:
+      containers:
+        - name: banking-support-frontend
+          image: REPLACE_WITH_REGISTRY/banking-support-frontend:latest
+          ports:
+            - containerPort: 80
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "250m"
+              memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: banking-support-frontend
+spec:
+  selector:
+    app: banking-support-frontend
+  ports:
+    - port: 80
+      targetPort: 80
+  type: LoadBalancer

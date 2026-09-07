@@ -1,0 +1,29 @@
+[PASS] injection: ignore instructions blocked
+[PASS] injection: reveal system prompt blocked
+[PASS] injection: DAN jailbreak blocked
+[PASS] injection: normal policy question allowed
+[PASS] unsafe: mutual fund advice blocked
+[PASS] unsafe: which stock blocked
+[PASS] unsafe: FD withdrawal policy question allowed
+[PASS] prompt: contains citation instruction
+[PASS] prompt: contains chunk id marker
+[PASS] prompt: contains the question
+[PASS] citation: exactly one resolved
+[PASS] citation: unresolved flagged
+[PASS] extractive: answer cites the chunk
+[PASS] extractive: answer mentions income figure
+[PASS] extractive: falls back gracefully on no overlap
+[PASS] eval: faithful answer scores high (>=0.6)
+[PASS] eval: unfaithful/fabricated answer scores low (<0.5)
+[PASS] assistant: injection query blocked
+[PASS] assistant: injection query has no citations
+[PASS] assistant: unsafe advice query blocked
+[PASS] assistant: weak retrieval triggers fallback, not blocked
+[PASS] assistant: legitimate query not blocked
+[PASS] assistant: legitimate query not fallback
+[PASS] assistant: legitimate query has at least one citation
+[PASS] trace: log file contains run_id
+[PASS] trace: log file contains latency
+[PASS] trace: log line ends with newline
+
+27 passed, 0 failed

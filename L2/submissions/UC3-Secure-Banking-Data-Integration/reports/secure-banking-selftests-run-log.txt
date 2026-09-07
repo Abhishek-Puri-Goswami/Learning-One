@@ -1,0 +1,26 @@
+[PASS] jwt: valid token verifies
+[PASS] jwt: subject round-trips
+[PASS] jwt: roles round-trip
+[PASS] jwt: tampered signature rejected
+[PASS] jwt: token signed with different secret rejected
+[PASS] jwt: expired token rejected
+[PASS] jwt: malformed token (no dots) rejected
+[PASS] jwt: null token rejected
+[PASS] jwt: constructor rejects secret shorter than 32 chars
+[PASS] masking: account number keeps last 4 only
+[PASS] masking: email keeps domain, masks most of local part
+[PASS] masking: government id keeps first 3 and last 2
+[PASS] intent: balance query routed correctly
+[PASS] intent: transaction query routed correctly
+[PASS] intent: loan outstanding query routed correctly
+[PASS] intent: policy question routed correctly
+[PASS] intent: multi-intent query flagged ambiguous
+[PASS] tool: own-customer access returns accounts
+[PASS] tool: cross-customer access blocked
+[PASS] tool: ADMIN role allowed cross-customer access
+[PASS] tool: account-ownership mismatch blocked even for correct customer token
+[PASS] tool: returned account numbers are masked, not raw
+[PASS] formatter: output starts and ends as a JSON object
+[PASS] formatter: output contains customerId field
+
+24 passed, 0 failed

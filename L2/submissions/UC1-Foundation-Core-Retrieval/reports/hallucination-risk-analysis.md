@@ -1,0 +1,32 @@
+# Hallucination Risk Analysis
+
+Deliverable: "Hallucination risk analysis," per L2 HLD UseCase1's functional scope. This analysis is grounded directly in the real, executed output captured in `retrieval-demo-run-log.txt` and discussed in `retrieval-comparison-summary.md` — not a hypothetical discussion.
+
+## The Central Finding: A Threshold-Discrimination Failure
+
+`Main.java` runs a deliberately out-of-scope query alongside four legitimate policy questions, and applies the guardrail rule from the L2 reference guide: if the top semantic similarity score is below `SIMILARITY_THRESHOLD = 0.15`, refuse to answer ("I don't know / this is outside the scope of the policy manual") rather than let the LLM generate a response from weak or irrelevant context.
+
+| Query | In scope? | Top semantic score | Guardrail fired (score < 0.15)? | Correct outcome? |
+|---|---|---|---|---|
+| "Should I invest my savings in mutual funds right now?" | No — investment advice, not covered by the Secure Bank policy manual | 0.224 | No | **Wrong.** The system should have refused, but 0.224 cleared the 0.15 bar, so it would have proceeded to generate an answer from whatever weakly-related chunks it retrieved (e.g., FD or savings-account chunks that share vocabulary like "savings," "returns," "interest"). |
+| "What happens if I withdraw my fixed deposit before maturity?" | Yes — genuinely answerable from `fixed_deposit_policy.txt#2` | 0.199 | No | Correct that it didn't fire, but only by a 0.049 margin over the out-of-scope query above. |
+
+The problem is not that the guardrail is missing — it exists and is wired into `Main.java` and `VectorStore.semanticSearch()`. The problem is that **a single fixed similarity threshold cannot reliably separate these two cases**, because the local hashing embedding model produces scores for "in-scope but loosely worded" and "out-of-scope but vocabulary-adjacent" queries that sit too close together (0.199 vs. 0.224 — a gap smaller than the natural score variance seen elsewhere in the same run, e.g., the 0.406/0.199 spread between Result 1 and Result 3 in `retrieval-comparison-summary.md`).
+
+## Why This Happens: Root Cause, Not Just Symptom
+
+1. **The embedding model itself is the primary cause.** `LocalHashingEmbeddingModel` (see `design/embedding-generation-module.md`) is explicitly a feature-hashing bag-of-words stand-in, not a trained semantic model. It has no real understanding that "invest in mutual funds" is categorically outside a retail/deposit/loan/KYC/fraud/security/grievance policy manual — it only measures token/hash overlap, so any query sharing banking-adjacent vocabulary ("savings," "returns," "deposit," "interest") will always score in a similar range regardless of true topical fit. This is disclosed as a known limitation in `embedding-generation-module.md`, and this analysis is the concrete evidence of where that limitation actually causes a wrong outcome.
+2. **A single global threshold is the wrong guardrail shape for this problem**, independent of embedding quality. Absolute similarity scores are not well-calibrated across queries — a threshold that's safe for one query's score distribution can be unsafe for another's.
+
+## Recommendations (in order of impact, not all requiring a better embedding model)
+
+1. **Do not rely on threshold-tuning alone.** Raising the threshold to, say, 0.21 to reject the mutual-funds query would also reject the legitimate FD-withdrawal query (0.199) — this was verified directly against the real run's numbers, not assumed. No single cutoff separates the two cases correctly with this embedding model.
+2. **Add a score-margin / relative-confidence check**, not just an absolute cutoff: compare the top result's score against the corpus's typical score distribution (or against the 2nd/3rd result) rather than a fixed constant. A query whose top score is only marginally above its own runner-up, or close to the corpus-wide median, is a weaker signal than the raw number alone suggests.
+3. **Add a category/topic classifier as a pre-retrieval guardrail.** Secure Bank's policy manual covers a fixed, enumerable set of categories (KYC/onboarding, account operations, loans, cards & fraud, information security, grievances, fixed deposits — the same seven used to slice `rag-core/corpus/`). A lightweight classification step (even a keyword/topic-tag classifier, or in production an LLM-based intent classifier) that checks "does this query belong to one of our covered categories" before retrieval even runs would catch "should I invest in mutual funds" categorically, independent of embedding score noise.
+4. **Add an LLM-based groundedness/relevance check as a post-retrieval guardrail** (production `rag-service`, not implementable in this sandbox — no LLM API egress here): after retrieval, ask the generation model itself (or a smaller classifier model) "does this retrieved context actually answer this question?" before generating the final response. This catches cases where retrieval returns topically-adjacent-but-not-actually-relevant chunks, which similarity scores alone cannot distinguish from true relevance.
+5. **Upgrade the embedding model for production** (see `embedding-generation-module.md`'s swap-in table). A real trained embedding model (OpenAI `text-embedding-3-small`, or a local BGE/MiniLM model for air-gapped deployment) would very likely widen the score gap between "in-scope, loosely worded" and "out-of-scope, vocabulary-adjacent" queries, since it captures actual semantic meaning rather than token overlap. This is the highest-leverage single change, but recommendations 2 and 3 should still be implemented alongside it — defense in depth, since even good embedding models are not perfectly calibrated either.
+6. **Log every guardrail decision for audit** (already designed for in `design/vector-database-schema.sql`'s `retrieval_audit_log` table, specifically the `below_threshold` column) so that false negatives like the mutual-funds case are discoverable and reviewable after the fact, not just prevented in theory.
+
+## What This Analysis Demonstrates
+
+This is exactly the kind of finding the "Foundation & Core Retrieval" use case is meant to surface: a real, measured weakness in the initial retrieval foundation, backed by an actual program run rather than a general RAG-textbook warning, that directly informs what L2/UC2 (End-to-End RAG Banking Assistant, with guardrails and fallback logic) and L2/UC4 (Intelligence Maturity & Optimization) need to build on top of this foundation.

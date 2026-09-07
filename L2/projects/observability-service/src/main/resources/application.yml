@@ -1,0 +1,27 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: observability-service
+
+bankrag:
+  embedding:
+    dimensions: 256
+  assistant:
+    similarity-threshold: 0.15
+    # Lowered from L2/UC2's original 0.03 default -- see
+    # performance/performance-optimization-summary.md's real threshold-tuning
+    # experiment, which found 0.03 needlessly blocks a legitimately
+    # answerable query and that 0.010-0.015 is error-free on the labeled
+    # sample tested.
+    min-score-margin: 0.012
+    semantic-weight: 0.6
+    keyword-weight: 0.4
+    top-k: 3
+  cache:
+    max-entries: 500
+    ttl-seconds: 3600
+  cost:
+    per-1k-prompt-tokens-usd: 0.15
+    per-1k-completion-tokens-usd: 0.60

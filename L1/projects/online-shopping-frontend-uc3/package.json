@@ -1,0 +1,32 @@
+{
+  "name": "online-shopping-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "L1 UC3 - React frontend for the Online Shopping System (Product Listing, Cart, Checkout).",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "lint": "eslint src"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.26.2"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.1",
+    "vite": "^5.4.6",
+    "vitest": "^2.1.1",
+    "@testing-library/react": "^16.0.1",
+    "@testing-library/jest-dom": "^6.5.0",
+    "@testing-library/user-event": "^14.5.2",
+    "jsdom": "^25.0.0",
+    "jest-axe": "^9.0.0",
+    "eslint": "^8.57.0",
+    "eslint-plugin-react": "^7.35.0",
+    "eslint-plugin-jsx-a11y": "^6.10.0"
+  }
+}

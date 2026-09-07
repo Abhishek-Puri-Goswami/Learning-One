@@ -1,0 +1,23 @@
+# Build output (regenerate via build -- never commit)
+target/
+out/
+build/
+dist/
+node_modules/
+*.class
+
+# Secrets -- never commit real values. Only *.env.example templates are tracked.
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+*credentials*
+*secrets*
+
+# IDE / OS
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db

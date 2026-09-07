@@ -1,0 +1,94 @@
+es 
+ 
+8. CUSTOMER GRIEVANCE REDRESSAL POLICY 
+Secure Bank is committed to providing transparent, fair, and timely resolution of all 
+customer grievances. This policy ensures that every query, complaint, or dispute is 
+handled efficiently through a structured escalation mechanism. All employees must 
+follow this framework to maintain customer trust and meet regulatory expectations. 
+ 
+8.1 Objective of the Policy 
+• Ensure prompt and fair handling of customer complaints. 
+• Provide multiple channels for customers to register grievances (branch, phone, 
+email, website). 
+• Comply with internal service standards and regulatory grievance redressal 
+guidelines. 
+• Monitor and analyze complaints to improve service quality. 
+ 
+8.2 Resolution Timelines (Escalation Matrix) 
+Complaints must be resolved within the specified Turn -Around-Time (TAT). If the 
+customer is not satisfied or the complaint is not resolved within the stipulated time, it 
+automatically escalates to the next level. 
+Level 1: Branch Manager 
+• TAT: 48 hours 
+• Handles: 
+o Basic service issues 
+o Transaction -related queries 
+o Branch staff behavior concerns 
+Level 2: Regional Office 
+• TAT: 5 working days 
+• Handles: 
+o Unresolved Level -1 complaints 
+o Complaints involving inter -branch coordination 
+o System-related or process -related delays 
+Level 3: Nodal Officer 
+• TAT: 30 days 
+• Handles: 
+o High-severity complaints 
+o Regulatory escalations 
+o Cases requiring specialized review 
+• Final authority before escalation to: 
+o Banking Ombudsman , where applicable 
+ 
+8.3 Accepted Categories of Grievances 
+The following types of customer complaints must be formally logged and resolved 
+through the grievance management system: 
+1. ATM-Related Failures 
+• Cash not dispensed but debited 
+• Partial dispensation 
+• ATM downtime or technical errors 
+2. Unauthorized Card Transactions 
+• Card-not-present fraud 
+• Skimming/Cloning attacks 
+• Misuse of lost/stolen cards 
+• Double charges or merchant errors 
+3. Loan-Related Complaints 
+• Delay in loan processing 
+• Incorrect EMI calculations 
+• Issues with disbursement 
+• Miscommunication on interest rates or terms 
+4. Staff Behaviour or Service Quality Issues 
+• Rude or unprofessional staff behaviour 
+• Delayed service response 
+• Failure to follow standard operating procedures 
+5. General Banking Issues 
+• Cheque clearing delays 
+• Account charges disputes 
+• Mobile/Internet banking errors 
+• Branch operational difficulties 
+ 
+8.4 Customer Rights 
+Secure Bank ensures that every customer is entitled to: 
+1. Transparency 
+• Clear communication about products, fees, and complaint status. 
+• Access to the grievance redressal policy through the bank’s website and 
+branches. 
+2. Fair Treatment 
+• No discrimination based on age, gender, religion, financial status, or literacy 
+level. 
+• Objective and unbiased investigation of every complaint. 
+3. Timely Response 
+• Acknowledgment of complaint within prescribed timelines. 
+• Resolution within the defined TAT (as per escalation matrix). 
+• Reasoned communication if additional time is required. 
+ 
+8.5 Complaint Logging & Tracking 
+• Complaints may be registered via: 
+o Branch visit 
+o Toll-Free Customer Care 
+o Email: support@securebank.com 
+o Online portal / Mobile banking 
+• Each complaint receives a unique complaint reference number for tracking. 
+• System reports must be reviewed weekly by Branch Managers and monthly by 
+Regional Offices. 
+ 
+8.6

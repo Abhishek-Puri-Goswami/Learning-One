@@ -1,0 +1,101 @@
+y. 
+7. INFORMATION SECURITY POLICY 
+The Information Security Policy outlines the mandatory controls, monitoring 
+mechanisms, and response procedures that ensure the confidentiality, integrity, and 
+availability of Secure Bank’s information assets. All employees, contractors, service 
+providers, and third -party partners must strictly adhere to this policy. 
+ 
+7.1 Security Controls 
+Secure Bank implements layered security controls to protect systems, customer data, 
+and digital assets. 
+1. Multi-Factor Authentication (MFA) 
+• All employees must authenticate using two or more factors (password + 
+OTP/token/biometric). 
+• MFA is mandatory for: 
+o Core Banking System (CBS) 
+o Internal administrative portals 
+o Remote access (VPN) 
+o Cloud dashboards 
+2. Data Encryption 
+• Sensitive customer data must be encrypted: 
+o At rest using industry -standard encryption algorithms (AES -256 or 
+equivalent). 
+o In transit using TLS 1.2 or above. 
+• Encryption keys must be: 
+o Rotated periodically 
+o Stored in a secure key -management system 
+3. Role-Based Access Control (RBAC) 
+• Access to systems and data is granted strictly on a Need-to-Know and Least 
+Privilege basis. 
+• Access reviews must be conducted: 
+o Quarterly for all employees 
+o Immediately after role changes, resignation, or termination 
+• Critical system access requires dual approval (Manager + IT Security). 
+ 
+7.2 Cybersecurity Monitoring 
+Secure Bank maintains continuous monitoring mechanisms to proactively detect 
+threats and system anomalies. 
+1. Intrusion Detection System (IDS) 
+• Network traffic and server activity must be monitored using a certified IDS 
+solution. 
+• Alerts for suspicious inbound/outbound traffic must be reviewed immediately . 
+• All high-severity alerts must be escalated to Cybersecurity Operations (CSOC). 
+2. Firewall & Network Log Reviews 
+• Firewall logs must be reviewed daily by IT Security. 
+• Unauthorized access attempts, port scans, or misconfigured rules must be 
+reported within 24 hours . 
+• Firewall rule changes must follow a formal approval workflow. 
+3. Endpoint Protection 
+• All workstations, laptops, and servers must have: 
+o Anti-malware 
+o Host-based firewalls 
+o Automated patching enabled 
+• Unpatched systems older than 30 days are flagged for immediate remediation. 
+ 
+7.3 Incident Response Policy 
+All cybersecurity events —suspected or confirmed —must follow the official incident 
+response procedures. 
+1. Mandatory Reporting 
+• Any employee encountering unusual system behavior, suspected breach, 
+unauthorized access, or data leakage must report the incident within 15 
+minutes to: 
+o Branch Manager 
+o IT Security / CSOC Hotline 
+o Email: incidents@securebank.com 
+2. Severity Classification 
+Every incident must be categorized as: 
+Severity Description 
+Low Minor disruptions, no data impact 
+Medium Limited system impact or policy violations 
+High Data exposure, unauthorized access, service disruption 
+Critical Major breach, financial impact, regulatory implications, ongoing attack 
+3. Incident Handling Steps 
+1. Containment – isolate affected systems 
+2. Investigation – log review, forensic assessment 
+3. Eradication – remove threats, patch vulnerabilities 
+4. Recovery – restore systems with integrity checks 
+5. Post-Incident Activities 
+4. Root Cause Analysis (RCA) 
+• A formal RCA is mandatory for all High/Critical incidents. 
+• Must be completed within: 
+o 48 hours for High severity 
+o 24 hours for Critical severity 
+• RCA must include: 
+o What happened 
+o Why it occurred 
+o Mitigation steps 
+o Long-term prevention plan 
+ 
+7.4 Employee Responsibilities 
+• Do not share passwords or store them insecurely. 
+• Report phishing attempts immediately. 
+• Use bank -approved devices and secure Wi -Fi networks. 
+• Attend mandatory Information Security Awareness Training annually. 
+ 
+7.5 Record Retention & Compliance 
+• Logs, incident reports, access records, and audit trails must be retained for 7 
+years. 
+• All practices must align with: 
+o RBI Cybersecurity Framework 
+o IT Act & Data Protection Guidelines 
+o Secure Bank’s internal polici

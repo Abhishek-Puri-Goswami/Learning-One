@@ -1,0 +1,185 @@
+openapi: 3.0.3
+info:
+  title: Cart Service API
+  description: >
+    Contract-first API for the Cart Service (Online Shopping System).
+    Generated per the L1/UC1 architecture.json api_boundaries for cart-service.
+    Cart is intentionally NOT the system of record for price/stock -- both are
+    revalidated against the Product Catalog Service at checkout time.
+  version: "1.0.0"
+  contact:
+    name: Retail Co. Platform Team
+servers:
+  - url: /api/v1
+    description: API Gateway routed base path
+
+tags:
+  - name: Cart
+
+paths:
+  /cart/{userId}:
+    get:
+      operationId: getCart
+      tags: [Cart]
+      summary: Get the current cart for a user
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Cart contents
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CartResponse" }
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /cart/{userId}/items:
+    post:
+      operationId: addItemToCart
+      tags: [Cart]
+      summary: Add an item to the cart (or increase quantity if it already exists)
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CartItemRequest" }
+      responses:
+        "201":
+          description: Item added
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CartResponse" }
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /cart/{userId}/items/{itemId}:
+    put:
+      operationId: updateCartItem
+      tags: [Cart]
+      summary: Update the quantity of a cart item
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema: { type: string }
+        - name: itemId
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CartItemUpdateRequest" }
+      responses:
+        "200":
+          description: Item updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CartResponse" }
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    delete:
+      operationId: removeCartItem
+      tags: [Cart]
+      summary: Remove an item from the cart
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema: { type: string }
+        - name: itemId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Item removed, current cart returned
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CartResponse" }
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+components:
+  responses:
+    BadRequest:
+      description: Validation error
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ErrorResponse" }
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ErrorResponse" }
+    InternalError:
+      description: Unexpected server error
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  schemas:
+    CartItemRequest:
+      type: object
+      required: [productId, quantity]
+      properties:
+        productId: { type: string, minLength: 1 }
+        quantity: { type: integer, minimum: 1 }
+
+    CartItemUpdateRequest:
+      type: object
+      required: [quantity]
+      properties:
+        quantity: { type: integer, minimum: 1 }
+
+    CartItemResponse:
+      type: object
+      properties:
+        itemId: { type: string }
+        productId: { type: string }
+        productName: { type: string }
+        unitPrice: { type: number, format: double }
+        quantity: { type: integer }
+        lineTotal: { type: number, format: double }
+
+    CartResponse:
+      type: object
+      properties:
+        userId: { type: string }
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/CartItemResponse" }
+        itemCount: { type: integer }
+        subtotal: { type: number, format: double }
+        updatedAt: { type: string, format: date-time }
+
+    ErrorResponse:
+      type: object
+      properties:
+        timestamp: { type: string, format: date-time }
+        status: { type: integer }
+        error: { type: string }
+        message: { type: string }
+        path: { type: string }
+        details:
+          type: array
+          items: { type: string }

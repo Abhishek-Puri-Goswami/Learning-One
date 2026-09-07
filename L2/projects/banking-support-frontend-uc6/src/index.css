@@ -1,0 +1,176 @@
+:root {
+  --navy: #0b2545;
+  --teal: #1c7293;
+  --mint: #58c4b9;
+  --ice: #e7f1f5;
+  --slate: #3c4a5c;
+  --danger: #b3261e;
+  --warn: #b5730a;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, "Segoe UI", Calibri, Arial, sans-serif;
+  background: var(--ice);
+  color: var(--slate);
+}
+
+#root { min-height: 100svh; }
+
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  background: var(--navy);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 1.5rem;
+}
+
+.brand { font-weight: 700; font-size: 1.15rem; }
+.brand span { color: var(--mint); font-weight: 400; margin-left: 0.35rem; }
+
+.tabs button {
+  background: transparent;
+  border: none;
+  color: #cfe0ee;
+  font-size: 0.95rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  border-radius: 6px;
+}
+.tabs button.active {
+  background: var(--teal);
+  color: white;
+  font-weight: 600;
+}
+
+.app-main {
+  flex: 1;
+  padding: 2rem 1.5rem;
+  max-width: 900px;
+  width: 100%;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.app-footer {
+  padding: 1rem 1.5rem;
+  font-size: 0.8rem;
+  color: #6b7a90;
+  text-align: center;
+}
+
+.panel {
+  background: white;
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(11, 37, 69, 0.12);
+}
+
+.panel h2 { margin-top: 0; color: var(--navy); }
+.hint { font-size: 0.9rem; color: #5c6b80; }
+
+.query-form { display: flex; gap: 0.5rem; margin: 1rem 0; }
+.query-form input {
+  flex: 1;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid #cdd8e3;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+.query-form button, .action-card-header button, .token-row button {
+  background: var(--teal);
+  color: white;
+  border: none;
+  padding: 0.6rem 1.1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.query-form button:disabled, .action-card-header button:disabled {
+  background: #a9bacb;
+  cursor: not-allowed;
+}
+
+.answer-box {
+  background: var(--ice);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 0.5rem;
+}
+.answer-text { line-height: 1.5; }
+.badge {
+  display: inline-block;
+  background: var(--mint);
+  color: var(--navy);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.15rem 0.5rem;
+  border-radius: 10px;
+  margin-right: 0.4rem;
+}
+.badge-warn { background: #f3c98b; }
+
+.citations { margin-top: 0.8rem; font-size: 0.85rem; }
+.citations ul { margin: 0.3rem 0 0; padding-left: 1.1rem; }
+
+.blocked-box {
+  background: #fbe9e7;
+  border: 1px solid #e7a89f;
+  color: var(--danger);
+  border-radius: 8px;
+  padding: 0.8rem 1rem;
+  margin-top: 0.5rem;
+}
+.ambiguous-box {
+  background: #fff4dc;
+  border: 1px solid #e7c98b;
+  color: var(--warn);
+  border-radius: 8px;
+  padding: 0.8rem 1rem;
+  margin-top: 0.5rem;
+}
+.error-box {
+  background: #fbe9e7;
+  color: var(--danger);
+  border-radius: 6px;
+  padding: 0.6rem 0.8rem;
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+}
+.empty-box { color: #8494a8; font-size: 0.85rem; padding: 0.5rem 0; }
+
+.token-row { display: flex; gap: 0.5rem; margin-bottom: 0.6rem; flex-wrap: wrap; }
+.token-row input, .token-row select {
+  padding: 0.5rem 0.7rem;
+  border: 1px solid #cdd8e3;
+  border-radius: 6px;
+}
+.token-box {
+  width: 100%;
+  font-family: monospace;
+  font-size: 0.75rem;
+  padding: 0.5rem;
+  border: 1px solid #cdd8e3;
+  border-radius: 6px;
+  margin-bottom: 0.8rem;
+}
+.account-row { margin-bottom: 1rem; font-size: 0.85rem; }
+.account-row input { margin-left: 0.5rem; padding: 0.4rem 0.6rem; border: 1px solid #cdd8e3; border-radius: 6px; }
+
+.action-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+.action-card { background: var(--ice); border-radius: 8px; padding: 1rem; }
+.action-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; font-weight: 600; color: var(--navy); }
+
+.data-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+.data-table th, .data-table td { text-align: left; padding: 0.35rem 0.5rem; border-bottom: 1px solid #d8e2ea; }
+.raw-json { font-size: 0.75rem; background: #f0f4f7; padding: 0.6rem; border-radius: 6px; overflow-x: auto; }
