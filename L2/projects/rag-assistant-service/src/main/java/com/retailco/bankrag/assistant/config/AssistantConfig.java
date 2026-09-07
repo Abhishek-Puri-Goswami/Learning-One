@@ -15,16 +15,25 @@ import org.springframework.context.annotation.Configuration;
 
 import java.nio.file.Path;
 
-/**
- * Central bean wiring, same philosophy as L2/UC1's RagCoreConfig: the
- * concrete LlmClient and EmbeddingModel implementations are chosen ONCE,
- * here, by profile -- never instantiated ad hoc inside a controller.
- *
- * When an {@code OPENAI_API_KEY} environment variable is present,
- * {@link OpenAiEmbeddingModel} and {@link OpenAiLlmClient} are used;
- * otherwise this falls back to {@link LocalHashingEmbeddingModel} and
- * {@link ExtractiveStubLlmClient} for fully offline operation.
- */
+// CONCEPT: Spring `@Configuration` class -- the central wiring point for
+// this whole module's object graph (same philosophy as rag-service's
+// RagCoreConfig, extended here with an LlmClient and the full RagAssistant).
+// PURPOSE: Decides, ONCE, which concrete EmbeddingModel and LlmClient
+// implementations the entire application uses (real OpenAI-backed vs.
+// offline stand-ins), based on whether OPENAI_API_KEY is present -- see
+// each *.isConfigured() check below. No controller or other class is
+// ever allowed to construct these directly.
+// HOW THE BEANS CHAIN TOGETHER (dependency injection, see the method
+// signatures below): embeddingModel() has no dependencies -> vectorStore()
+// depends on embeddingModel -> ragAssistant() depends on vectorStore,
+// llmClient, AND traceLogger. Spring resolves this whole dependency graph
+// automatically at startup, in the correct order, just from each method's
+// parameter types -- you never manually call one @Bean method from another.
+// WHY the numeric/string @Value fields matter: every tunable knob for the
+// RAG pipeline (thresholds, weights, topK, trace log path) is externalized
+// to application.yml/environment variables here, rather than hardcoded
+// inside RagAssistant itself -- so behavior can be tuned per environment
+// without touching business logic code.
 @Configuration
 public class AssistantConfig {
 

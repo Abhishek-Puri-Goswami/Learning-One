@@ -4,13 +4,27 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-/**
- * In-memory vector store with cosine-similarity search. Schema mirrors
- * design/vector-database-schema.sql (id, source_document, chunk_index,
- * chunk_text, embedding, created_at) -- this class is the "local/dev"
- * equivalent of the FAISS/Chroma option; the production target (Pinecone,
- * Weaviate, or pgvector) is documented in design/vector-database-schema.md.
- */
+// CONCEPT: In-memory vector database (a dev/local stand-in for a real
+// vector store like pgvector, Pinecone, or Weaviate).
+// PURPOSE: Stores every indexed Chunk alongside its embedding vector, and
+// answers "which chunks are most similar to this query?" using cosine
+// similarity -- the core retrieval step of RAG.
+//
+// FLOW: Chunker produces Chunks -> index(chunk) embeds and stores each one
+// -> semanticSearch(query, ...) embeds the query the SAME way and ranks
+// every stored chunk by similarity -> the top matches get sent to the LLM
+// as grounding context (see RagAssistant in the assistant/ package).
+//
+// WHY in-memory: two parallel lists (`chunks` and `embeddings`, same index
+// = same chunk) keep this class dependency-free so the whole pipeline is
+// runnable without a database. A production system would replace this
+// class's storage with a real vector database, but the semanticSearch
+// contract (query in, ranked ScoredChunks out) would stay the same --
+// that's the value of hiding this behind a class boundary.
+//
+// IMPORTANT: cosineSimilarity only makes sense when the query and the
+// chunks were embedded by the exact same EmbeddingModel instance -- see
+// EmbeddingModel's Javadoc for why.
 public class VectorStore {
 
     private final EmbeddingModel embeddingModel;

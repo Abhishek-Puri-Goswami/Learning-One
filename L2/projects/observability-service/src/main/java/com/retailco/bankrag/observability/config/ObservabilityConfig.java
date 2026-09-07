@@ -20,11 +20,15 @@ import org.springframework.context.annotation.Configuration;
 import java.math.BigDecimal;
 import java.nio.file.Path;
 
-/**
- * Same central-bean-wiring philosophy as every prior use case's config
- * class: every concrete implementation choice (embedding model, LLM
- * client, cache sizing, cost rate) lives here, once.
- */
+// CONCEPT: The composition root for this module (same philosophy as
+// rag-assistant-service's AssistantConfig, extended with the observability
+// layer's beans -- QueryCache, MetricsRecorder, CostEstimator,
+// ObservableRagAssistant). See AssistantConfig's comments for the full
+// explanation of how Spring resolves the bean dependency graph.
+// PURPOSE: Wires RagAssistant (unchanged UC2 pipeline) inside
+// ObservableRagAssistant (UC4's caching/metrics/cost decorator), so every
+// call through this module's controllers gets both the RAG pipeline AND
+// the observability layer, with no controller needing to know both exist.
 @Configuration
 public class ObservabilityConfig {
 

@@ -14,17 +14,22 @@ import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.util.List;
 
-/**
- * Wraps rag-core's DocumentLoader + Chunker + VectorStore pipeline
- * (IngestionController -> DocumentLoader -> Chunker -> EmbeddingModel ->
- * VectorStore, per design/embedding-generation-module.md's "Module
- * Boundaries" diagram) behind a REST-callable service.
- *
- * The shared VectorStore bean is intentionally mutated in place (index() is
- * additive) so repeated ingest calls accumulate a growing corpus, matching
- * how a real ingestion pipeline is expected to run incrementally as new
- * policy documents are added -- not as a one-shot batch job.
- */
+// CONCEPT: Service layer -- contains the business logic between the
+// Controller and the underlying domain classes (DocumentLoader, Chunker,
+// VectorStore).
+// PURPOSE: Orchestrates the full ingestion pipeline for one request: load
+// documents from disk, chunk each one, embed and index every chunk into
+// the shared VectorStore.
+// FLOW: Controller -> Service -> (DocumentLoader, Chunker, VectorStore)
+// WHY keep this logic in a @Service rather than in the controller:
+// separating it lets this class be unit-tested without spinning up any
+// HTTP infrastructure, and keeps IngestionController focused purely on
+// request/response plumbing.
+// IMPORTANT: `vectorStore` is injected as a Spring-managed singleton bean
+// (see RagCoreConfig) and mutated IN PLACE by index() -- so repeated calls
+// to ingest() ACCUMULATE into a growing corpus rather than replacing it
+// each time. This matches how a real ingestion pipeline runs incrementally
+// as new documents arrive, not as a single one-shot batch job.
 @Service
 public class IngestionService {
 

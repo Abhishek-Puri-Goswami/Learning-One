@@ -10,28 +10,32 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-/**
- * Deliberate, disclosed stand-in for a real generative LLM (GPT-4/Claude/
- * Gemini/etc.) -- this sandbox has no reachable network egress to any LLM
- * API and no API key configured, so a true generative call cannot be made
- * or verified here (same class of limitation as UC1's LocalHashingEmbeddingModel
- * standing in for a real embedding provider -- see that class's Javadoc for
- * the identical reasoning).
- *
- * What this class DOES do, for real: given the exact prompt PromptTemplate
- * builds (system instructions + retrieved CONTEXT chunks + question), it
- * performs extractive answer construction -- it scores every sentence in
- * the retrieved context by lexical overlap with the question, selects the
- * highest-scoring sentences (respecting a per-chunk cap so one chunk can't
- * dominate), and stitches them together with inline [chunk-id] citations
- * exactly as SYSTEM_INSTRUCTIONS rule 2 requires. This is NOT abstractive
- * generation and will not paraphrase or reason the way a real LLM does --
- * but it DOES let the full pipeline (retrieval -> prompt -> "generation" ->
- * citation -> guardrail -> trace -> evaluation) actually run end-to-end and
- * be measured for real in this sandbox, rather than only being described on
- * paper. See README.md's "What's real vs. documented" section and
- * design/generation-module.md for the production swap-in path.
- */
+// CONCEPT: "Extractive" answer generation -- a rule-based algorithm that
+// mimics an LLM's output shape without any real language model.
+// PURPOSE: The automatic offline fallback for LlmClient, used whenever
+// OpenAiLlmClient.isConfigured() is false. It lets the full pipeline
+// (retrieval -> prompt -> "generation" -> citation -> guardrail -> trace
+// -> evaluation) run end-to-end with zero network calls and zero API key.
+//
+// HOW IT WORKS (see generate() below, step by step):
+// 1. Pull the QUESTION and the retrieved CONTEXT chunks back out of the
+//    already-built prompt string (extractSection/extractContextBlocks --
+//    simple string parsing, since this class never sees structured data,
+//    only the final prompt text PromptTemplate produced).
+// 2. Split each context chunk into sentences.
+// 3. Score every sentence by how many of the question's meaningful words
+//    (after removing STOPWORDS like "the", "is", "a") it contains.
+// 4. Keep the highest-scoring sentences (capped per chunk, so one chunk
+//    can't dominate the answer) and join them into a final answer string,
+//    each one tagged with its source [chunk-id] -- inline citations.
+//
+// WHY "extractive" rather than free-form text generation: it only ever
+// copies real sentences straight from the retrieved chunks, so its output
+// is trustworthy by construction -- there's no way for it to invent facts
+// the way a real LLM might hallucinate. IMPORTANT trade-off: it can't
+// paraphrase, summarize across sentences, or reason -- its answer quality
+// is not representative of a real LLM's (see the sibling OpenAiLlmClient
+// for the real generative implementation).
 public class ExtractiveStubLlmClient implements LlmClient {
 
     private static final int MAX_SENTENCES_PER_CHUNK = 2;

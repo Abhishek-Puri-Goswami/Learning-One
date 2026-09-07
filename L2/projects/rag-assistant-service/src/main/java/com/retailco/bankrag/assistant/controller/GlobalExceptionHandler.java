@@ -11,7 +11,11 @@ import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/** Same @RestControllerAdvice pattern used across every Spring Boot service in this submission. */
+// CONCEPT/PURPOSE: same centralized-exception-handling pattern as
+// rag-service's GlobalExceptionHandler (see that class's comments for the
+// full explanation of @RestControllerAdvice) -- turns exceptions thrown by
+// ANY controller in this module into a consistent structured JSON error
+// body, instead of each controller handling its own errors.
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 

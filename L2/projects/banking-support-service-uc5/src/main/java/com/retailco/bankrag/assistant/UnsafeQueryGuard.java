@@ -3,24 +3,29 @@ package com.retailco.bankrag.assistant;
 import java.util.List;
 import java.util.regex.Pattern;
 
-/**
- * Deliverable: "Guardrail and fallback logic" (unsupported-financial-advice
- * half). L2 HLD UseCase1 System Responsibilities carries this forward too:
- * "Avoid unsupported financial advice" -- UC2 operationalizes it as an
- * explicit pre-generation guardrail rather than relying only on the prompt's
- * instructions (defense in depth: the prompt tells the LLM not to give
- * advice; this guard stops the query before generation even if the LLM
- * were to ignore that instruction).
- *
- * Distinguishes "asking what the bank's policy says" (answerable from
- * retrieved documents, allowed) from "asking the assistant to give
- * personal financial/investment advice" (never answerable from a policy
- * manual, blocked regardless of retrieval results) -- the same distinction
- * exercised by UC1's demo query set (a legitimate FD-withdrawal-policy
- * question vs. a "should I invest in mutual funds" question -- see
- * L2/UC1/reports/hallucination-risk-analysis.md, whose finding motivates
- * having this guard run independently of the similarity-score guardrail).
- */
+// CONCEPT: Guardrail layer -- a scope guardrail (as opposed to
+// PromptInjectionGuard's security guardrail).
+// PURPOSE: Blocks questions asking for personalized financial/investment/
+// legal advice (e.g. "should I invest in mutual funds right now?"),
+// because a policy-document assistant should never answer those --
+// REGARDLESS of what the retriever happens to find. This is different
+// from a low-similarity-score guardrail: even if retrieval accidentally
+// returns a document that LOOKS related, this guard still blocks the
+// query, because the question TYPE itself is out of scope.
+//
+// HOW IT WORKS: same technique as PromptInjectionGuard -- match the raw
+// query against a fixed list of regex patterns for advice-seeking phrasing
+// ("should I invest...", "best mutual fund...", "is it a good time to
+// invest...") and return a blocking Verdict on the first match.
+//
+// WHY this exists as a SEPARATE guard from the similarity threshold: a
+// policy document might mention "mutual funds" in an unrelated compliance
+// paragraph, so a purely similarity-based check could let this kind of
+// question slip through with a misleadingly plausible-looking answer.
+// Blocking by query INTENT, independent of retrieval, closes that gap
+// (defense in depth: the prompt also tells the LLM not to give advice --
+// see PromptTemplate rule 1 -- so this is a second, earlier layer that
+// works even if the LLM ignored its instructions).
 public final class UnsafeQueryGuard {
 
     public record Verdict(boolean blocked, String reason) {

@@ -11,28 +11,31 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Deliverable: "PII masking & structured logging" / "secure logging flow."
- * L2 HLD UseCase6 Implementation Approach step 3: "Implement masking,
- * structured logs, and secure logging flow."
- *
- * This is deliberately a separate concern from L2/UC2's {@code TraceLogger}
- * (which logs RAG generation traces for evaluation) and from UC3's
- * {@code PiiMasking} (which masks values inside API *responses*). This
- * class is the audit trail for *access decisions* -- who asked for whose
- * data, under which role, and whether it was allowed -- written as one JSON
- * object per line (JSONL), the same log-shipping-friendly shape UC2/UC4
- * used for trace/observability records.
- *
- * Structural guarantee, not just a convention: every field this class ever
- * writes is one of {@code timestamp, correlationId, event, actorSubject,
- * actorRoles, requestedCustomerId, tool, decision, reason}. None of those
- * are raw PII (account numbers, balances, mobile numbers, government IDs) --
- * this class has no method that accepts a free-form message string, so
- * there is no code path by which a caller could accidentally log raw
- * customer data through it. That is a stronger guarantee than "we remember
- * to mask before logging" would be.
- */
+// CONCEPT: Security audit logging -- structured, append-only records of
+// every access DECISION (not the data itself), designed so PII cannot leak
+// into logs even by accident.
+// PURPOSE: Every call into BankingToolService ends with one AuditEvent
+// written here: who asked (actorSubject/actorRoles), for whose data
+// (requestedCustomerId), which tool, and the decision
+// (ALLOWED_SELF/ALLOWED_ELEVATED/DENIED_AUTHENTICATION/
+// DENIED_AUTHORIZATION) with a reason.
+//
+// IMPORTANT (a structural, not just conventional, PII guarantee): this
+// class has NO method that accepts a free-form message string -- `log()`
+// only accepts the fixed AuditEvent record, whose fields are all
+// identifiers/decisions/roles, never raw account numbers, balances, or
+// other PII. That means there is literally no code path through this
+// class by which a caller could accidentally log sensitive customer data
+// -- a stronger guarantee than "developers remember to mask before
+// logging," because it doesn't depend on anyone remembering anything.
+//
+// WHY separate from TraceLogger (assistant package) and PiiMasking
+// (security package): TraceLogger records RAG generation traces for
+// evaluation; PiiMasking hides sensitive fields inside API *responses*.
+// This class's only concern is the audit trail of access DECISIONS -- a
+// distinct responsibility that deserves its own class rather than being
+// bolted onto either of those.
+//
 public final class StructuredAuditLogger {
 
     private final Path logFile;

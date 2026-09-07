@@ -12,16 +12,28 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Deliverable: RBAC demonstrated at the Spring Security annotation layer
- * (see SecurityConfig's Javadoc for why this endpoint, unlike
- * /api/v1/support/ask, uses {@code @PreAuthorize} directly instead of
- * delegating to AccessPolicy). ADMIN-only: tails the structured audit log
- * that BankingToolService writes on every access decision -- exactly the
- * kind of endpoint a real compliance/security team would need, and exactly
- * the kind of endpoint that must never be reachable by a plain CUSTOMER
- * token, even a valid one.
- */
+// CONCEPT: Method-level security with `@PreAuthorize` -- Spring Security's
+// annotation-based authorization check, evaluated BEFORE the method body
+// runs.
+// PURPOSE: Exposes the structured audit log (written by
+// BankingToolService/StructuredAuditLogger) for compliance/security
+// review -- exactly the kind of endpoint a real audit team would need.
+// HOW @PreAuthorize("hasRole('ADMIN')") WORKS: Spring Security intercepts
+// the call and checks whether the currently authenticated user's
+// authorities (set by JwtAuthenticationFilter from the JWT's roles,
+// prefixed "ROLE_") include ROLE_ADMIN. If not, the request is rejected
+// with a 403 before `tail()` ever executes -- the method body never has
+// to check this itself.
+// WHY THIS DIFFERS FROM SupportController (which relies on AccessPolicy
+// for its authorization logic instead): this endpoint's rule is simple
+// and fixed ("ADMIN only, no exceptions"), so a declarative annotation is
+// the clearest way to express it. AccessPolicy exists for the MORE
+// complex, business-specific "who can see whose banking data" decision
+// that a single annotation couldn't express as clearly.
+// IMPORTANT: this endpoint must never be reachable by a plain CUSTOMER
+// token, even a technically valid one -- @PreAuthorize enforces that
+// structurally, at the framework level, rather than relying on every
+// caller to remember a manual check.
 @RestController
 public class AuditController {
 

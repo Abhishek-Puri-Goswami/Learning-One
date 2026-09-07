@@ -3,11 +3,13 @@ package com.retailco.bankrag.assistant;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-/**
- * L2 UC2 deliverable: production-shaped Spring Boot entry point wrapping
- * rag-assistant-core's guardrail -> retrieval -> prompt -> generation ->
- * citation -> trace -> evaluation pipeline in a REST API.
- */
+// CONCEPT: Spring Boot application entry point (see rag-service's
+// RagServiceApplication for the full explanation of @SpringBootApplication
+// and SpringApplication.run() -- identical mechanism here).
+// PURPOSE: Boots the whole assistant service: discovers AssistantConfig's
+// beans (EmbeddingModel, LlmClient, RagAssistant), registers the
+// @RestController classes (AskController, IngestionController), and
+// starts the embedded web server.
 @SpringBootApplication
 public class RagAssistantServiceApplication {
     public static void main(String[] args) {

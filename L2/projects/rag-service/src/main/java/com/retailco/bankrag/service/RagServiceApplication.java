@@ -3,15 +3,22 @@ package com.retailco.bankrag.service;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-/**
- * L2 UC1 deliverable: production-shaped Spring Boot entry point wrapping
- * rag-core's chunking/embedding/retrieval pipeline in a REST API.
- *
- * See ../../core/* for the actually-compiled-and-run retrieval logic
- * (copied here from rag-core/ — see this module's pom.xml for why it is
- * a source copy rather than a Maven dependency in this sandbox) and
- * ../../../../reports/ for real captured execution output.
- */
+// CONCEPT: Spring Boot application entry point.
+// PURPOSE: `@SpringBootApplication` is a combination of three annotations
+// (@Configuration, @EnableAutoConfiguration, @ComponentScan) that tells
+// Spring Boot to: treat this class as a source of bean definitions, guess
+// and auto-configure sensible defaults (embedded Tomcat, JSON support,
+// etc.) based on what's on the classpath, and scan this package and its
+// sub-packages for @Component/@Service/@Controller/@Configuration classes
+// to register as Spring beans.
+// FLOW: `SpringApplication.run(...)` boots the whole application context:
+// it discovers RagCoreConfig's @Bean methods, wires them into
+// IngestionService/SearchService, registers the @RestController classes,
+// and starts an embedded web server -- all from this one method call.
+// WHY this file is so small: that's the point of Spring Boot's
+// auto-configuration -- almost everything else in this module (beans,
+// routing, JSON handling) is declared declaratively elsewhere
+// (@Configuration, @Bean, @RestController), not wired manually here.
 @SpringBootApplication
 public class RagServiceApplication {
     public static void main(String[] args) {

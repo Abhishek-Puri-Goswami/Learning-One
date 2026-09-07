@@ -2,18 +2,20 @@ package com.retailco.bankrag.security;
 
 import java.util.List;
 
-/**
- * Deliverable: "Return structured JSON responses" (L2 HLD UseCase3 System
- * Responsibilities) / "Structured response examples" (Deliverables list).
- *
- * Hand-rolled JSON serialization, same reasoning as every other module in
- * this submission that avoids Jackson/Gson (Maven Central blocked --
- * secure-banking-core is pure-JDK specifically so it can be compiled and
- * run for real here). secure-banking-service's Spring controllers use
- * Spring's built-in Jackson integration instead (see its dto/ classes) --
- * this class exists so the SAME response shape can be demonstrated and
- * tested from the pure-JDK demo without needing Spring at all.
- */
+// CONCEPT: Response formatting / serialization -- turning domain objects
+// into JSON strings, hand-written (no Jackson) so it works in the
+// pure-JDK demo (Main.java) as well as inside Spring.
+// PURPOSE: Produces the exact JSON shape a REST client would receive for
+// account balances, transaction history, and loan data -- always using
+// the already-MASKED record types (MaskedAccount/MaskedTransaction/
+// MaskedLoan from BankingToolService), never the raw ones from
+// BankingDataStore.
+// WHY this exists separately from Spring's DTOs: Spring controllers
+// normally return a DTO object and let Spring's built-in Jackson
+// integration serialize it to JSON automatically. This class exists so
+// the pure-JDK demo (which has no Spring, no Jackson) can produce and
+// verify the identical response shape without needing a web framework at
+// all -- useful for testing the exact wire format independent of Spring.
 public final class StructuredResponseFormatter {
 
     private StructuredResponseFormatter() {

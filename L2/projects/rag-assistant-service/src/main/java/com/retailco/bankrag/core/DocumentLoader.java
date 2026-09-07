@@ -7,14 +7,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-/**
- * Step 2 of the RAG pipeline (L2 reference guide, "Document Loading"):
- * loads raw text documents from a directory. Reads plain .txt files here
- * (the corpus/ folder contains text already extracted from
- * L2/_Reference-Docs/Secure_Bank_policy_Manual_input-docs.pdf); a production
- * ingestion pipeline would add PDF/DOCX/HTML loaders per
- * design/embedding-generation-module.md's "swap points" list.
- */
+// CONCEPT: Data ingestion / document loading -- step 1 of a RAG pipeline.
+// PURPOSE: Reads raw text files off disk and wraps each one in a
+// SourceDocument (a small nested record: filename + full text), which is
+// the input the rest of the pipeline (Chunker, VectorStore) expects.
+// FLOW:
+// Directory of .txt files -> DocumentLoader -> List<SourceDocument> ->
+// Chunker.chunk(...) -> VectorStore.index(...)
+// WHY: Only plain .txt is supported here (the corpus is already extracted
+// text). A production system would add PDF/DOCX/HTML parsers at this same
+// point without touching anything downstream, because everything after
+// this class only depends on the simple SourceDocument shape.
 public class DocumentLoader {
 
     public record SourceDocument(String id, String text) {

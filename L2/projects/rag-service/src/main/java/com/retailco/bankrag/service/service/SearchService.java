@@ -11,20 +11,25 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-/**
- * Wraps rag-core's KeywordSearcher / VectorStore.semanticSearch / HybridSearcher
- * behind a single REST-callable "search" operation with a selectable method,
- * implementing the "retrieval comparison" functional requirement (see
- * reports/retrieval-comparison-summary.md, which was produced by exercising
- * this exact logic via rag-core's Main.java CLI demo before this REST wrapper
- * existed) as a callable API rather than only a one-off CLI run.
- *
- * Also implements the hallucination-risk guardrail from
- * reports/hallucination-risk-analysis.md: both an absolute similarity
- * threshold AND a score-margin check (Recommendation 2 of that report) are
- * applied here, since the analysis concluded that a single fixed threshold
- * is not sufficient on its own.
- */
+// CONCEPT: Service layer -- business logic for retrieval, including a
+// "weak retrieval" guardrail, kept separate from the HTTP controller.
+// PURPOSE: Lets a caller pick a search strategy (KEYWORD/SEMANTIC/HYBRID)
+// via one unified method, and applies a guardrail on top of the raw
+// scores so low-confidence results are flagged rather than silently
+// returned as if they were reliable.
+// HOW THE GUARDRAIL WORKS (see search() below): after getting ranked
+// results, check the top score against `similarityThreshold` (an absolute
+// floor) AND check the gap between the top and second result against
+// `minScoreMargin` (is the top result CLEARLY the best, or just barely
+// ahead of an unrelated runner-up?). Either failing sets
+// `guardrailTriggered=true` with an explanatory message -- the guardrail
+// only applies to SEMANTIC/HYBRID methods, since KEYWORD scores are literal
+// term-overlap fractions, not the kind of relevance signal this check is
+// designed to catch.
+// WHY @Value fields with defaults (e.g. "${bankrag.search.similarity-threshold:0.15}"):
+// this makes the thresholds tunable per-deployment via
+// application.yml/environment variables, without a code change or
+// redeploy for a new value.
 @Service
 public class SearchService {
 

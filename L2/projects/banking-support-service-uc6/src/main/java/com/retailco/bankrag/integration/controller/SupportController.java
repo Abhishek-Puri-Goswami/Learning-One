@@ -11,13 +11,21 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * Deliverable: "Secure API endpoint" for the fully integrated system --
- * the single front door L2 HLD UseCase5 describes: one endpoint that
- * transparently serves grounded policy answers (L2/UC2, cached and
- * observed per UC4) or JWT-secured live banking data (L2/UC3), chosen by
- * L2/UC3's IntentClassifier, with no separate endpoint per use case.
- */
+// CONCEPT: Controller layer -- the single unified REST entry point for
+// the whole integrated system (one endpoint, many possible outcomes).
+// PURPOSE: POST /api/v1/support/ask is the ONE front door for both policy
+// questions and live banking data -- IntegratedBankingAssistant decides
+// internally which subsystem actually handles each request.
+// FLOW: extract the raw Authorization header (only actually used for
+// live-data intents -- see IntegratedBankingAssistant's Javadoc) ->
+// delegate to assistant.handle(...) -> convert whichever UnifiedResponse
+// subtype came back into one AskResponse DTO with a `type` discriminator
+// field, so a single JSON response shape can represent 4 different kinds
+// of outcome.
+// WHY instanceof pattern matching (not a pattern-matching switch): this
+// was written to compile with plain `mvn compile` under this project's
+// Java version without needing an `--enable-preview` flag -- see the
+// inline note in the code for the exact reasoning.
 @RestController
 @RequestMapping("/api/v1/support")
 public class SupportController {

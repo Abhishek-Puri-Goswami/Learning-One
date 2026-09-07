@@ -1,15 +1,23 @@
 package com.retailco.bankrag.core;
 
-/**
- * Chunking configuration, per L2's reference guide recommendation of
- * 300-1200 tokens with 100-150 overlap (see design/chunking-configuration.md
- * for the full rationale and the values actually chosen for this corpus).
- * Token counts here use a simple whitespace-token approximation (see
- * Chunker.tokenize) rather than a real BPE tokenizer, since no LLM-vendor
- * tokenizer library was reachable in this sandbox (Maven Central blocked) --
- * documented explicitly as a stand-in, not a claim of exact token-parity
- * with a real model's tokenizer.
- */
+// CONCEPT: Immutable configuration object with self-validation (compact
+// constructor), plus a "record pattern" for value-object validation.
+// PURPOSE:
+// Holds the two tunable knobs for splitting documents into chunks:
+// how big each chunk is (chunkSizeTokens) and how much consecutive chunks
+// overlap (overlapTokens). Overlap exists so a sentence that gets cut at a
+// chunk boundary still appears in full inside at least one chunk.
+//
+// WHY validate here (in the compact constructor below):
+// A `record`'s compact constructor `public ChunkingConfig { ... }` runs
+// before the fields are assigned, for every way the record can be built.
+// Putting the validation here (rather than in each caller) guarantees an
+// invalid ChunkingConfig can never exist anywhere in the program --
+// "make illegal states unrepresentable."
+//
+// IMPORTANT: token counts are approximate (see Chunker.tokenize -- simple
+// whitespace splitting, not a real BPE/subword tokenizer), so treat these
+// numbers as "roughly how much text," not an exact LLM token budget.
 public record ChunkingConfig(int chunkSizeTokens, int overlapTokens) {
 
     public ChunkingConfig {

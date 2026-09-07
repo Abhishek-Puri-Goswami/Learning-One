@@ -5,13 +5,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Hybrid search: weighted combination of semantic (vector) score and
- * keyword score, re-ranking the union of both result sets. Weighting
- * defaults (0.6 semantic / 0.4 keyword) are the recommended starting point
- * per L2's reference guide's "hybrid search" mention under vector DB
- * selection factors -- tunable per design/chunking-configuration.md.
- */
+// CONCEPT: Hybrid search -- combines two different ranking signals
+// (semantic/vector similarity and lexical/keyword overlap) into one score.
+// PURPOSE: Semantic search (VectorStore) is good at "meaning" but can miss
+// an exact rare term; keyword search (KeywordSearcher) is good at exact
+// terms but blind to synonyms/paraphrasing. Blending both compensates for
+// each one's weak spot.
+//
+// HOW IT WORKS (see search() below):
+// 1. Run semantic search AND keyword search independently, over ALL
+//    chunks (not just topK) so no candidate is prematurely excluded.
+// 2. Put each result set's scores in a map keyed by chunk id.
+// 3. For every chunk id that appears in EITHER result set (the `union`),
+//    compute a blended score: semanticWeight * semanticScore +
+//    keywordWeight * keywordScore (missing scores default to 0.0).
+// 4. Sort by blended score, descending, and keep only the top K.
+//
+// WHY these particular weights (0.6 semantic / 0.4 keyword): a tunable
+// starting point, not a hardcoded law -- callers pass their own weights in
+// the constructor, so this class stays reusable.
 public class HybridSearcher {
 
     private final VectorStore vectorStore;

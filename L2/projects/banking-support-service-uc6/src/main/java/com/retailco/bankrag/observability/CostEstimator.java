@@ -4,22 +4,19 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 
-/**
- * Deliverable: "Cost estimation." L2 HLD UseCase4 System Responsibilities:
- * "Estimate cost per query."
- *
- * Real arithmetic over real token counts (from EvaluationHarness/LlmClient
- * -- see L2/UC2's whitespace-tokenizer-approximation disclosure, which
- * applies here too, since these ARE the same token counts) against a
- * configurable per-1K-token rate. The rate itself is a realistic
- * *placeholder* for a mid-tier hosted LLM's blended input/output pricing
- * as of this submission's writing -- NOT a live-priced API call (there is
- * no reachable LLM billing API in this sandbox), and explicitly disclosed
- * as such in cost/cost-estimation-document.md rather than presented as
- * authoritative. A real deployment would source the actual rate from
- * whatever provider/contract is in force and update this constructor
- * argument accordingly -- the calculation itself doesn't change.
- */
+// CONCEPT: Cost estimation using BigDecimal (not double/float) for money math.
+// PURPOSE: Converts real token counts into an estimated USD cost, using a
+// configurable per-1000-token rate (separate rates for prompt vs.
+// completion tokens, since providers typically price them differently).
+// WHY BigDecimal instead of double: floating-point (double) arithmetic can
+// introduce small rounding errors that compound over many calculations --
+// unacceptable when the result represents money. BigDecimal with an
+// explicit RoundingMode/scale gives exact, predictable decimal arithmetic.
+// IMPORTANT: the per-1K-token rate is a configurable, disclosed
+// *placeholder* for illustration, not a live-priced API quote -- a real
+// deployment would source the actual rate from its provider/contract, but
+// the calculation logic itself (estimateCostUsd/projectMonthlyCost) would
+// stay the same.
 public class CostEstimator {
 
     private final BigDecimal costPer1kPromptTokens;

@@ -10,12 +10,22 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * Step 1 of the "Foundation & Core Retrieval" REST surface: document
- * ingestion. See design/embedding-generation-module.md's Module Boundaries
- * diagram -- IngestionController -> DocumentLoader -> Chunker ->
- * EmbeddingModel -> VectorStore.
- */
+// CONCEPT: Controller layer (Spring MVC's `@RestController`) -- the thin
+// HTTP-facing layer that translates a REST request into a service call.
+// PURPOSE: Exposes POST /api/v1/rag/ingest, which loads a directory of
+// documents, chunks them, embeds them, and stores them in the VectorStore.
+// FLOW: HTTP request -> @RequestBody deserializes JSON into an
+// IngestRequest -> @Valid triggers bean-validation (see IngestRequest's
+// annotations) BEFORE this method body even runs -- an invalid request
+// never reaches ingestionService.ingest() -- -> IngestionController
+// delegates to IngestionService -> DocumentLoader -> Chunker ->
+// EmbeddingModel -> VectorStore.
+// WHY the controller has almost no logic of its own: this is the
+// Controller-Service separation pattern -- the controller's only job is
+// HTTP plumbing (deserialize request, call the service, wrap the result
+// in a 200 OK). All actual business logic (loading files, chunking,
+// indexing) lives in IngestionService, which makes that logic reusable
+// and testable independent of any HTTP framework.
 @RestController
 @RequestMapping("/api/v1/rag")
 public class IngestionController {

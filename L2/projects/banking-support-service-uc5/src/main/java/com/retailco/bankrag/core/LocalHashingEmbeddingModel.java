@@ -3,24 +3,30 @@ package com.retailco.bankrag.core;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * A dependency-free, fully offline embedding model used ONLY to make the
- * retrieval pipeline in this folder actually runnable and verifiable inside
- * a sandbox with no network access to an embedding API or to Maven Central
- * (to pull a real local model like LangChain4j's all-MiniLM-L6-v2). This is
- * NOT a claim that hashed bag-of-words vectors are production-quality
- * semantic embeddings -- see design/embedding-generation-module.md for the
- * explicit limitation and the real model this must be swapped for before
- * any production/graded use.
- *
- * Technique: feature hashing (the "hashing trick") of term frequencies into
- * a fixed-size dense vector, L2-normalized. This still captures meaningful
- * term-overlap-based similarity (enough to demonstrate and test the
- * pipeline end-to-end -- see the retrieval comparison report) but does NOT
- * capture true semantic/synonym similarity the way a trained embedding
- * model does. That gap is exactly why reports/retrieval-comparison-summary.md
- * discusses this model's "semantic" column with that caveat attached.
- */
+// CONCEPT: Strategy pattern implementation -- the "offline fallback"
+// EmbeddingModel, using the classic ML "feature hashing" (hashing trick).
+// PURPOSE: Lets the whole RAG pipeline run with zero external dependencies
+// and zero network calls, so it's always demonstrable even without an
+// OpenAI API key. This is the automatic fallback whenever
+// OpenAiEmbeddingModel.isConfigured() is false (see each module's
+// *Config.java).
+//
+// HOW IT WORKS (step by step, see embed() below):
+// 1. Tokenize the text into lowercase words.
+// 2. Hash each word to a bucket index in [0, dimensions) using its
+//    hashCode() (Math.floorMod handles negative hash codes).
+// 3. Count how many times each bucket is hit -- this builds a
+//    bag-of-words vector where "similar word overlap" -> "similar vector."
+// 4. L2-normalize the vector (divide by its length) so cosine similarity
+//    between two vectors only measures direction/overlap, not raw length.
+//
+// WHY THIS APPROACH: it needs no trained model, no external service, and
+// no big vocabulary table -- just a hash function -- so it's genuinely
+// runnable anywhere Java runs. The trade-off (IMPORTANT): it only captures
+// literal word overlap, not real semantic meaning -- "car" and "automobile"
+// get completely unrelated vectors here, whereas a real embedding model
+// (OpenAiEmbeddingModel) would place them close together. This is a
+// disclosed, deliberate stand-in, not a production-quality embedding model.
 public class LocalHashingEmbeddingModel implements EmbeddingModel {
 
     private final int dimensions;

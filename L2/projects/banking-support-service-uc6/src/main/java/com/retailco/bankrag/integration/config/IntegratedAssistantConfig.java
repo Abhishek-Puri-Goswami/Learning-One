@@ -26,6 +26,17 @@ import org.springframework.context.annotation.Configuration;
 import java.math.BigDecimal;
 import java.nio.file.Path;
 
+// CONCEPT: The "composition root" @Configuration class (same role as
+// UC5's version of this class -- see that one's comments for the full
+// dependency-graph explanation). This UC6 version adds the audit-logging
+// beans (auditLogPath, structuredAuditLogger) and threads
+// StructuredAuditLogger into BankingToolService's constructor, which is
+// what turns on the RBAC audit trail for every live-data access decision.
+// WHY a separate `Path auditLogPath()` bean rather than inlining the path
+// string directly into structuredAuditLogger(): it makes the log file's
+// location itself an independently-injectable, overridable value (Spring
+// could later supply a different Path bean, e.g. from configuration, with
+// no change to StructuredAuditLogger's own code).
 /**
  * Every bean this final integrated system needs, wired in one place --
  * the same central-configuration pattern used in every prior use case's

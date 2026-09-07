@@ -1,5 +1,13 @@
 package com.retailco.bankrag.security;
 
+// CONCEPT: RBAC (Role-Based Access Control) -- modeling roles as a Java
+// `enum` rather than free-floating strings.
+// PURPOSE: Defines the closed, fixed set of roles the system recognizes.
+// WHY an enum instead of a String constant like "ADMIN": an enum is a
+// closed set the compiler enforces -- a typo like "ADMN" can't silently
+// compile and fail at runtime the way a raw string comparison could, and
+// every role that exists is visible in ONE place (this file) instead of
+// being discoverable only by grepping every call site.
 /**
  * Deliverable: "RBAC (Role-Based Access Control)." L2 HLD UseCase6
  * Functional Scope: "Secure backend API access (JWT, RBAC)."

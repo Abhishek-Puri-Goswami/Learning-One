@@ -9,28 +9,37 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Real implementation of {@link EmbeddingModel} backed by OpenAI's
- * Embeddings API (https://api.openai.com/v1/embeddings), calling it
- * directly over {@link HttpClient} (built into the JDK -- no Jackson/Gson
- * or SDK dependency needed, since this module has zero external
- * dependencies by design).
- *
- * <p>The API key is read ONLY from the {@code OPENAI_API_KEY} environment
- * variable -- it is never hardcoded, logged, or written to any file. If the
- * variable is unset or blank, construction fails fast with
- * {@link IllegalStateException} so callers know to fall back to
- * {@link LocalHashingEmbeddingModel} instead (see each project's
- * {@code Main.java} / Spring {@code *Config.java} for that runtime switch).
- *
- * <p>This class was written and reviewed for correctness against OpenAI's
- * documented request/response shape, but the sandbox this project was
- * developed in has no network route to {@code api.openai.com} (only
- * github.com and npm's registry are reachable there), so a live call could
- * not be executed or verified from that environment. Verify it yourself by
- * setting {@code OPENAI_API_KEY} and running the demo/tests on a machine
- * with real internet access.
- */
+// CONCEPT: AI/LLM integration -- a real embedding-API client, and the
+// "Strategy" implementation that plugs into the EmbeddingModel interface.
+// PURPOSE: This is the production embedding model. It calls OpenAI's
+// /v1/embeddings endpoint over plain java.net.http.HttpClient (no SDK,
+// no Jackson -- see MinimalJson) and converts the JSON response into the
+// double[] vector the rest of the app (VectorStore) expects.
+//
+// FLOW (see embed() below, step by step):
+// 1. Build a JSON request body {"model": ..., "input": text}.
+// 2. POST it to {baseUrl}/embeddings with an Authorization: Bearer header.
+// 3. If the HTTP status isn't 2xx, throw OpenAiApiException with the raw
+//    error body attached -- callers see exactly what OpenAI said was wrong.
+// 4. Otherwise parse response.data[0].embedding into a double[].
+//
+// WHY read the key/URL/model from environment variables (see the
+// constructor and envOrDefault()) instead of hardcoding them: this keeps
+// the secret out of source code entirely (never logged, never committed),
+// and lets the exact same class talk to any OpenAI-compatible endpoint
+// (OpenAI directly, Azure OpenAI, or a corporate gateway) just by changing
+// OPENAI_BASE_URL -- no code change needed.
+//
+// IMPORTANT (fail-fast pattern): if OPENAI_API_KEY is missing/blank, the
+// constructor throws IllegalStateException immediately rather than
+// creating a half-working object. isConfigured() lets callers check
+// BEFORE constructing, so they can choose LocalHashingEmbeddingModel
+// instead -- see each project's *Config.java for that real/stub switch.
+//
+// WHAT IF REMOVED: without this class, the app could only ever produce
+// hashed bag-of-words vectors (LocalHashingEmbeddingModel) -- it would
+// still run, but retrieval quality would be limited to literal word
+// overlap rather than true semantic similarity.
 public class OpenAiEmbeddingModel implements EmbeddingModel {
 
     private static final String DEFAULT_BASE_URL = "https://api.openai.com/v1";

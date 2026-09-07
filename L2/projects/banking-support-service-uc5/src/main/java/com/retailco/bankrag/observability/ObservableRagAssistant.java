@@ -2,19 +2,34 @@ package com.retailco.bankrag.observability;
 
 import com.retailco.bankrag.assistant.RagAssistant;
 
-/**
- * Wraps L2/UC2's RagAssistant with the three L2 UC4 concerns that need to
- * sit AROUND every call, not inside retrieval/generation itself: caching
- * (check before calling, store after), metrics recording (latency + token
- * usage, already present on AssistantResponse.evaluation() -- this class
- * doesn't recompute them, it just captures them), and cost estimation.
- *
- * This is intentionally a decorator around RagAssistant, not a
- * modification of it -- L2/UC2's pipeline (guardrails -> retrieval ->
- * prompt -> generation -> citation -> trace -> evaluation) is unchanged
- * and still independently correct; UC4 adds an observability layer on top
- * without touching UC2's already-verified internals.
- */
+// CONCEPT: Decorator pattern -- wraps an existing object (RagAssistant)
+// to add new behavior (caching, metrics, cost tracking) around it, without
+// modifying the wrapped object's own code.
+// PURPOSE: RagAssistant already does guardrails -> retrieval -> generation
+// -> citation -> evaluation -> tracing correctly on its own. This class
+// adds three cross-cutting observability concerns AROUND every call, in
+// one place, so RagAssistant's internals never need to know about caching
+// or cost.
+//
+// FLOW (see ask() below, step by step):
+// 1. Check the cache first (QueryCache.get()). On a hit, record a
+//    zero-latency/zero-cost metric (explicitly showing the SAVINGS from
+//    caching) and return immediately -- ragAssistant.ask() is never called.
+// 2. On a miss, call the real ragAssistant.ask(), time it, estimate its
+//    cost from its token count (via CostEstimator), and record a full
+//    QueryMetric.
+// 3. Store the fresh response in the cache for next time.
+//
+// WHY a decorator instead of modifying RagAssistant directly: RagAssistant
+// is already independently correct and tested on its own. Wrapping it
+// means that logic stays untouched and still independently verifiable --
+// this class only ever adds behavior around it, never changes what
+// RagAssistant itself does.
+//
+// SPRING BOOT CONCEPT TO LEARN: this is a plain Java decorator, not a
+// Spring-specific mechanism (no @Aspect/AOP here) -- but it solves the
+// same "cross-cutting concern" problem AOP is designed for, just done
+// explicitly and visibly instead of via proxies/annotations.
 public class ObservableRagAssistant {
 
     private final RagAssistant ragAssistant;

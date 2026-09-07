@@ -1,5 +1,8 @@
 package com.retailco.bankrag.integration.dto;
 
+// CONCEPT: "Envelope" / discriminated-union response DTO -- one wire shape
+// representing several different possible outcomes, disambiguated by a
+// `type` string field.
 /**
  * A deliberately generic envelope: `type` names which UnifiedResponse
  * variant fired (POLICY_ANSWER, LIVE_DATA, ACCESS_DENIED, AMBIGUOUS), and

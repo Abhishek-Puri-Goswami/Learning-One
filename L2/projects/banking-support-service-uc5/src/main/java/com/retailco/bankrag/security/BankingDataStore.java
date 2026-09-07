@@ -6,18 +6,22 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * In-memory stand-in for the "relational database" L2 HLD UseCase3's
- * Implementation Approach names ("Fetch data from a relational database").
- * A real deployment would back this with the same PostgreSQL instance
- * L1/L2 already standardize on (see L2/UC1's design/vector-database-schema.md
- * for that same reuse-existing-Postgres reasoning) via Spring Data JPA
- * repositories -- not reachable/buildable here (Maven Central blocked), so
- * this class keeps the exact same method contracts a
- * `@Repository`-backed implementation would have, letting
- * secure-banking-service's real Spring wiring swap this out without
- * changing any calling code.
- */
+// CONCEPT: Repository pattern -- an in-memory stand-in for a real
+// database-backed repository (what would normally be a Spring Data JPA
+// `@Repository` talking to PostgreSQL).
+// PURPOSE: Provides accounts, transactions, and loans keyed by customer/
+// account id, using plain in-memory Maps seeded with demo data.
+// WHY the method contracts matter: findAccountsByCustomerId,
+// findTransactionsByAccountNumber, findLoansByCustomerId are written to
+// look exactly like what a real Spring Data JPA repository interface
+// would expose. That means a production version of this class could be
+// replaced by a real `@Repository` backed by PostgreSQL without changing
+// any of BankingToolService's calling code -- only this class's internals
+// would change from "look up a Map" to "run a SQL query."
+// IMPORTANT: this class holds no user input and no live external data --
+// its only job is to simulate what a database would return, so the
+// security/business logic above it (BankingToolService, PiiMasking) can
+// be developed and tested against realistic-shaped data.
 public class BankingDataStore {
 
     public record Account(String accountNumber, String customerId, String accountType, BigDecimal balance, String currency) {

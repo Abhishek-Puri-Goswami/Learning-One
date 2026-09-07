@@ -2,19 +2,14 @@ package com.retailco.bankrag.service.dto;
 
 import java.util.List;
 
-/**
- * Response body for GET /api/v1/rag/search.
- *
- * guardrailTriggered / guardrailMessage implement the hallucination-risk
- * guardrail discussed in reports/hallucination-risk-analysis.md: when the
- * top result's score is below the configured similarity threshold, the
- * response carries no chunk content the caller/LLM should build an answer
- * from -- it explicitly signals "outside scope" instead of silently
- * returning weak or empty results (see hallucination-risk-analysis.md's
- * Recommendation 2, "score-margin / relative-confidence check": scoreMargin
- * is exposed here specifically so a calling layer can apply that check
- * rather than trusting the raw score alone).
- */
+// CONCEPT: Response DTO carrying both the search results AND guardrail
+// metadata in one shape.
+// PURPOSE: `guardrailTriggered`/`guardrailMessage` let a caller (a
+// frontend, or another AI agent) know when a search result should NOT be
+// trusted as a confident answer, rather than silently returning weak
+// results indistinguishable from strong ones. `topScore`/`scoreMargin`
+// are exposed raw so a caller could apply its OWN confidence policy
+// instead of only trusting this service's guardrail decision.
 public record SearchResponse(
         String query,
         String method,

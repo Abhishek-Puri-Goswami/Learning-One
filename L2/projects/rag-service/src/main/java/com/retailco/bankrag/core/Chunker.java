@@ -3,12 +3,29 @@ package com.retailco.bankrag.core;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Sliding-window chunker: splits a document's whitespace-tokenized text into
- * overlapping windows, per the L2 reference guide's "chunks = split_text(text,
- * chunk_size=500, overlap=100)" pseudo-code -- implemented for real here
- * rather than left as pseudo-code.
- */
+// CONCEPT: Sliding-window algorithm.
+// PURPOSE:
+// Turns one long document's text into many overlapping Chunk objects, so
+// each Chunk is small enough to embed and retrieve independently.
+//
+// HOW IT WORKS (step by step):
+// 1. Split the whole text into individual word-tokens (tokenize()).
+// 2. Walk a "window" of `chunkSizeTokens` tokens across that list.
+// 3. After each window, move the start position forward by
+//    `step = chunkSizeTokens - overlapTokens` tokens, NOT by the full
+//    chunk size -- this is what creates the overlap between chunk N and
+//    chunk N+1.
+// 4. Stop once a window reaches the end of the document.
+//
+// WHY overlap matters: without it, a sentence that straddles a chunk
+// boundary (e.g. "...interest rate is | 8.25%...") would be split across
+// two chunks and neither chunk alone would contain the full fact. With
+// overlap, that sentence is likely to appear whole in at least one chunk.
+//
+// WHAT IF REMOVED/CHANGED: dropping overlap (setting it to 0) would make
+// `step == chunkSizeTokens`, so chunks would tile the document with no
+// repeated text -- simpler, but retrieval quality would drop for facts
+// that sit near a chunk boundary.
 public class Chunker {
 
     private final ChunkingConfig config;

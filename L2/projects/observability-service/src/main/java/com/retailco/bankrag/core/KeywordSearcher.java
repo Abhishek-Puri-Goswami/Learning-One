@@ -7,12 +7,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Pure keyword (lexical) search: scores each chunk by the fraction of query
- * terms it literally contains, case-insensitively. Used as the baseline in
- * reports/retrieval-comparison-summary.md's "keyword vs semantic vs hybrid"
- * comparison, per L2 HLD UseCase1's required functional scope.
- */
+// CONCEPT: Lexical (keyword) search -- the classic, non-ML baseline for
+// information retrieval.
+// PURPOSE: Scores a chunk by what fraction of the query's distinct words
+// it literally contains (case-insensitive). Doesn't understand meaning at
+// all -- "car" and "automobile" share zero overlap here -- but it's exact
+// and predictable, which makes it a useful baseline to compare semantic
+// search against (see HybridSearcher, which blends both).
+// WHY IT MATTERS: a good RAG system usually needs semantic search for
+// paraphrased questions AND keyword search for exact terms (account
+// numbers, policy codes, specific named products) that an embedding model
+// might blur together with similar-sounding text.
 public class KeywordSearcher {
 
     public List<ScoredChunk> search(List<Chunk> chunks, String query, int topK) {

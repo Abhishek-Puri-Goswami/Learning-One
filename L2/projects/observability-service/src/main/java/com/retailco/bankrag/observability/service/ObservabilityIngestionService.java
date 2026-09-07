@@ -12,6 +12,12 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
 
+// CONCEPT/PURPOSE: same Service-layer ingestion pipeline
+// (DocumentLoader -> Chunker -> VectorStore) as rag-service's
+// IngestionService and rag-assistant-service's AssistantIngestionService --
+// duplicated here rather than shared because each Spring module in this
+// submission copies rag-core's classes as source instead of depending on
+// a sibling module's jar (see rag-core's own comments for that reasoning).
 @Service
 public class ObservabilityIngestionService {
 

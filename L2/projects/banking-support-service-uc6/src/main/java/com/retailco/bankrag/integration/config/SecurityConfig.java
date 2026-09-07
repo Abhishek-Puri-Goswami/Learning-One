@@ -11,6 +11,15 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+// CONCEPT: Layered Spring Security configuration -- combining
+// path-based rules (`authorizeHttpRequests`) with method-level annotations
+// (`@EnableMethodSecurity` + `@PreAuthorize`, see AuditController) in the
+// SAME application. WHY two mechanisms instead of one: they suit different
+// shapes of rule -- path-based rules are simplest when "is this URL
+// reachable at all" is the question; method-level annotations are
+// simplest when "does THIS specific admin operation require a role" is
+// the question, especially when several different intents share one URL
+// (like /api/v1/support/ask) and can't be separated by path alone.
 /**
  * Same JWT wiring pattern as L2/UC3's SecurityConfig, narrowed to this
  * system's single unified endpoint, plus L2 HLD UseCase6's RBAC addition.

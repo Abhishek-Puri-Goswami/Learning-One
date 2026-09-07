@@ -1,14 +1,20 @@
 package com.retailco.bankrag.security;
 
-/**
- * Deliverable: "Masked response formatting." L2 HLD UseCase3 System
- * Responsibilities: "Mask sensitive information."
- *
- * Pure string-transformation utilities, deliberately dependency-free and
- * side-effect-free so they're trivially unit-testable and reusable from
- * both secure-banking-core's demo and secure-banking-service's Spring
- * controllers unchanged.
- */
+// CONCEPT: PII (Personally Identifiable Information) masking -- a security/
+// privacy technique for display data, distinct from encryption (the
+// underlying value still exists in full elsewhere; this only controls
+// what's SHOWN).
+// PURPOSE: Every method here takes a full sensitive value (account number,
+// mobile, email, government id) and returns a partially-hidden version
+// safe to show in logs, API responses, or a UI, following PCI-DSS-style
+// "show only the last 4 digits" conventions.
+// WHY pure, side-effect-free static methods: masking is a simple, stateless
+// text transformation -- no class needs to be instantiated, no dependency
+// injection is needed, and pure functions like these are trivially
+// unit-testable (same input always produces the same output).
+// WHERE THIS FITS: BankingToolService calls these methods before ever
+// returning account/transaction/loan data to a caller -- the RAW,
+// unmasked data (from BankingDataStore) never leaves that boundary.
 public final class PiiMasking {
 
     private PiiMasking() {

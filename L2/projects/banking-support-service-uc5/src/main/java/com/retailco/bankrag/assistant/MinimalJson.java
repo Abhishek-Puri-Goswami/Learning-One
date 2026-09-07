@@ -5,16 +5,24 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * A tiny, dependency-free JSON reader/writer used only so this module can
- * talk to the OpenAI REST API without pulling in Jackson/Gson via Maven
- * (Maven Central is blocked in the sandbox this project was developed in --
- * see README's disclosure section). It is intentionally minimal: it covers
- * exactly the JSON shapes OpenAI's Embeddings and Chat Completions endpoints
- * send and expect, not the full JSON spec (e.g. no \\uXXXX surrogate-pair
- * handling beyond basic BMP code points). If you already have Jackson/Gson
- * on the classpath in your real environment, feel free to swap this out.
- */
+// CONCEPT: Hand-rolled recursive-descent parser -- a small, from-scratch
+// JSON reader/writer.
+// PURPOSE: OpenAiEmbeddingModel needs to send and parse JSON to talk to
+// OpenAI's REST API, but this module deliberately has zero external
+// dependencies (no Jackson/Gson). This class exists purely as a minimal,
+// dependency-free substitute -- it understands only the JSON shapes
+// OpenAI's Embeddings/Chat Completions endpoints actually use, not the
+// full JSON spec.
+// HOW IT WORKS: `parse()` wraps the string in a `Parser` and calls
+// `parseValue()`, which looks at the next character to decide what kind of
+// JSON value follows ('{' object, '[' array, '"' string, 't'/'f' boolean,
+// 'n' null, else a number) and recurses accordingly -- this is the
+// "recursive descent" parsing technique, one parsing method per grammar
+// rule. `asObject`/`asArray`/`asDouble`/`asInt` are small unchecked casts
+// that make call sites read cleanly once you know the expected shape.
+// WHY: in a real production project you'd use Jackson or Gson instead of
+// hand-rolling this -- it's a deliberate, disclosed trade-off for staying
+// dependency-free, not a recommended general-purpose JSON library.
 final class MinimalJson {
 
     private MinimalJson() {

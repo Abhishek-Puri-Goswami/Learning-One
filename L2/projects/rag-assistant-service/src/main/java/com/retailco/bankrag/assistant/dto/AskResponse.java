@@ -5,11 +5,11 @@ import com.retailco.bankrag.assistant.EvaluationHarness;
 
 import java.util.List;
 
-/**
- * Response body for POST /api/v1/assistant/ask. Mirrors
- * RagAssistant.AssistantResponse, exposed as a stable REST contract so
- * internal refactors of RagAssistant don't leak into the API shape.
- */
+// CONCEPT: Response DTO -- deliberately a separate type from
+// RagAssistant.AssistantResponse even though the fields currently match.
+// WHY: this is the API's stable public contract; RagAssistant's internal
+// return type can be refactored freely as long as AskController keeps
+// mapping it onto this same AskResponse shape (see AskController.ask()).
 public record AskResponse(
         String query,
         String answer,

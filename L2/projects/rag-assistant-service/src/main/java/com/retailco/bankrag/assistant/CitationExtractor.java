@@ -9,23 +9,26 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Deliverable: "Citation-enabled responses."
- *
- * Parses the inline [chunk-id] markers PromptTemplate's rules require the
- * LLM to emit (see SYSTEM_INSTRUCTIONS rule 2) out of the raw generated
- * text, and resolves each one back to its full source chunk (document,
- * chunk index, similarity score) from the chunks that were actually
- * retrieved for this query -- so a caller (e.g. the React frontend) can
- * render clickable/expandable citations rather than parsing raw text
- * itself.
- *
- * Also flags citations that reference a chunk id NOT present in the
- * retrieved set -- a real generative LLM can occasionally invent a
- * plausible-looking citation ("hallucinated citation"); this check would
- * catch that even though the deterministic ExtractiveStubLlmClient never
- * actually produces one (it only ever cites chunk ids it was given).
- */
+// CONCEPT: Post-processing / response parsing -- turning an LLM's raw text
+// output back into structured data.
+// PURPOSE: PromptTemplate instructs the LLM to cite sources inline as
+// "[chunk-id]" markers (e.g. "[loan_processing_policy.txt#2]"). This class
+// finds every such marker in the generated answer and resolves it back to
+// its full Citation (source document, chunk index, similarity score), so a
+// caller like a REST API/frontend gets structured citation data instead of
+// having to re-parse the answer text itself.
+//
+// HOW IT WORKS: a regex (CITATION_PATTERN) finds every "[...]" bracket
+// that looks like a chunk id, de-duplicates repeats of the same id, then
+// looks each one up in the map of chunks that were ACTUALLY retrieved for
+// this query.
+//
+// IMPORTANT (hallucinated-citation detection): if a citation's id is NOT
+// found in that map, it's flagged with `resolvable=false` rather than
+// silently dropped. A real generative LLM can occasionally invent a
+// plausible-looking citation to a chunk that was never actually retrieved
+// ("hallucinated citation") -- surfacing that instead of hiding it lets
+// callers detect when the LLM cited something it shouldn't have.
 public final class CitationExtractor {
 
     public record Citation(String chunkId, String sourceDocument, int chunkIndex,

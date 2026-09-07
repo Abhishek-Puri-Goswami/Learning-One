@@ -8,19 +8,36 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Deliverable: "Short evaluation summary (faithfulness, relevance, latency)."
- * L2 HLD UseCase2 Implementation Approach: "Evaluate response faithfulness,
- * relevance, latency, token usage using LangSmith."
- *
- * Real LangSmith evaluation runs an LLM-as-judge (or a human) to score
- * faithfulness/relevance -- not available in this sandbox (no LLM API
- * egress). These are lexical-overlap proxy metrics instead, computed for
- * real from the actual pipeline run (not fabricated), with the proxy
- * nature disclosed explicitly, matching this submission's consistent
- * pattern of "run something real and disclose its limits" over "describe
- * something ideal and never run it."
- */
+// CONCEPT: Automated evaluation / "LLM-as-judge" proxy metrics -- a
+// lightweight, code-only stand-in for what an LLM-based evaluator would do.
+// PURPOSE: Scores every answer on two axes: faithfulness (does the answer
+// actually say what its cited sources say?) and relevance (was the
+// retrieved context actually related to the question?). This is what lets
+// you measure RAG quality automatically instead of eyeballing outputs.
+//
+// HOW faithfulness is computed (see computeFaithfulness() below, step by
+// step -- this is the more interesting metric):
+// 1. Split the answer into sentences.
+// 2. For each sentence that carries a "[chunk-id]" citation, find that
+//    chunk's original text.
+// 3. Compute what fraction of the sentence's own words also appear in
+//    the cited chunk's text (lexical overlap, same technique as
+//    KeywordSearcher/ExtractiveStubLlmClient).
+// 4. Average that fraction across all cited sentences.
+// A real "groundedness" evaluator would use another LLM to judge semantic
+// entailment (does the source actually SUPPORT this claim, even if worded
+// differently?); this lexical-overlap version is a coarser, fully local,
+// zero-cost approximation of the same idea.
+//
+// WHY relevance is just "the top chunk's similarity score": it's a cheap,
+// already-computed proxy for "was the right information even found?" --
+// no additional computation needed, since VectorStore already produces it.
+//
+// IMPORTANT edge case (see the citations.isEmpty() branch): an answer with
+// NO citations is only treated as faithful (score 1.0) if it looks like a
+// fallback/decline ("I don't have...", "does not contain..."). Otherwise
+// it scores 0.0 -- a grounded assistant making an uncited claim is exactly
+// the failure mode this metric exists to catch.
 public final class EvaluationHarness {
 
     public record EvaluationResult(

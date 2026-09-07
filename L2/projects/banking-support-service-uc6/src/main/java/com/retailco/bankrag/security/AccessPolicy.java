@@ -3,6 +3,19 @@ package com.retailco.bankrag.security;
 import java.util.List;
 import java.util.Set;
 
+// CONCEPT: Policy object pattern -- centralizing an authorization decision
+// into one pure function instead of scattering `if` checks across callers.
+// PURPOSE: Answers exactly one question: "can this subject, given these
+// roles, access this customer's data?" -- and returns a `Decision` (a
+// sealed interface, same pattern as JwtService's VerificationResult) that
+// forces callers to explicitly handle both Allowed and Denied outcomes.
+// WHY centralize this: the permission matrix in the Javadoc below is only
+// trustworthy if there's exactly ONE place that implements it -- if every
+// caller re-implemented "is this ADMIN or SUPPORT_AGENT or self-access"
+// inline, the matrix could silently drift out of sync with the actual code.
+// FLOW: BankingToolService calls AccessPolicy.evaluate(...) for every
+// request before returning any data -- see that class for where this
+// Decision is consumed.
 /**
  * Deliverable: "RBAC." Centralizes the one decision UC3 previously made
  * inline inside {@code BankingToolService.verifyAndAuthorize} ("is this

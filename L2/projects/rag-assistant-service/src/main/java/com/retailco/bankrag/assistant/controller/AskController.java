@@ -10,15 +10,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * The core L2 UC2 deliverable as a REST endpoint: POST /api/v1/assistant/ask
- * runs the full guardrail -> retrieval -> prompt -> generation -> citation
- * -> trace -> evaluation pipeline (RagAssistant.ask) for a single query.
- *
- * See rag-assistant-core/API-EXAMPLES.md for example requests, including
- * the guardrail-triggering and fallback-triggering cases exercised for
- * real in reports/assistant-demo-run-log.txt.
- */
+// CONCEPT: Controller layer -- the REST entry point for the entire RAG
+// assistant pipeline.
+// PURPOSE: POST /api/v1/assistant/ask takes a user's question and runs
+// RagAssistant's full pipeline (guardrails -> retrieval -> prompt ->
+// generation -> citation -> trace -> evaluation) for it, then maps the
+// internal `AssistantResponse` onto the public `AskResponse` DTO.
+// WHY map AssistantResponse -> AskResponse here rather than returning
+// AssistantResponse directly: it keeps the internal RagAssistant class
+// free to evolve its own return shape without being constrained by "this
+// is also our public API contract" -- the controller is the one place
+// that decides what's actually exposed over HTTP.
 @RestController
 @RequestMapping("/api/v1/assistant")
 public class AskController {

@@ -10,7 +10,19 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.Map;
 
-/** DEV/DEMO ONLY -- same disclosed limitation as L2/UC3's DevTokenController. Never active outside the "dev" profile. */
+// CONCEPT: Spring Profiles (`@Profile`) -- conditionally registering a
+// bean/controller only when a specific named profile is active.
+// PURPOSE: Issues a signed JWT for a given customerId/role, purely so the
+// demo/dev environment can generate test tokens without a real login flow.
+// WHY @Profile("dev") matters: this endpoint would be a serious security
+// hole in production (anyone could mint a token for any customer id with
+// any role) -- @Profile("dev") means Spring only registers this
+// controller when the "dev" profile is explicitly active
+// (spring.profiles.active=dev), so it's structurally absent from a
+// production deployment rather than merely "not supposed to be called."
+// IMPORTANT: this is disclosed as DEV/DEMO ONLY -- a real system needs an
+// actual authentication flow (login, OAuth, etc.) issuing tokens, not an
+// open endpoint that hands one out on request.
 @RestController
 @Profile("dev")
 public class DevTokenController {

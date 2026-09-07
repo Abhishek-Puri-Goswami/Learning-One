@@ -25,15 +25,29 @@ import org.springframework.context.annotation.Configuration;
 import java.math.BigDecimal;
 import java.nio.file.Path;
 
-/**
- * Every bean this final integrated system needs, wired in one place --
- * the same central-configuration pattern used in every prior use case's
- * config class, now composing all of them: L2/UC1's VectorStore/
- * EmbeddingModel, UC2's RagAssistant, UC3's JwtService/BankingDataStore/
- * BankingToolService/IntentClassifier, UC4's QueryCache/MetricsRecorder/
- * CostEstimator/ObservableRagAssistant, and finally this use case's
- * IntegratedBankingAssistant tying them together.
- */
+// CONCEPT: A single, large `@Configuration` class as the "composition
+// root" of the whole application -- every object this integrated system
+// needs is created and wired together here, in dependency order.
+// PURPOSE: Builds the ENTIRE object graph, layer by layer:
+// EmbeddingModel/VectorStore (retrieval foundation) -> LlmClient/
+// TraceLogger/RagAssistant (RAG pipeline) -> QueryCache/MetricsRecorder/
+// CostEstimator/ObservableRagAssistant (observability wrapper) ->
+// JwtService/BankingDataStore/BankingToolService/IntentClassifier
+// (security + live-data tools) -> IntegratedBankingAssistant (the
+// top-level orchestrator that ties all of the above together).
+// HOW SPRING RESOLVES THIS: each @Bean method's parameters are OTHER
+// beans this class (or elsewhere) declares -- Spring inspects every
+// method signature, builds a dependency graph, and calls each method in
+// an order that guarantees every dependency exists before it's needed.
+// You never see an explicit "build order" list here; Spring computes it.
+// WHY ONE BIG CONFIG CLASS rather than several smaller ones: this mirrors
+// the module's own history -- rather than reorganizing bean definitions
+// as new use cases (UC1-UC5) were composed together, wiring simply grew
+// additively in one place. A larger production codebase would likely
+// split this into several @Configuration classes by concern (e.g.
+// SecurityBeansConfig, RagBeansConfig), but Spring treats a project's
+// @Configuration classes as one merged set regardless of how many files
+// they're split across.
 @Configuration
 public class IntegratedAssistantConfig {
 

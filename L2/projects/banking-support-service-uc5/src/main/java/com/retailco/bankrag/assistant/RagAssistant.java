@@ -9,22 +9,50 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.List;
 
-/**
- * Deliverable: "Functional RAG pipeline with LangSmith integrated."
- *
- * Orchestrates the full L2 HLD UseCase2 Implementation Approach in order:
- *   1. Apply guardrails to reject unsafe inputs (prompt injection, then
- *      unsupported-advice requests) -- BEFORE any retrieval or LLM cost is spent.
- *   2. Retrieve top-k relevant chunks (reuses UC1's HybridSearcher/VectorStore).
- *   3. Apply the retrieval guardrail (similarity threshold + score margin,
- *      carried over from UC1's design/embedding-generation-module.md and
- *      reports/hallucination-risk-analysis.md) -- provide a fallback
- *      response when retrieval is weak, rather than generating from noise.
- *   4. Integrate retriever with prompt templates; pass query + context to the LLM.
- *   5. Attach document metadata to generate citation-enabled outputs.
- *   6. Use LangSmith-style tracing to record retrieval, prompts, and output quality.
- *   7. Evaluate response faithfulness, relevance, latency, token usage.
- */
+// CONCEPT: Orchestrator / Facade -- the central class that ties every
+// other piece in this package together into one pipeline. This is the
+// class you should read FIRST to understand how the whole RAG assistant
+// fits together; everything else in this package exists to support one
+// step of ask() below.
+//
+// PURPOSE: Given a raw user query, produce a safe, grounded, cited
+// AssistantResponse -- or a clear reason why it couldn't.
+//
+// FLOW (see ask() below -- this is the full pipeline, step by step):
+//   1. PromptInjectionGuard checks the query for injection attempts.
+//      Blocked here -> return immediately, no retrieval, no LLM call.
+//   2. UnsafeQueryGuard checks for out-of-scope advice-seeking questions.
+//      Blocked here -> return immediately, same reasoning.
+//   3. HybridSearcher retrieves the top-K most relevant chunks (reusing
+//      UC1's VectorStore/KeywordSearcher).
+//   4. The retrieval guardrail checks whether the top result is both
+//      above `similarityThreshold` AND clearly ahead of the runner-up by
+//      `minScoreMargin`. If not ("weak retrieval"), return a fallback
+//      answer instead of letting the LLM guess from thin evidence.
+//   5. PromptTemplate builds the full prompt from the query + retrieved
+//      chunks, and llmClient.generate(prompt) produces the answer text.
+//   6. CitationExtractor pulls structured citations out of that answer.
+//   7. EvaluationHarness scores the answer's faithfulness/relevance.
+//   8. TraceLogger records everything about this run (query, prompt,
+//      answer, citations, guardrail decisions, latency, tokens) as one
+//      JSON line -- a local stand-in for LangSmith-style observability.
+//
+// WHY guardrails run BEFORE retrieval/generation: both are cheap checks
+// (no network calls), so a blocked query costs nothing -- no wasted
+// embedding call, no wasted (and possibly paid) LLM call.
+//
+// WHY the retrieval guardrail uses BOTH a threshold AND a margin: a high
+// absolute similarity score can still be misleading if a completely
+// unrelated chunk happens to score almost as high (ambiguous evidence) --
+// requiring the top result to also be clearly ahead of the runner-up
+// catches that case, which a threshold alone would miss.
+//
+// WHAT IF REMOVED: without this class, every other component here
+// (guards, retrieval, prompt building, citation extraction, evaluation,
+// tracing) would still work individually, but nothing would coordinate
+// them into one safe, observable request/response cycle -- callers
+// (Spring controllers) would have to reimplement this orchestration
+// themselves, and likely get the ordering (guardrails BEFORE cost) wrong.
 public class RagAssistant {
 
     private final VectorStore vectorStore;

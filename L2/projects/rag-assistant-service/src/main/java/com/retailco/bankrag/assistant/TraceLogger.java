@@ -12,32 +12,35 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Deliverable: "LangSmith trace reports (retrieval, prompts, errors)."
- *
- * Real LangSmith (smith.langchain.com) requires a network call and an API
- * key -- neither is available in this sandbox (no reachable external network
- * egress beyond the allowlisted package registries, confirmed throughout
- * this submission). This class is a LOCAL, disclosed stand-in: it captures
- * the same conceptual trace record LangSmith would (run id, inputs,
- * retrieved documents + scores, the constructed prompt, the raw and final
- * outputs, guardrail decisions, latency, and errors) and appends each run
- * as one JSON line to a trace log file, so every run in reports/ is a real,
- * inspectable trace of an actual pipeline execution -- not a mockup of what
- * a trace would look like.
- *
- * JSON is hand-serialized (no Jackson/Gson) for the same reason every other
- * module in this submission avoids third-party libraries: Maven Central is
- * blocked in this sandbox, so rag-assistant-core stays pure-JDK specifically
- * so it can be compiled and run for real (see README.md).
- *
- * Production swap-in: replace this class's file-append body with a call to
- * the real LangSmith Java/REST client (LangSmith has an official Python SDK
- * and a documented REST API consumable from Java via a simple HTTP client);
- * the TraceRecord shape below is already aligned to LangSmith's run schema
- * (name, run_type, inputs, outputs, extra/metadata, start_time, end_time,
- * error) to make that swap mechanical.
- */
+// CONCEPT: Observability / tracing -- a local, file-based stand-in for a
+// distributed tracing system (LangSmith-style: one structured record per
+// pipeline run).
+// PURPOSE: Every call to RagAssistant.ask() ends by writing one JSON line
+// here, capturing EVERYTHING about that run: the query, what was
+// retrieved (with scores), the exact prompt sent to the LLM, the raw and
+// final answer, citations, which guardrail (if any) fired, latency, and
+// token counts. This turns every run into something you can debug and
+// audit after the fact, instead of only seeing the final answer.
+//
+// HOW IT WORKS: `log()` serializes a TraceRecord to a single-line JSON
+// string (toJson(), hand-written -- see the field()/escape() helpers) and
+// appends it to a file with StandardOpenOption.APPEND, so the file grows
+// into a JSON-Lines (.jsonl) log where each line is one independent,
+// parseable run record.
+//
+// WHY append to a plain file instead of a real tracing service: this
+// keeps the module dependency-free and instantly runnable, while still
+// producing REAL, inspectable evidence of every run (not a mockup). The
+// TraceRecord's field names (run_id, run_type, inputs/outputs, latency,
+// error) intentionally mirror LangSmith's actual run schema, so swapping
+// this class's file-write for a real LangSmith API call would be a
+// mechanical, low-risk change -- nothing calling `log()` would need to
+// change.
+//
+// WHAT IF REMOVED: the assistant would still function correctly, but
+// every run's history (what was retrieved, why a guardrail fired, how
+// long it took) would be lost the moment the response was returned --
+// no way to debug a bad answer after the fact.
 public final class TraceLogger {
 
     private final Path logFile;

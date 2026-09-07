@@ -8,27 +8,33 @@ import com.retailco.bankrag.security.UnauthorizedException;
 
 import java.util.List;
 
-/**
- * Deliverable: "Fully functional AI Banking Support System" / "End-to-end
- * workflow integration," per L2 HLD UseCase5. This is the one class in the
- * entire L2 submission that actually wires together every prior use case's
- * verified components into a single entry point:
- *
- *   L2/UC3's IntentClassifier   -- routes the query (unchanged from UC3)
- *   L2/UC4's ObservableRagAssistant -- policy questions (wraps L2/UC2's
- *                                      RagAssistant with UC4's caching/
- *                                      metrics/cost tracking)
- *   L2/UC3's BankingToolService -- live-data questions (JWT auth,
- *                                  authorization, masking -- unchanged)
- *
- * No new business logic is introduced here beyond routing and response
- * unification -- every guardrail, every retrieval algorithm, every
- * masking rule, every cache, every metric was already independently built
- * and verified in UC1-UC4. This class's only job is to prove those pieces
- * actually compose into one coherent system when called together, which
- * is precisely L2 HLD UseCase5's "System validation" functional scope
- * item.
- */
+// CONCEPT: Orchestrator / Facade -- the top-level entry point that ties
+// intent classification, RAG, and secure banking tools into ONE unified
+// API. This is the class to read FIRST to understand this whole module.
+// PURPOSE: Given a raw query (plus auth context for live-data questions),
+// route it to the right subsystem and return a single unified result type.
+// FLOW (see handle() below): IntentClassifier decides the query type ->
+// POLICY_QUESTION goes to ObservableRagAssistant (cached RAG over policy
+// documents) -> ACCOUNT_BALANCE/TRANSACTION_HISTORY/LOAN_OUTSTANDING go to
+// BankingToolService (JWT-checked, masked live data) -> AMBIGUOUS returns
+// a clarifying message. No new business logic lives here -- every
+// guardrail, retrieval algorithm, masking rule, cache, and metric was
+// already built and verified in the pieces this class composes; this
+// class's only job is routing and unifying their results.
+//
+// CONCEPT: sealed interface + exhaustive switch (a common modern-Java
+// pattern for modeling "one of several possible outcomes"). `UnifiedResponse`
+// can ONLY ever be one of PolicyAnswer/LiveDataAnswer/AccessDenied/
+// Ambiguous -- the compiler enforces this, and the `switch` in handle()
+// can be checked exhaustively against the Intent enum's cases without a
+// `default` branch, so adding a new Intent value without updating this
+// switch is a compile error, not a silent runtime bug.
+//
+// IMPORTANT (security note): UnauthorizedException from BankingToolService
+// is caught HERE and converted into an AccessDenied result rather than
+// propagating as an uncaught exception -- this keeps the unified API
+// surface consistent (every path returns a UnifiedResponse) while still
+// preserving the security decision (access was, in fact, denied).
 public class IntegratedBankingAssistant {
 
     private final IntentClassifier intentClassifier;

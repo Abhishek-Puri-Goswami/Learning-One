@@ -16,6 +16,13 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
 
+// CONCEPT/PURPOSE: same ingestion-endpoint pattern as the other modules'
+// IngestionController (loads a corpus into the shared VectorStore before
+// /ask can retrieve anything). IMPORTANT: here the request/response DTOs
+// are declared as small nested records INSIDE the controller itself,
+// rather than in a separate dto/ package -- a valid, simpler alternative
+// when a DTO is trivial and used by exactly one controller, though the
+// other modules in this submission use a separate dto/ package instead.
 @RestController
 @RequestMapping("/api/v1/support")
 public class IngestionController {

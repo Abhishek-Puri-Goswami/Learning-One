@@ -10,6 +10,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+// CONCEPT/PURPOSE: same thin Controller-layer pattern as rag-service's
+// IngestionController (see that class's comments) -- POST
+// /api/v1/assistant/ingest loads and indexes a corpus so AskController has
+// something to retrieve from. Delegates all real work to
+// AssistantIngestionService.
 @RestController
 @RequestMapping("/api/v1/assistant")
 public class IngestionController {

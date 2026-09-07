@@ -8,13 +8,17 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * Deliverable: "Observability metrics report" as a live, queryable
- * endpoint rather than only a point-in-time offline report. A real
- * deployment would export these same numbers to Prometheus/Grafana; this
- * endpoint is the same data, directly readable, for this submission's
- * scope.
- */
+// CONCEPT: A read-only "reporting" endpoint -- exposes internal metrics
+// state as a GET response instead of only writing it to logs/files.
+// PURPOSE: Lets a caller (dashboard, monitoring tool, curl) see live cache
+// hit rates and aggregate query metrics (tokens, latency percentiles,
+// cost) without restarting the app or reading a log file. A real
+// production deployment would typically export these same numbers to
+// Prometheus/Grafana instead of (or in addition to) a custom endpoint like
+// this; the underlying data is identical either way.
+// NOTE: `MetricsReport` is a small record declared INSIDE the controller,
+// since it exists purely to bundle this one endpoint's two pieces of data
+// (cache + query stats) and has no other use elsewhere.
 @RestController
 @RequestMapping("/api/v1/observability")
 public class MetricsController {

@@ -4,20 +4,32 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Deliverables: "Token usage tracking," "Latency monitoring." L2 HLD
- * UseCase4 System Responsibilities: "Track token consumption per request,"
- * "Measure response latency."
- *
- * Records one QueryMetric per RagAssistant.ask() call and computes real
- * aggregate statistics from whatever was actually recorded -- mean,
- * median (p50), and p95 latency, plus total/average token counts. No
- * external metrics library (Micrometer, Prometheus client) is used, for
- * the same Maven-Central-blocked reason as every other module in this
- * submission avoiding third-party dependencies; a production deployment
- * would export these same numbers to Micrometer/Prometheus instead of
- * this in-memory list, without changing what's measured.
- */
+// CONCEPT: Observability metrics collection -- token usage and latency
+// tracking, computed in-memory (no external metrics library like
+// Micrometer/Prometheus client).
+// PURPOSE: Records one QueryMetric per RagAssistant.ask() call (was it a
+// cache hit? blocked? fallback? how long did it take? how many tokens?
+// what did it cost?), then aggregate() turns that raw list into summary
+// statistics: totals, averages, and latency percentiles.
+//
+// WHY p50/p95 latency, not just an average: an average can hide a bad tail
+// -- e.g. most queries fast but 5% very slow. p50 (median) is a robust
+// "typical" experience; p95 shows what the slower end of real usage looks
+// like, which is what actually gets noticed/complained about in a real
+// product.
+//
+// HOW percentile() WORKS (nearest-rank method, see below): given a
+// pre-sorted list of latencies, index = ceil(p * count) - 1 picks the
+// value at the requested percentile position directly, clamped to valid
+// bounds. This is exact and simple for a small sample -- a
+// production system with thousands of samples per window would typically
+// use a streaming/approximate percentile algorithm (HDRHistogram,
+// t-digest) instead of storing every raw sample.
+//
+// WHY an in-memory list (not Micrometer/Prometheus): keeps this module
+// dependency-free; a production deployment would export these SAME
+// numbers to a real metrics backend without changing what's measured --
+// only where it's reported.
 public class MetricsRecorder {
 
     public record QueryMetric(String query, boolean cacheHit, boolean blocked, boolean fallback,

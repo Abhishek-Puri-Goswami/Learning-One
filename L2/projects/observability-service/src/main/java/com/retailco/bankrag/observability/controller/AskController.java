@@ -11,12 +11,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * L2 UC4's version of L2/UC2's AskController: same underlying pipeline,
- * now wrapped with caching, metrics, and cost tracking. A repeated query
- * within the cache TTL returns servedFromCache=true and does not touch
- * retrieval or generation at all.
- */
+// CONCEPT/PURPOSE: same Controller-layer pattern as rag-assistant-service's
+// AskController, but delegating to ObservableRagAssistant (the caching/
+// metrics/cost decorator) instead of RagAssistant directly -- the
+// controller itself doesn't need to know caching exists; it just reads
+// `observed.servedFromCache()` to include that fact in the response.
+// A repeated query within the cache TTL returns servedFromCache=true and
+// skips retrieval/generation entirely (see QueryCache/ObservableRagAssistant).
 @RestController
 @RequestMapping("/api/v1/observability")
 public class AskController {
