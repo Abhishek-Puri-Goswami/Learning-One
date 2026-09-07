@@ -61,15 +61,20 @@ public final class Main {
         List<AgentDecision> decisions = agent.processInbox();
         for (AgentDecision decision : decisions) {
             System.out.println();
-            switch (decision) {
-                case AgentDecision.Proposed p -> {
-                    System.out.println("[PROPOSED] " + p.proposal().candidateSlots().size() + " slots offered:");
-                    System.out.println(p.proposal().draftReplyBody());
-                }
-                case AgentDecision.NotSchedulingRelated n -> System.out.println("[NOT SCHEDULING] " + n.reason());
-                case AgentDecision.BlockedByGuardrail b -> System.out.println("[BLOCKED] " + b.reason());
-                case AgentDecision.SkippedDuplicate s -> System.out.println("[SKIPPED DUPLICATE] " + s.dedupeKey());
-                case AgentDecision.NoSlotsAvailable ns -> System.out.println("[NO SLOTS] " + ns.reason());
+            // instanceof pattern matching (stable since Java 16) instead of a
+            // pattern-matching switch (still preview in Java 17) -- compiles
+            // and runs with plain javac/java, no --enable-preview flag.
+            if (decision instanceof AgentDecision.Proposed p) {
+                System.out.println("[PROPOSED] " + p.proposal().candidateSlots().size() + " slots offered:");
+                System.out.println(p.proposal().draftReplyBody());
+            } else if (decision instanceof AgentDecision.NotSchedulingRelated n) {
+                System.out.println("[NOT SCHEDULING] " + n.reason());
+            } else if (decision instanceof AgentDecision.BlockedByGuardrail b) {
+                System.out.println("[BLOCKED] " + b.reason());
+            } else if (decision instanceof AgentDecision.SkippedDuplicate s) {
+                System.out.println("[SKIPPED DUPLICATE] " + s.dedupeKey());
+            } else if (decision instanceof AgentDecision.NoSlotsAvailable ns) {
+                System.out.println("[NO SLOTS] " + ns.reason());
             }
         }
         System.out.println();

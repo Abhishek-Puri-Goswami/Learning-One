@@ -34,12 +34,21 @@ public class SupportController {
         IntegratedBankingAssistant.UnifiedResponse response = assistant.handle(
                 request.query(), authHeader, request.requestedCustomerId(), request.accountNumber());
 
-        AskResponse body = switch (response) {
-            case IntegratedBankingAssistant.PolicyAnswer p -> new AskResponse("POLICY_ANSWER", p);
-            case IntegratedBankingAssistant.LiveDataAnswer d -> new AskResponse("LIVE_DATA", d);
-            case IntegratedBankingAssistant.AccessDenied a -> new AskResponse("ACCESS_DENIED", a);
-            case IntegratedBankingAssistant.Ambiguous amb -> new AskResponse("AMBIGUOUS", amb);
-        };
+        // NOTE: uses instanceof pattern matching (stable since Java 16), not a
+        // pattern-matching switch (still a preview feature as of Java 17) --
+        // compiles with plain `mvn compile`, no --enable-preview flag.
+        AskResponse body;
+        if (response instanceof IntegratedBankingAssistant.PolicyAnswer p) {
+            body = new AskResponse("POLICY_ANSWER", p);
+        } else if (response instanceof IntegratedBankingAssistant.LiveDataAnswer d) {
+            body = new AskResponse("LIVE_DATA", d);
+        } else if (response instanceof IntegratedBankingAssistant.AccessDenied a) {
+            body = new AskResponse("ACCESS_DENIED", a);
+        } else if (response instanceof IntegratedBankingAssistant.Ambiguous amb) {
+            body = new AskResponse("AMBIGUOUS", amb);
+        } else {
+            throw new IllegalStateException("Unknown response type: " + response.getClass());
+        }
         return ResponseEntity.ok(body);
     }
 }

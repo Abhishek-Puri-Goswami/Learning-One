@@ -102,24 +102,25 @@ public class Main {
         System.out.println("Trace log: " + traceLogPath.toAbsolutePath());
     }
 
+    // NOTE: uses instanceof pattern matching (stable since Java 16), not a
+    // pattern-matching switch (still a preview feature as of Java 17) -- this
+    // compiles and runs with plain `javac`/`java`, no --enable-preview flag.
     private static void describe(IntegratedBankingAssistant.UnifiedResponse response) {
-        switch (response) {
-            case IntegratedBankingAssistant.PolicyAnswer p -> {
-                if (p.ragResponse().blocked()) {
-                    System.out.println("  [POLICY - BLOCKED] " + p.ragResponse().blockReason());
-                } else if (p.ragResponse().fallback()) {
-                    System.out.println("  [POLICY - FALLBACK] " + p.ragResponse().answer());
-                } else {
-                    System.out.println("  [POLICY - ANSWERED" + (p.servedFromCache() ? ", CACHE HIT" : "") + "] "
-                            + p.ragResponse().answer());
-                }
+        if (response instanceof IntegratedBankingAssistant.PolicyAnswer p) {
+            if (p.ragResponse().blocked()) {
+                System.out.println("  [POLICY - BLOCKED] " + p.ragResponse().blockReason());
+            } else if (p.ragResponse().fallback()) {
+                System.out.println("  [POLICY - FALLBACK] " + p.ragResponse().answer());
+            } else {
+                System.out.println("  [POLICY - ANSWERED" + (p.servedFromCache() ? ", CACHE HIT" : "") + "] "
+                        + p.ragResponse().answer());
             }
-            case IntegratedBankingAssistant.LiveDataAnswer d ->
-                    System.out.println("  [LIVE DATA: " + d.intent() + "] " + d.data());
-            case IntegratedBankingAssistant.AccessDenied a ->
-                    System.out.println("  [ACCESS DENIED] " + a.reason());
-            case IntegratedBankingAssistant.Ambiguous amb ->
-                    System.out.println("  [AMBIGUOUS] " + amb.message());
+        } else if (response instanceof IntegratedBankingAssistant.LiveDataAnswer d) {
+            System.out.println("  [LIVE DATA: " + d.intent() + "] " + d.data());
+        } else if (response instanceof IntegratedBankingAssistant.AccessDenied a) {
+            System.out.println("  [ACCESS DENIED] " + a.reason());
+        } else if (response instanceof IntegratedBankingAssistant.Ambiguous amb) {
+            System.out.println("  [AMBIGUOUS] " + amb.message());
         }
     }
 }
