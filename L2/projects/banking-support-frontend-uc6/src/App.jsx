@@ -4,11 +4,16 @@ import BankingDashboardView from "./components/BankingDashboardView";
 import "./index.css";
 
 /**
- * Deliverable: "Frontend Interface" (L2 HLD UseCase6, 8.2): "Policy query
- * UI" and "Banking dashboard (balance/cards/loans)." Both views talk to the
- * same single /api/v1/support/ask endpoint (see api.js) -- there is no
- * separate frontend route per backend intent, matching the backend's own
- * "one unified entry point" design (IntegratedBankingAssistant).
+ * The root component of this banking support app. It shows two tabs —
+ * "Policy Q&A" for asking general questions, and "My Account" for
+ * viewing balances, transactions, and loans — and switches between them
+ * with a bit of local state ({@code tab}).
+ * <p>
+ * Even though these look like two separate features, both tabs actually
+ * send their questions to the exact same backend endpoint (see
+ * {@code api.js}). The backend itself figures out whether a question is
+ * a policy question or a live-data question — the frontend doesn't need
+ * a separate route or endpoint for each.
  */
 export default function App() {
   const [tab, setTab] = useState("policy");

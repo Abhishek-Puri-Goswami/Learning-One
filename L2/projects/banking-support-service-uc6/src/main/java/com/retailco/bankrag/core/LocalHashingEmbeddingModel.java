@@ -3,30 +3,36 @@ package com.retailco.bankrag.core;
 import java.util.HashMap;
 import java.util.Map;
 
-// CONCEPT: Strategy pattern implementation -- the "offline fallback"
-// EmbeddingModel, using the classic ML "feature hashing" (hashing trick).
-// PURPOSE: Lets the whole RAG pipeline run with zero external dependencies
-// and zero network calls, so it's always demonstrable even without an
-// OpenAI API key. This is the automatic fallback whenever
-// OpenAiEmbeddingModel.isConfigured() is false (see each module's
-// *Config.java).
-//
-// HOW IT WORKS (step by step, see embed() below):
-// 1. Tokenize the text into lowercase words.
-// 2. Hash each word to a bucket index in [0, dimensions) using its
-//    hashCode() (Math.floorMod handles negative hash codes).
-// 3. Count how many times each bucket is hit -- this builds a
-//    bag-of-words vector where "similar word overlap" -> "similar vector."
-// 4. L2-normalize the vector (divide by its length) so cosine similarity
-//    between two vectors only measures direction/overlap, not raw length.
-//
-// WHY THIS APPROACH: it needs no trained model, no external service, and
-// no big vocabulary table -- just a hash function -- so it's genuinely
-// runnable anywhere Java runs. The trade-off (IMPORTANT): it only captures
-// literal word overlap, not real semantic meaning -- "car" and "automobile"
-// get completely unrelated vectors here, whereas a real embedding model
-// (OpenAiEmbeddingModel) would place them close together. This is a
-// disclosed, deliberate stand-in, not a production-quality embedding model.
+/**
+ * This is our OFFLINE, no-internet-needed stand-in for a real AI
+ * embedding model. It automatically kicks in whenever no OpenAI API key
+ * is configured (see each module's Config class), so the whole
+ * application can still run and be demonstrated without any external
+ * service or API key at all.
+ * <p>
+ * Here's how it fakes an "embedding" of some text, step by step (see
+ * {@code embed()} below):
+ * <ol>
+ *   <li>Break the text into lowercase words.</li>
+ *   <li>Turn each word into a number ("hash" it) that lands somewhere in
+ *       a fixed-size range.</li>
+ *   <li>Count how many times each of those "buckets" gets hit — this
+ *       produces a vector where texts sharing more of the same words end
+ *       up with more similar vectors.</li>
+ *   <li>Scale the vector down to a consistent length, so comparing two
+ *       vectors later only measures their DIRECTION (overlap), not how
+ *       long the original text happened to be.</li>
+ * </ol>
+ * <p>
+ * Why do it this way: it needs no trained AI model, no external service,
+ * and no huge dictionary — just simple math — so it can genuinely run
+ * anywhere Java runs. The trade-off: it only ever catches LITERAL word
+ * overlap, not true meaning — "car" and "automobile" get completely
+ * unrelated vectors here, whereas a real AI embedding model
+ * ({@code OpenAiEmbeddingModel}) would recognize they mean similar
+ * things and place them close together. This is a known, deliberate
+ * limitation — not a claim that this is production-quality.
+ */
 public class LocalHashingEmbeddingModel implements EmbeddingModel {
 
     private final int dimensions;

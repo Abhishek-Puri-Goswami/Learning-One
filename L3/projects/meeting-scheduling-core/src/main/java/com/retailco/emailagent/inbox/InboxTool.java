@@ -5,16 +5,13 @@ import com.retailco.emailagent.model.EmailMessage;
 import java.util.ArrayList;
 import java.util.List;
 
-// CONCEPT: An "AI tool" -- gives the agent read access to emails, without
-// the agent needing to know whether they come from a mock list or a real
-// mailbox API.
 /**
- * Stands in for the LLD's `/inbox/latest` tool contract. A real adapter
- * would call Microsoft Graph or the Gmail API; per the HLD's "mock/
- * simulated APIs" support requirement, this is an in-memory list seeded
- * from fixture data, with the exact same field shape ({@code EmailMessage})
- * a real adapter would return -- only the transport differs, disclosed
- * here rather than silently pretending to be a live inbox.
+ * Another "AI tool" — this one gives the agent read access to emails,
+ * without the agent needing to care whether they're coming from a simple
+ * in-memory list (like here) or a real mailbox API. A real version of
+ * this class would call something like Microsoft Graph or the Gmail API,
+ * but would return the exact same {@code EmailMessage} shape, so nothing
+ * calling this class would need to change.
  */
 public class InboxTool {
 

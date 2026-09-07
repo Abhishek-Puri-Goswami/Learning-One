@@ -18,10 +18,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-// CONCEPT: Service layer -- business logic between Controller and
-// Repository, using `synchronized` blocks to make each cart's
-// read-then-write operations thread-safe (see the comment inside
-// addItem() below for exactly why this matters).
+/**
+ * The business logic for a user's cart. Notice that every method wraps
+ * its work in a {@code synchronized (cart)} block. That keyword means
+ * "only one thread can be inside this block for this particular cart at
+ * a time" — it protects us from two requests reading and then writing the
+ * same cart at almost the same moment and stepping on each other's
+ * changes. See the comment inside {@code addItem} below for a concrete
+ * example of what could go wrong without it.
+ */
 @Service
 public class CartServiceImpl implements CartService {
 
@@ -51,15 +56,17 @@ public class CartServiceImpl implements CartService {
 
         Cart cart = repository.getOrCreate(userId);
 
-        // L1/UC5 fix (see edge-cases/edge-case-catalog.md, "Concurrent
-        // modification"): the original implementation read `existing`,
-        // decided add-vs-update, and mutated the list with NO synchronization.
-        // Two threads adding the same product at (almost) the same time could
-        // both observe "not present" and each append a separate CartItem --
-        // a classic lost-update race -- instead of the quantities being
-        // summed. Synchronizing on the per-user Cart instance makes
-        // read-decide-write atomic for that user's cart without a
-        // service-wide lock (different users' carts are unaffected).
+        // Here's the concrete problem `synchronized` protects us from:
+        // imagine two requests both trying to add the SAME product to the
+        // SAME cart at nearly the same instant. Without this lock, both
+        // could check "is this product already in the cart?", both see
+        // "no," and both add a brand new line — instead of one request
+        // adding the line and the other one correctly increasing its
+        // quantity. Locking on this specific cart object means only one
+        // of those two requests can be inside this block at a time, so
+        // the second one always sees the first one's change before it
+        // makes its own decision. Different users' carts are unaffected,
+        // since each cart has its own lock.
         synchronized (cart) {
             Optional<CartItem> existing = cart.getItems().stream()
                     .filter(i -> i.getProductId().equals(request.getProductId()))
@@ -73,10 +80,11 @@ public class CartServiceImpl implements CartService {
                 }
                 item.setQuantity(newQuantity);
             } else {
-                // Throws InvalidProductException for a genuine 404 (L1/UC5 fix,
-                // see ProductCatalogClient) -- propagates out of this
-                // synchronized block and out of addItem() uncaught, to be
-                // mapped to a 404 by GlobalExceptionHandler.
+                // If the product genuinely doesn't exist, fetchProduct()
+                // throws InvalidProductException here. We don't catch it —
+                // it's allowed to bubble all the way up to
+                // GlobalExceptionHandler, which turns it into a clean 404
+                // response for the caller.
                 ProductCatalogClient.ProductSnapshot snapshot = catalogClient.fetchProduct(request.getProductId());
                 CartItem item = new CartItem(
                         UUID.randomUUID().toString(),

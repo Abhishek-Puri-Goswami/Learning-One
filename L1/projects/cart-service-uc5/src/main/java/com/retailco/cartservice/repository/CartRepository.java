@@ -7,9 +7,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-// CONCEPT: Repository pattern -- stores carts in memory, keyed by userId.
-// WHY: production would use Redis instead, since cart data is temporary
-// and benefits from automatic expiry.
+/**
+ * Stores carts in memory, one per user id. In a real production system
+ * this would likely be backed by Redis instead, since cart data is
+ * short-lived and benefits from automatically expiring after a while.
+ */
 @Repository
 public class CartRepository {
 

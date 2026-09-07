@@ -2,18 +2,15 @@ package com.retailco.orderreview.after;
 
 import java.util.Set;
 
-// CONCEPT: A small validator class with one job -- reject an unrecognized
-// coupon code loudly instead of letting it silently do nothing.
 /**
- * Closes a gap between L1/UC4's refactor and L1/UC5's edge-case catalog:
- * {@link AfterDiscountCalculator} (ported unchanged from UC4) silently
- * no-ops on ANY unrecognized coupon string, including a typo like "SAVE1O"
- * (letter O) -- which is exactly the "silently paying full price" failure
- * mode UC5's edge-case catalog calls out as wrong. This validator is meant
- * to run BEFORE {@link AfterDiscountCalculator}, in checkout order, so a
- * typo'd coupon fails loudly and before any payment attempt, while an
- * intentionally blank coupon field (customer didn't try to use one) is
- * correctly treated as "no coupon," not an error.
+ * A small class with exactly one job: reject a coupon code we don't
+ * recognize, loudly and clearly. {@link AfterDiscountCalculator} on its
+ * own would silently do nothing for an unrecognized coupon like a typo'd
+ * "SAVE1O" (letter O instead of zero) — this class is meant to run
+ * BEFORE the discount calculator, so a bad coupon code is caught and
+ * rejected right away, before payment is even attempted. A blank or
+ * missing coupon field is treated differently — that just means the
+ * customer didn't try to use one at all, which isn't an error.
  */
 public final class CouponPolicy {
 

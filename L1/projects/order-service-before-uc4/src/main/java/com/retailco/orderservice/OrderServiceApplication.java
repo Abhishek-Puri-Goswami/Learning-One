@@ -5,8 +5,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.client.RestTemplate;
 
-// CONCEPT: Spring Boot entry point. Boots the app and scans for
-// @Controller/@Service/@Repository classes.
+/**
+ * The starting point of this application. Running this boots up Spring
+ * Boot, which starts a web server and wires together our
+ * {@code @Controller}, {@code @Service}, and {@code @Repository} classes.
+ */
 @SpringBootApplication
 public class OrderServiceApplication {
 
@@ -14,8 +17,11 @@ public class OrderServiceApplication {
         SpringApplication.run(OrderServiceApplication.class, args);
     }
 
-    // Registers a RestTemplate bean so it can be injected into HTTP client
-    // classes like CartClient/PaymentGatewayClient.
+    /**
+     * Registers a {@code RestTemplate} — a simple HTTP client — so it can
+     * be automatically given to any class that needs one, like
+     * {@code CartClient} or {@code PaymentGatewayClient}.
+     */
     @Bean
     public RestTemplate restTemplate() {
         return new RestTemplate();

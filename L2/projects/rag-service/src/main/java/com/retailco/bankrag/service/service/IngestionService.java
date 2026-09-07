@@ -14,22 +14,26 @@ import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.util.List;
 
-// CONCEPT: Service layer -- contains the business logic between the
-// Controller and the underlying domain classes (DocumentLoader, Chunker,
-// VectorStore).
-// PURPOSE: Orchestrates the full ingestion pipeline for one request: load
-// documents from disk, chunk each one, embed and index every chunk into
-// the shared VectorStore.
-// FLOW: Controller -> Service -> (DocumentLoader, Chunker, VectorStore)
-// WHY keep this logic in a @Service rather than in the controller:
-// separating it lets this class be unit-tested without spinning up any
-// HTTP infrastructure, and keeps IngestionController focused purely on
-// request/response plumbing.
-// IMPORTANT: `vectorStore` is injected as a Spring-managed singleton bean
-// (see RagCoreConfig) and mutated IN PLACE by index() -- so repeated calls
-// to ingest() ACCUMULATE into a growing corpus rather than replacing it
-// each time. This matches how a real ingestion pipeline runs incrementally
-// as new documents arrive, not as a single one-shot batch job.
+/**
+ * Contains the business logic for ingestion, sitting between the
+ * Controller and the underlying domain classes ({@code DocumentLoader},
+ * {@code Chunker}, {@code VectorStore}). It orchestrates the whole
+ * pipeline for one request: load documents from disk, chunk each one, and
+ * index every chunk into the shared vector store.
+ * <p>
+ * Keeping this logic in a {@code @Service} instead of directly in the
+ * controller means this class can be tested on its own, without needing
+ * to spin up any web server — and it keeps the controller focused purely
+ * on handling HTTP requests and responses.
+ * <p>
+ * One thing worth understanding: {@code vectorStore} is a single,
+ * shared object (a Spring-managed "bean" — see {@code RagCoreConfig}) and
+ * {@code index()} adds to it in place, rather than replacing it. That
+ * means repeated calls to {@code ingest()} keep ADDING to a growing set
+ * of indexed documents, rather than starting over each time — matching
+ * how a real ingestion pipeline runs continuously as new documents
+ * arrive, not as a single one-time batch job.
+ */
 @Service
 public class IngestionService {
 
@@ -67,10 +71,11 @@ public class IngestionService {
 
     private ChunkingConfig resolveConfig(IngestRequest request) {
         if (request.chunkSizeTokens() != null && request.overlapTokens() != null) {
-            // Explicit override -- see design/chunking-configuration.md's note that
-            // ChunkingConfig is a constructor parameter, not a hardcoded constant,
-            // precisely so a future document type can be ingested with different
-            // sizing without a code change.
+            // The caller explicitly asked for a custom chunk size/overlap.
+            // Because ChunkingConfig takes these as constructor
+            // parameters rather than fixed constants, a future document
+            // type can be ingested with different sizing with no code
+            // change needed at all.
             return new ChunkingConfig(request.chunkSizeTokens(), request.overlapTokens());
         }
         return ChunkingConfig.defaultConfig();

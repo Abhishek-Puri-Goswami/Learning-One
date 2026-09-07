@@ -1,10 +1,12 @@
 package com.retailco.bankrag.service.dto;
 
-// CONCEPT: Response DTO -- the API's own shape for one search result,
-// deliberately separate from core's `ScoredChunk` (see SearchService,
-// which maps ScoredChunk -> SearchResultItem). Keeping them separate
-// means the internal `core` package's types can change without breaking
-// the public REST API contract, and vice versa.
+/**
+ * The API's own shape for one search result, deliberately kept separate
+ * from the internal {@code ScoredChunk} type (see {@code SearchService},
+ * which converts between the two). Keeping them separate means our
+ * internal classes can change freely without breaking the public API,
+ * and vice versa.
+ */
 public record SearchResultItem(
         String chunkId,
         String sourceDocument,

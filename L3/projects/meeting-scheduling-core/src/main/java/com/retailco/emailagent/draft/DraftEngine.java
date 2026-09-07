@@ -8,21 +8,19 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
-// CONCEPT: Template-based text generation (no LLM call) -- builds a reply
-// by filling in a fixed template with real data (subject, candidate
-// times), rather than generating free-form text.
-// IMPORTANT: the draft is explicitly labeled "not sent, awaiting human
-// approval" -- this class only ever produces a String; nothing in this
-// codebase ever sends it (see ToolAllowlist).
 /**
- * Template-based reply composition -- no LLM call (this sandbox has no LLM
- * API access; a production version would prompt an LLM to phrase this
- * more naturally, but the *content* -- which slots, which thread -- would
- * be assembled the same way this class does it, from real tool output,
- * not invented). LLD Stage 1 acceptance criterion: "accurate context
- * reference" -- this class quotes the original subject and the specific
- * candidate times back to the sender, rather than a generic template with
- * no connection to the actual email.
+ * Writes the actual reply email, by filling in a fixed template with real
+ * information — the original subject line and the specific available
+ * times — rather than generating free-form text with an AI model. A
+ * production version of this class might ask an LLM to phrase the wording
+ * more naturally, but the actual CONTENT (which times, which email
+ * thread) would still come from real data, exactly like it does here —
+ * never invented.
+ * <p>
+ * Notice the very last line of the draft always says clearly that it's
+ * "not sent, awaiting human review." This class only ever hands back a
+ * plain {@code String} — nothing anywhere in this codebase actually sends
+ * it anywhere.
  */
 public class DraftEngine {
 

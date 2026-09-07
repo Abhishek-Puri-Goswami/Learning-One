@@ -6,14 +6,18 @@ import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 
-// CONCEPT: HTTP client wrapper -- calls another microservice
-// (product-service) over REST, instead of a local method call.
-// PURPOSE: Fetches a product's current name/price when adding it to a
-// cart, so the cart shows up-to-date info.
-// WHY the try/catch fallback: if product-service is down or slow, this
-// still returns something (a placeholder "Unknown product") instead of
-// crashing the whole add-to-cart request. This is a simple form of
-// graceful degradation -- the cart stays usable even if a dependency fails.
+/**
+ * This class talks to a completely different microservice — product-service
+ * — over the network (HTTP), instead of just calling a local Java method.
+ * Its job is simple: look up a product's current name and price so the
+ * cart can show accurate info when an item is added.
+ * <p>
+ * Notice the try/catch below: if product-service is slow or completely
+ * down, instead of crashing the whole "add to cart" request, we fall back
+ * to a placeholder value ("Unknown product"). This is a simple example of
+ * "graceful degradation" — the cart keeps working even when one of its
+ * dependencies has a problem.
+ */
 @Component
 public class ProductCatalogClient {
 

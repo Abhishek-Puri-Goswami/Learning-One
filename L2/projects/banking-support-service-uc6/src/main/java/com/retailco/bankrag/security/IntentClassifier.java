@@ -3,34 +3,28 @@ package com.retailco.bankrag.security;
 import java.util.List;
 import java.util.regex.Pattern;
 
-// CONCEPT: Intent classification / request routing -- deciding WHICH
-// subsystem should handle a query, before any expensive or risky work
-// happens.
-// PURPOSE: The single decision point between two completely different
-// paths: a POLICY_QUESTION goes to RagAssistant (LLM-backed, retrieves
-// from documents), while ACCOUNT_BALANCE/TRANSACTION_HISTORY/
-// LOAN_OUTSTANDING go straight to BankingToolService (deterministic
-// database lookups -- NEVER an LLM call).
-//
-// WHY THIS MATTERS FOR SECURITY: live financial data must never be
-// generated/paraphrased by an LLM -- an LLM could hallucinate a wrong
-// balance. Routing happens with plain regex pattern matching BEFORE any
-// LLM is even considered, which makes it structurally impossible for a
-// live-data question to accidentally reach a text-generation step.
-//
-// HOW IT WORKS (see classify() below): tests the query against three sets
-// of regex patterns. If MORE THAN ONE category matches (e.g. "show my
-// balance and my loan"), the result is AMBIGUOUS rather than guessing
-// which one the user meant -- an ambiguous query should be split into
-// separate requests, not silently answered with only one piece of it.
-// Anything matching none of the live-data patterns defaults to
-// POLICY_QUESTION, which has its own downstream guardrails.
-//
-// WHY pattern-based, not an LLM: same reasoning as PromptInjectionGuard/
-// UnsafeQueryGuard in the assistant package -- deterministic, instant, and
-// free, at the cost of only recognizing phrasings the patterns anticipate.
-// A production system might add an LLM-based function-calling/tool-
-// selection step for more flexible routing.
+/**
+ * Decides WHICH part of the system should handle a question, before any
+ * expensive or risky work happens. A policy question goes to the AI
+ * assistant (which retrieves and answers from documents), while a
+ * question about account balance, transactions, or loans goes straight
+ * to {@code BankingToolService} instead — a deterministic database
+ * lookup that NEVER involves an AI model.
+ * <p>
+ * Why this matters for security: live financial data should never be
+ * generated or paraphrased by an AI model, since it could get a number
+ * wrong. By routing with simple pattern matching BEFORE any AI model is
+ * even considered, it becomes structurally impossible for a live-data
+ * question to accidentally end up being answered by text generation.
+ * <p>
+ * How {@code classify()} works: it checks the query against three sets
+ * of patterns. If MORE THAN ONE category matches at once (like "show my
+ * balance and my loan"), the result is AMBIGUOUS rather than guessing
+ * which one the user actually wanted — a question mixing two intents
+ * should be split into separate requests, not silently answered with
+ * only one piece of it. Anything matching none of the live-data patterns
+ * is treated as a policy question by default.
+ */
 public final class IntentClassifier {
 
     public enum Intent { POLICY_QUESTION, ACCOUNT_BALANCE, TRANSACTION_HISTORY, LOAN_OUTSTANDING, AMBIGUOUS }

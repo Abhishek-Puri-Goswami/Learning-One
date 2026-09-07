@@ -11,13 +11,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-// CONCEPT/PURPOSE: same Controller-layer pattern as rag-assistant-service's
-// AskController, but delegating to ObservableRagAssistant (the caching/
-// metrics/cost decorator) instead of RagAssistant directly -- the
-// controller itself doesn't need to know caching exists; it just reads
-// `observed.servedFromCache()` to include that fact in the response.
-// A repeated query within the cache TTL returns servedFromCache=true and
-// skips retrieval/generation entirely (see QueryCache/ObservableRagAssistant).
+/**
+ * Same idea as the plain {@code AskController} in other modules, but this
+ * one talks to {@code ObservableRagAssistant} (the caching/metrics/cost
+ * decorator) instead of {@code RagAssistant} directly. The controller
+ * itself doesn't need to know caching even exists — it just reads
+ * {@code observed.servedFromCache()} to report whether this particular
+ * answer came from the cache or was freshly generated.
+ */
 @RestController
 @RequestMapping("/api/v1/observability")
 public class AskController {

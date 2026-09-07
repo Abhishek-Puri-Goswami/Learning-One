@@ -3,16 +3,18 @@ package com.retailco.bankrag.integration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-// CONCEPT: Spring Boot application entry point (see rag-service's
-// RagServiceApplication for the full @SpringBootApplication explanation).
-// IMPORTANT: `scanBasePackages = "com.retailco.bankrag"` is needed here
-// specifically because this class lives in the `integration` sub-package,
-// but the components it needs to discover span SEVERAL sibling packages
-// (assistant, core, observability, security, integration) that are all
-// copied-as-source into this one module. Without this explicit override,
-// Spring's default component scan (which only scans the package of the
-// @SpringBootApplication class and its sub-packages) would miss
-// @Configuration/@Component classes living in those sibling packages.
+/**
+ * The starting point of this application. Running this boots up Spring
+ * Boot, which starts a web server and wires everything together.
+ * <p>
+ * The {@code scanBasePackages = "com.retailco.bankrag"} part matters
+ * here: this class lives in the {@code integration} sub-package, but the
+ * components it needs to find — the assistant, the core RAG pieces,
+ * observability, and security — all live in sibling packages copied into
+ * this same module. Without telling Spring to scan the whole
+ * {@code com.retailco.bankrag} tree, it would only look inside
+ * {@code integration} by default and miss all of those.
+ */
 @SpringBootApplication(scanBasePackages = "com.retailco.bankrag")
 public class BankingSupportServiceApplication {
     public static void main(String[] args) {

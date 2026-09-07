@@ -4,22 +4,19 @@ import java.math.BigDecimal;
 import java.util.concurrent.TimeoutException;
 import java.util.function.BiConsumer;
 
-// CONCEPT: The "after" fix -- failures are thrown, never swallowed, and a
-// timeout gets a distinguishable message from other failures.
 /**
- * Pure-JDK port of {@code order-service-refactored}'s fixed
- * {@code PaymentGatewayClient.charge()} -- the FIX for AI-SEC-2: any
- * exception from the gateway call is wrapped in {@link PaymentFailedException}
- * and propagated, instead of being swallowed and reported as success (see
- * {@link com.retailco.orderreview.before.BeforePaymentGateway}, the bug this
- * replaces).
- *
- * <p>Extended for L1/UC5's edge-case catalog: a timeout is distinguished
- * from a generic gateway failure in the exception message (mirrors
- * {@code PaymentGatewayClientTest.charge_gatewayTimesOut_...} vs
- * {@code charge_gatewayReturns5xx_...} in the real UC5 test suite) --
- * useful for an on-call engineer or a retry policy that behaves differently
- * for "the network was slow" versus "the gateway rejected the charge."
+ * The fixed version of
+ * {@link com.retailco.orderreview.before.BeforePaymentGateway}. Instead of
+ * swallowing exceptions and always returning "success," any failure from
+ * the gateway call is wrapped in a {@link PaymentFailedException} and
+ * thrown — a payment failure can never again be mistaken for success.
+ * <p>
+ * This version also tells apart a timeout from every other kind of
+ * failure, giving each one a different, more specific error message.
+ * That distinction matters: someone debugging a production issue (or a
+ * retry policy deciding whether to try again) needs to know "the network
+ * was just slow" versus "the gateway actively rejected the charge" — very
+ * different situations that call for very different responses.
  */
 public final class AfterPaymentGateway {
 

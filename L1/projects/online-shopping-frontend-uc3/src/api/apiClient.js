@@ -1,11 +1,14 @@
-// L1 UC3 - Single API client shared by all hooks/components.
-//
-// IMPORTANT (UI risk mitigation - "avoid hallucinated APIs"): every endpoint
-// used here corresponds 1:1 to an operationId defined in the contract-first
-// OpenAPI specs from L1/UC2 (product-service.yaml, cart-service.yaml) or the
-// order-management-service api_boundaries defined in L1/UC1 architecture.json.
-// No endpoint is invented; if a new endpoint is needed, it must be added to
-// the relevant OpenAPI spec first (contract-first discipline).
+/**
+ * This is the one shared place where every network call to our backend
+ * services goes through. Every hook and component in this app uses these
+ * functions instead of calling {@code fetch} directly, so there's only
+ * one place to update if an API URL or error format ever changes.
+ * <p>
+ * Every endpoint called here matches a real endpoint that the backend
+ * team has already defined and agreed on — nothing here is a made-up or
+ * guessed URL. If a new endpoint is ever needed, it should be added to
+ * the backend's API contract first, and only then called from here.
+ */
 
 const DEFAULT_TIMEOUT_MS = 8000;
 
@@ -22,9 +25,11 @@ async function request(path, { method = "GET", body, signal } = {}) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS);
 
-  // Support an external AbortSignal (e.g. from a component unmount) as well
-  // as our own timeout-based one, so callers can cancel in-flight requests -
-  // this is the race-condition mitigation documented in ui-risk/ui-risk-report.md.
+  // A request can be cancelled two ways: our own timeout above, or an
+  // AbortSignal a caller passes in (for example, when a component
+  // unmounts before the request finishes). Either one aborts the same
+  // underlying fetch, which stops an old, no-longer-needed response from
+  // ever coming back and overwriting newer state.
   if (signal) {
     signal.addEventListener("abort", () => controller.abort(), { once: true });
   }
@@ -58,7 +63,7 @@ async function request(path, { method = "GET", body, signal } = {}) {
   }
 }
 
-// --- Product Catalog Service (matches openapi/product-service.yaml) ---
+// Talks to the Product Catalog service: listing, looking up, and searching products.
 export const ProductApi = {
   list: (params = {}, signal) => {
     const qs = new URLSearchParams(params).toString();
@@ -71,7 +76,7 @@ export const ProductApi = {
   }
 };
 
-// --- Cart Service (matches openapi/cart-service.yaml) ---
+// Talks to the Cart service: reading a user's cart and adding, updating, or removing items in it.
 export const CartApi = {
   get: (userId, signal) => request(`/api/v1/cart/${encodeURIComponent(userId)}`, { signal }),
   addItem: (userId, item, signal) =>
@@ -89,7 +94,7 @@ export const CartApi = {
     })
 };
 
-// --- Order Management Service (matches api_boundaries in L1/UC1 architecture.json) ---
+// Talks to the Order Management service: placing a new order.
 export const OrderApi = {
   create: (order, signal) => request("/api/v1/orders", { method: "POST", body: order, signal })
 };

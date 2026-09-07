@@ -4,32 +4,26 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-// CONCEPT: Observability metrics collection -- token usage and latency
-// tracking, computed in-memory (no external metrics library like
-// Micrometer/Prometheus client).
-// PURPOSE: Records one QueryMetric per RagAssistant.ask() call (was it a
-// cache hit? blocked? fallback? how long did it take? how many tokens?
-// what did it cost?), then aggregate() turns that raw list into summary
-// statistics: totals, averages, and latency percentiles.
-//
-// WHY p50/p95 latency, not just an average: an average can hide a bad tail
-// -- e.g. most queries fast but 5% very slow. p50 (median) is a robust
-// "typical" experience; p95 shows what the slower end of real usage looks
-// like, which is what actually gets noticed/complained about in a real
-// product.
-//
-// HOW percentile() WORKS (nearest-rank method, see below): given a
-// pre-sorted list of latencies, index = ceil(p * count) - 1 picks the
-// value at the requested percentile position directly, clamped to valid
-// bounds. This is exact and simple for a small sample -- a
-// production system with thousands of samples per window would typically
-// use a streaming/approximate percentile algorithm (HDRHistogram,
-// t-digest) instead of storing every raw sample.
-//
-// WHY an in-memory list (not Micrometer/Prometheus): keeps this module
-// dependency-free; a production deployment would export these SAME
-// numbers to a real metrics backend without changing what's measured --
-// only where it's reported.
+/**
+ * Records one entry per question asked (was it a cache hit? blocked? how
+ * long did it take? how many tokens did it use? what did it cost?), kept
+ * simply in memory rather than using an external metrics library.
+ * {@code aggregate()} then turns that raw list into summary statistics:
+ * totals, averages, and latency percentiles.
+ * <p>
+ * Why bother with p50/p95 latency instead of just an average: an average
+ * can hide a bad "tail" — imagine most requests are fast, but 5% are very
+ * slow. The average alone would look fine, hiding a real problem. p50
+ * (the median) tells you the TYPICAL experience; p95 tells you what the
+ * slower end looks like — which is usually what actually gets noticed and
+ * complained about.
+ * <p>
+ * {@code percentile()} uses a simple, exact method that works great for
+ * the small number of samples this demo produces. A production system
+ * handling thousands of requests per second would typically use a more
+ * advanced, memory-efficient algorithm instead of storing every single
+ * raw measurement — but the idea is the same.
+ */
 public class MetricsRecorder {
 
     public record QueryMetric(String query, boolean cacheHit, boolean blocked, boolean fallback,
@@ -86,13 +80,9 @@ public class MetricsRecorder {
     }
 
     /**
-     * Nearest-rank percentile over a pre-sorted list -- simple and exactly
-     * correct for the small sample sizes this demo actually produces (a
-     * handful of queries); a production system with thousands of samples
-     * per window would more likely use a streaming/approximate percentile
-     * algorithm (e.g. HDRHistogram or t-digest), noted as a scale-up path
-     * rather than implemented here (out of this use case's scope, and not
-     * reachable via Maven Central in this sandbox regardless).
+     * Picks the value at a given percentile position out of an
+     * already-sorted list — for example, p=0.95 picks the value that 95%
+     * of the samples fall at or below.
      */
     private long percentile(List<Long> sortedValues, double p) {
         if (sortedValues.isEmpty()) return 0;

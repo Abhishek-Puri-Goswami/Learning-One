@@ -3,12 +3,19 @@ package com.retailco.ecommerce.payment;
 import java.math.BigDecimal;
 import java.util.UUID;
 
-// CONCEPT: Fake/stub implementation of an interface, used because there's
-// no real external payment provider connected.
-// PURPOSE: Always approves, EXCEPT for two deterministic rules used to
-// test edge cases on purpose: charges above DECLINE_ABOVE are declined
-// (simulates a card limit), and any charge for FORCED_DECLINE_USER_ID is
-// always declined (a fixed way to test "what happens when payment fails").
+/**
+ * A fake, "pretend" payment gateway, used because we're not actually
+ * connected to a real one like Stripe. It approves almost every charge —
+ * except for two rules we built in on purpose, so we have a reliable way
+ * to test what happens when a payment fails:
+ * <ul>
+ *   <li>Any charge above {@link #DECLINE_ABOVE} is declined, simulating a
+ *       card that has hit its limit.</li>
+ *   <li>Any charge made for the special test user {@link #FORCED_DECLINE_USER_ID}
+ *       is always declined, no matter the amount — a predictable way to
+ *       trigger the "payment failed" path in tests.</li>
+ * </ul>
+ */
 public class StubPaymentGateway implements PaymentGateway {
 
     public static final BigDecimal DECLINE_ABOVE = new BigDecimal("10000.00");

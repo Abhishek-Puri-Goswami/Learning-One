@@ -9,10 +9,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-// CONCEPT: Controller -- handles HTTP requests for the cart API
-// (get/add/update/remove). Thin by design: it just calls CartService and
-// wraps the result in the right HTTP status code (e.g. 201 for a
-// successful add).
+/**
+ * Handles the HTTP side of the cart API: getting a cart, and
+ * adding/updating/removing items. It's kept deliberately "thin" — each
+ * method just calls {@code CartService} to do the real work, then wraps
+ * the answer in the right HTTP status code (like 201 when an item is
+ * successfully added).
+ */
 @RestController
 @RequestMapping("/api/v1/cart")
 public class CartController {

@@ -11,31 +11,21 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-// CONCEPT: Security audit logging -- structured, append-only records of
-// every access DECISION (not the data itself), designed so PII cannot leak
-// into logs even by accident.
-// PURPOSE: Every call into BankingToolService ends with one AuditEvent
-// written here: who asked (actorSubject/actorRoles), for whose data
-// (requestedCustomerId), which tool, and the decision
-// (ALLOWED_SELF/ALLOWED_ELEVATED/DENIED_AUTHENTICATION/
-// DENIED_AUTHORIZATION) with a reason.
-//
-// IMPORTANT (a structural, not just conventional, PII guarantee): this
-// class has NO method that accepts a free-form message string -- `log()`
-// only accepts the fixed AuditEvent record, whose fields are all
-// identifiers/decisions/roles, never raw account numbers, balances, or
-// other PII. That means there is literally no code path through this
-// class by which a caller could accidentally log sensitive customer data
-// -- a stronger guarantee than "developers remember to mask before
-// logging," because it doesn't depend on anyone remembering anything.
-//
-// WHY separate from TraceLogger (assistant package) and PiiMasking
-// (security package): TraceLogger records RAG generation traces for
-// evaluation; PiiMasking hides sensitive fields inside API *responses*.
-// This class's only concern is the audit trail of access DECISIONS -- a
-// distinct responsibility that deserves its own class rather than being
-// bolted onto either of those.
-//
+/**
+ * Writes an append-only, structured log of every access DECISION (not
+ * the underlying data) made by {@code BankingToolService}. Every call
+ * into that class ends with one {@code AuditEvent} written here: who
+ * asked, for whose data, which tool they used, and what was decided
+ * (allowed, or denied and why).
+ * <p>
+ * A useful safety detail: this class has no method that accepts a
+ * free-form message string — {@code log()} only accepts the fixed
+ * {@code AuditEvent} record, whose fields are all identifiers, decisions,
+ * and roles, never raw account numbers, balances, or other sensitive
+ * data. That means there's no way for a caller to accidentally log
+ * sensitive customer data through this class, since the shape of the
+ * data it accepts simply doesn't allow it.
+ */
 public final class StructuredAuditLogger {
 
     private final Path logFile;

@@ -20,15 +20,19 @@ import org.springframework.context.annotation.Configuration;
 import java.math.BigDecimal;
 import java.nio.file.Path;
 
-// CONCEPT: The composition root for this module (same philosophy as
-// rag-assistant-service's AssistantConfig, extended with the observability
-// layer's beans -- QueryCache, MetricsRecorder, CostEstimator,
-// ObservableRagAssistant). See AssistantConfig's comments for the full
-// explanation of how Spring resolves the bean dependency graph.
-// PURPOSE: Wires RagAssistant (unchanged UC2 pipeline) inside
-// ObservableRagAssistant (UC4's caching/metrics/cost decorator), so every
-// call through this module's controllers gets both the RAG pipeline AND
-// the observability layer, with no controller needing to know both exist.
+/**
+ * The central wiring point for this whole module — same philosophy as
+ * {@code rag-assistant-service}'s {@code AssistantConfig}, extended here
+ * with the observability layer's beans ({@code QueryCache},
+ * {@code MetricsRecorder}, {@code CostEstimator},
+ * {@code ObservableRagAssistant}).
+ * <p>
+ * This class wires the unmodified {@code RagAssistant} pipeline INSIDE
+ * {@code ObservableRagAssistant} (which adds caching, metrics, and cost
+ * tracking around it), so every call coming through this module's
+ * controllers automatically gets both the RAG pipeline AND the
+ * observability layer, with no controller needing to know both exist.
+ */
 @Configuration
 public class ObservabilityConfig {
 
@@ -38,7 +42,10 @@ public class ObservabilityConfig {
     @Value("${bankrag.assistant.similarity-threshold:0.15}")
     private double similarityThreshold;
 
-    @Value("${bankrag.assistant.min-score-margin:0.012}") // lowered from UC2's 0.03 per this use case's real threshold-tuning experiment
+    // This default (0.012) was tuned down from an earlier, higher value
+    // after running a real experiment that measured which threshold
+    // actually produced the best results on real questions.
+    @Value("${bankrag.assistant.min-score-margin:0.012}")
     private double minScoreMargin;
 
     @Value("${bankrag.assistant.semantic-weight:0.6}")

@@ -11,21 +11,21 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-// CONCEPT: Controller layer -- the single unified REST entry point for
-// the whole integrated system (one endpoint, many possible outcomes).
-// PURPOSE: POST /api/v1/support/ask is the ONE front door for both policy
-// questions and live banking data -- IntegratedBankingAssistant decides
-// internally which subsystem actually handles each request.
-// FLOW: extract the raw Authorization header (only actually used for
-// live-data intents -- see IntegratedBankingAssistant's Javadoc) ->
-// delegate to assistant.handle(...) -> convert whichever UnifiedResponse
-// subtype came back into one AskResponse DTO with a `type` discriminator
-// field, so a single JSON response shape can represent 4 different kinds
-// of outcome.
-// WHY instanceof pattern matching (not a pattern-matching switch): this
-// was written to compile with plain `mvn compile` under this project's
-// Java version without needing an `--enable-preview` flag -- see the
-// inline note in the code for the exact reasoning.
+/**
+ * The single front door for the whole integrated system: {@code POST
+ * /api/v1/support/ask} handles both policy questions and live banking
+ * data questions through one endpoint. It doesn't decide which is which
+ * itself — it just passes the request to {@code IntegratedBankingAssistant},
+ * which does the routing, and then wraps whatever comes back into one
+ * {@code AskResponse} shape with a {@code type} field, so the same JSON
+ * response shape can represent any of the four possible kinds of
+ * outcome.
+ * <p>
+ * This uses a chain of {@code instanceof} checks rather than Java's
+ * newer pattern-matching {@code switch} syntax, so the project compiles
+ * with a plain {@code mvn compile} without needing to enable a preview
+ * language feature.
+ */
 @RestController
 @RequestMapping("/api/v1/support")
 public class SupportController {

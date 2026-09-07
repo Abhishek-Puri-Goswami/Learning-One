@@ -4,15 +4,12 @@ import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.Optional;
 
-// CONCEPT: Value object (record) using Optional fields to represent "this
-// piece of information might not be present" explicitly, instead of using
-// null (which is easy to forget to check).
 /**
- * A parsed hint about when the sender wants to meet -- not a resolved
- * calendar slot (that's {@code calendar.CalendarTool}'s job), just what
- * {@link DateTimeExtractor} could read out of free text. Any field may be
- * absent; the extractor is intentionally conservative (see its own
- * Javadoc) rather than guessing.
+ * A rough hint about when the sender wants to meet — NOT a confirmed
+ * calendar slot, just whatever {@link DateTimeExtractor} could read out
+ * of the email's text. Each field uses {@code Optional} instead of
+ * allowing {@code null} — that makes it explicit and hard to miss that
+ * any of these pieces of information might simply not be there.
  */
 public record TimeHint(Optional<DayOfWeek> dayOfWeek, Optional<PartOfDay> partOfDay, Optional<LocalTime> explicitTime) {
 

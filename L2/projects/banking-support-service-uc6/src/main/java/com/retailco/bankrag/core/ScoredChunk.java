@@ -1,9 +1,10 @@
 package com.retailco.bankrag.core;
 
-// CONCEPT: Value object pairing a Chunk with a relevance score.
-// PURPOSE: The common return type for every search strategy in this
-// package (KeywordSearcher, VectorStore.semanticSearch, HybridSearcher) so
-// callers can sort/compare/display results the same way regardless of
-// which search method produced them.
+/**
+ * Pairs one {@link Chunk} with a number showing how relevant it is to a
+ * search. Every search method in this package returns results in this
+ * same shape, so whatever code displays or sorts the results doesn't need
+ * to care which search method actually produced them.
+ */
 public record ScoredChunk(Chunk chunk, double score) {
 }

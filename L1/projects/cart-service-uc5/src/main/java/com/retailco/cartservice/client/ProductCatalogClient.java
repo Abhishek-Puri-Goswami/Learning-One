@@ -9,17 +9,25 @@ import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 
-// CONCEPT: HTTP client wrapper, now distinguishing two different failure
-// kinds instead of treating every failure the same way:
-// - A genuine 404 (product truly doesn't exist) -> throws
-//   InvalidProductException, which becomes a real error response.
-// - Any other failure (timeout, connection refused, server error) ->
-//   falls back to a placeholder, so the cart stays usable during an
-//   outage.
-// WHY separate them: an invalid product id is a data problem that should
-// be rejected; a network hiccup is an availability problem that should
-// degrade gracefully. Treating both the same way (as the earlier version
-// of this class did) let bad product ids silently slip through at price 0.
+/**
+ * Talks to product-service over HTTP to look up a product's name and
+ * price. This version is smarter than a naive first attempt would be — it
+ * treats two kinds of failure differently:
+ * <ul>
+ *   <li>A real "404 not found" means the product simply doesn't exist, so
+ *       we throw {@code InvalidProductException} and let the request fail
+ *       with a clear error.</li>
+ *   <li>Any other failure (a timeout, a dropped connection, the other
+ *       service being temporarily down) is treated as a network hiccup,
+ *       not a real problem with the data — so instead of failing, we fall
+ *       back to a placeholder value and let the cart keep working.</li>
+ * </ul>
+ * Why bother telling these apart? An invalid product id is a genuine
+ * mistake that should be rejected. A network hiccup is a temporary
+ * availability problem that shouldn't block the customer. If we treated
+ * both the same way, a bad or fake product id could quietly slip through
+ * priced at zero instead of being caught.
+ */
 @Component
 public class ProductCatalogClient {
 
@@ -43,8 +51,10 @@ public class ProductCatalogClient {
         } catch (HttpClientErrorException.NotFound e) {
             throw new InvalidProductException(productId);
         } catch (RestClientException ex) {
-            // Transient/infra failure (timeout, connection refused, 5xx) --
-            // degrade gracefully so Cart stays usable even if Catalog is down.
+            // A network-level problem (timeout, connection refused, a 5xx
+            // error), not proof the product is invalid. We fall back to a
+            // placeholder so the cart keeps working even while
+            // product-service is having trouble.
             return fallback(productId);
         }
     }

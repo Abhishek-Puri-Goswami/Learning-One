@@ -5,24 +5,30 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-// CONCEPT: Hand-rolled recursive-descent parser -- a small, from-scratch
-// JSON reader/writer.
-// PURPOSE: OpenAiEmbeddingModel needs to send and parse JSON to talk to
-// OpenAI's REST API, but this module deliberately has zero external
-// dependencies (no Jackson/Gson). This class exists purely as a minimal,
-// dependency-free substitute -- it understands only the JSON shapes
-// OpenAI's Embeddings/Chat Completions endpoints actually use, not the
-// full JSON spec.
-// HOW IT WORKS: `parse()` wraps the string in a `Parser` and calls
-// `parseValue()`, which looks at the next character to decide what kind of
-// JSON value follows ('{' object, '[' array, '"' string, 't'/'f' boolean,
-// 'n' null, else a number) and recurses accordingly -- this is the
-// "recursive descent" parsing technique, one parsing method per grammar
-// rule. `asObject`/`asArray`/`asDouble`/`asInt` are small unchecked casts
-// that make call sites read cleanly once you know the expected shape.
-// WHY: in a real production project you'd use Jackson or Gson instead of
-// hand-rolling this -- it's a deliberate, disclosed trade-off for staying
-// dependency-free, not a recommended general-purpose JSON library.
+/**
+ * A tiny, hand-written JSON reader and writer, built from scratch. We
+ * need to send and understand JSON to talk to OpenAI's API, but this
+ * module deliberately avoids adding external libraries like Jackson or
+ * Gson — so this class exists purely to fill that small gap. It only
+ * understands the specific JSON shapes OpenAI's endpoints actually use,
+ * not the entire JSON specification.
+ * <p>
+ * How the reading side works: {@code parse()} looks at the very next
+ * character to figure out what kind of value is coming — {@code {} means
+ * an object, {@code [} means an array or list, a quote means a string,
+ * and so on — and calls itself again to handle whatever comes inside.
+ * This technique of "look at one piece, then call yourself to handle the
+ * rest" is called recursive descent parsing.
+ * <p>
+ * The helper methods {@code asObject}/{@code asArray}/{@code asDouble}/
+ * {@code asInt} are small convenience casts, so the code that USES this
+ * parser reads cleanly once you already know what shape to expect back.
+ * <p>
+ * In a real production project, you'd normally reach for a proper library
+ * like Jackson or Gson instead of writing your own JSON parser — this is
+ * a deliberate trade-off made specifically to keep this module free of
+ * external dependencies, not a general recommendation.
+ */
 final class MinimalJson {
 
     private MinimalJson() {

@@ -10,17 +10,15 @@ import org.springframework.web.client.RestTemplate;
 import java.math.BigDecimal;
 import java.util.Map;
 
-// CONCEPT: HTTP client wrapper -- now distinguishes a TIMEOUT
-// (ResourceAccessException) from other failures, so a slow gateway
-// produces a clearer error than a generic failure would.
 /**
- * Carried forward from L1/UC4 (externalized API key, no more swallowed
- * exceptions). L1/UC5 addition: ResourceAccessException (what RestTemplate
- * throws for a connect/read timeout, per the timeout config added in
- * OrderServiceApplication) is now caught separately so a timed-out payment
- * call produces a distinguishable, testable message instead of being lumped
- * in with every other RestClientException. See
- * edge-cases/edge-case-catalog.md, "Payment timeout".
+ * Talks to an external payment gateway over HTTP. This version adds one
+ * more improvement on top of the earlier fixes (config-driven API key, no
+ * swallowed exceptions): it now catches {@code ResourceAccessException}
+ * separately from other failures. That's the specific exception Spring
+ * throws when a call times out (see {@code OrderServiceApplication}'s
+ * timeout configuration) — catching it separately lets us say clearly
+ * "the payment gateway timed out" instead of a vague "something went
+ * wrong," which is much easier to diagnose when it happens.
  */
 @Component
 public class PaymentGatewayClient {

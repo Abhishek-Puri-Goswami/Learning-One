@@ -9,8 +9,11 @@ import org.springframework.web.client.RestTemplate;
 
 import java.time.Duration;
 
-// CONCEPT: Spring Boot entry point. Boots the app and scans for
-// @Controller/@Service/@Repository classes.
+/**
+ * The starting point of this application. Running this boots up Spring
+ * Boot, which starts a web server and wires together our
+ * {@code @Controller}, {@code @Service}, and {@code @Repository} classes.
+ */
 @SpringBootApplication
 public class OrderServiceApplication {
 
@@ -18,17 +21,14 @@ public class OrderServiceApplication {
         SpringApplication.run(OrderServiceApplication.class, args);
     }
 
-    // CONCEPT: @Bean method with configurable timeouts -- without these,
-    // an HTTP call (e.g. to a hung payment gateway) could block forever
-    // instead of failing fast with a clear error.
     /**
-     * L1/UC5 fix (see edge-cases/edge-case-catalog.md, "Payment timeout"):
-     * the plain `new RestTemplate()` used in L1/UC2 and L1/UC4 has NO
-     * connect/read timeout configured, meaning a hung payment gateway (or
-     * cart/product service) call would block the calling thread
-     * indefinitely instead of failing fast. Explicit timeouts turn "the
-     * gateway never responds" into a distinguishable, testable
-     * PaymentFailedException instead of an indefinite hang.
+     * Registers our HTTP client with sensible timeouts. Earlier versions
+     * of this project used a plain {@code new RestTemplate()} with no
+     * timeout at all — which means if a service we call (like the payment
+     * gateway) ever hangs and never responds, our own request would wait
+     * forever too, freezing up the thread handling it. Setting explicit
+     * connect and read timeouts here means a slow or unresponsive service
+     * fails fast with a clear error, instead of hanging indefinitely.
      */
     @Bean
     public RestTemplate restTemplate(RestTemplateBuilder builder,

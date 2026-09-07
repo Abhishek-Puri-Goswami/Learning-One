@@ -1,9 +1,11 @@
 package com.retailco.productservice.exception;
 
-// CONCEPT: Custom exception -- a specific, named error type instead of a
-// generic RuntimeException.
-// PURPOSE: Thrown when a product id doesn't exist. GlobalExceptionHandler
-// catches this exact type and turns it into a 404 response.
+/**
+ * A specific, named error we throw when someone asks for a product id
+ * that doesn't exist. Giving it its own class (instead of just throwing a
+ * generic error) means {@code GlobalExceptionHandler} can recognize it
+ * and turn it into a proper "404 Not Found" response.
+ */
 public class ProductNotFoundException extends RuntimeException {
 
     public ProductNotFoundException(String productId) {

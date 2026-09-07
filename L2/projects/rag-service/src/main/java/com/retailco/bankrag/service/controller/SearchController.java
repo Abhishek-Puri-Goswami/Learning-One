@@ -8,19 +8,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-// CONCEPT: Controller layer -- exposes retrieval as a GET endpoint with
-// query parameters.
-// PURPOSE: GET /api/v1/rag/search?query=...&method=HYBRID&topK=3 lets a
-// caller choose which retrieval strategy to use (KEYWORD/SEMANTIC/HYBRID)
-// and get back ranked results with relevance scores.
-// HOW Spring binds the parameters: `@RequestParam` maps URL query
-// parameters directly to method parameters, including automatic
-// String -> enum conversion for `method` (Spring calls
-// SearchService.Method.valueOf(...) under the hood) and a `defaultValue`
-// used when the parameter is omitted from the request.
-// WHY this stays a thin wrapper: same Controller-Service pattern as
-// IngestionController -- all the actual search logic (which searcher to
-// use, guardrail checks) lives in SearchService, not here.
+/**
+ * Exposes search as a GET endpoint:
+ * {@code GET /api/v1/rag/search?query=...&method=HYBRID&topK=3} lets a
+ * caller choose which search strategy to use and get back ranked results
+ * with relevance scores.
+ * <p>
+ * {@code @RequestParam} below is what maps URL query parameters directly
+ * onto this method's parameters, including automatically converting the
+ * text {@code method} into the matching {@code SearchService.Method}
+ * enum value, and falling back to a default value when a parameter is
+ * left out of the request.
+ * <p>
+ * Just like {@code IngestionController}, this stays a thin wrapper — the
+ * actual search logic lives entirely in {@code SearchService}.
+ */
 @RestController
 @RequestMapping("/api/v1/rag")
 public class SearchController {

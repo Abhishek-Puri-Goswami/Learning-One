@@ -5,17 +5,14 @@ import com.retailco.emailagent.model.MeetingProposal;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-// CONCEPT: Idempotency guard -- prevents the same action from happening
-// twice. Here: don't draft the same meeting proposal again if it's
-// already been drafted (e.g. the agent re-runs over the same inbox).
 /**
- * Per the LLD's idempotency rule: dedupe meeting proposals by
- * {@code (threadId, attendees, duration, day)} -- see
- * {@link MeetingProposal#dedupeKey()}. Prevents the agent from drafting a
- * second, near-identical proposal for the same thread if it's re-run
- * against an inbox that hasn't changed (e.g. a retry after a transient
- * failure, or a scheduled re-poll that re-reads an already-handled
- * email) -- the LLD's stated failure mode this rule exists to prevent.
+ * Makes sure we never draft the same meeting proposal twice. It
+ * remembers a "dedupe key" (thread, attendees, duration, day — see
+ * {@link MeetingProposal#dedupeKey()}) for every proposal we've already
+ * made. If the agent happens to run over the same email again — say,
+ * after retrying following a temporary failure, or a scheduled re-check
+ * of the inbox — this stops it from drafting a second, nearly-identical
+ * reply for something it already handled.
  */
 public class ProposalDeduper {
 

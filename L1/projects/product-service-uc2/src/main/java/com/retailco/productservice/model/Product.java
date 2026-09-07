@@ -3,13 +3,17 @@ package com.retailco.productservice.model;
 import java.math.BigDecimal;
 import java.time.Instant;
 
-// CONCEPT: Domain model (entity) -- a plain Java class representing one
-// product in the catalog.
-// PURPOSE: Holds a product's data (name, price, stock, etc.) as it's kept
-// in storage. Every field has a getter/setter pair (standard JavaBean
-// style) so frameworks and other code can read/update it field by field.
-// WHY: In-memory for now, not yet a real database entity. A real system
-// would eventually store this in PostgreSQL via Spring Data JPA.
+/**
+ * This class represents one product exactly as we keep it in storage —
+ * its name, price, category, and how many are in stock. Every field has a
+ * matching "getter" and "setter" method (the standard Java pattern for
+ * reading and updating an object's fields one at a time), which is what
+ * lets frameworks like Spring work with it automatically.
+ * <p>
+ * Right now products just live in memory (see {@code ProductRepository}).
+ * A real production system would eventually store them in a proper
+ * database like PostgreSQL instead.
+ */
 public class Product {
 
     private String id;

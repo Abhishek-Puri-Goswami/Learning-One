@@ -15,40 +15,34 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.List;
 
-// CONCEPT: Spring Security integration -- a custom servlet Filter that
-// plugs JWT authentication into Spring's security filter chain.
-// PURPOSE: Runs once per incoming HTTP request (extends
-// OncePerRequestFilter -- a Spring Security base class that guarantees
-// exactly one execution per request, even across internal forwards),
-// BEFORE Spring Security's own authorization checks. Its job is only to
-// figure out WHO is making the request (authentication), not to decide
-// whether they're ALLOWED to do what they're asking (authorization --
-// that's SecurityConfig's job).
-//
-// FLOW (see doFilterInternal() below, step by step):
-// 1. Read the "Authorization: Bearer <token>" header.
-// 2. Delegate the actual cryptographic verification to JwtService.verify()
-//    -- this filter does NOT reimplement JWT logic, it only wires the
-//    already-correct JwtService into Spring's request pipeline.
-// 3. On a valid token: build a Spring Security `Authentication` object
-//    from the token's claims (subject + roles, each role prefixed
-//    "ROLE_" -- Spring Security's convention for role-based checks) and
-//    store it in the SecurityContext, which is what `@PreAuthorize`/
-//    `.hasRole(...)` rules elsewhere check against. The raw claims are
-//    also stashed as a request attribute so controllers can do the
-//    customer-id-match authorization check.
-// 4. On an invalid/missing token: do nothing special here -- leave the
-//    SecurityContext empty and call filterChain.doFilter() anyway.
-//    Spring Security's own downstream rules then reject the (still
-//    unauthenticated) request with a uniform 401 -- so a missing token
-//    and an invalid token produce the SAME response, avoiding an
-//    information leak about which one occurred (same reasoning as
-//    UnauthorizedException).
-//
-// SPRING BOOT CONCEPT TO LEARN: this is the standard way to add custom
-// authentication to Spring Security -- a Filter that populates
-// SecurityContextHolder, registered into the filter chain by SecurityConfig
-// (see that class for where this filter is actually added to the chain).
+/**
+ * This class plugs JWT authentication into Spring Security's request
+ * pipeline. It runs once for every incoming HTTP request, BEFORE Spring
+ * Security's own authorization checks. Its job is ONLY to figure out WHO
+ * is making the request (authentication) — not to decide whether they're
+ * allowed to do what they're asking (authorization is
+ * {@code SecurityConfig}'s job).
+ * <p>
+ * Here's what {@code doFilterInternal()} does, step by step:
+ * <ol>
+ *   <li>Read the {@code Authorization: Bearer <token>} header.</li>
+ *   <li>Hand the actual cryptographic checking off to
+ *       {@code JwtService.verify()} — this filter doesn't reimplement any
+ *       JWT logic itself, it just wires the already-correct
+ *       {@code JwtService} into Spring's pipeline.</li>
+ *   <li>If the token is valid: build a Spring Security "Authentication"
+ *       object from its claims and store it where Spring Security's own
+ *       rules can check it later.</li>
+ *   <li>If the token is invalid or missing: do nothing special — leave
+ *       the request unauthenticated and let it continue. Spring
+ *       Security's own downstream rules then reject it with a uniform
+ *       401 error — so a missing token and an invalid token look
+ *       identical to the caller, which avoids leaking information about
+ *       which one happened.</li>
+ * </ol>
+ * (See {@code SecurityConfig} for where this filter is actually added to
+ * the chain.)
+ */
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 

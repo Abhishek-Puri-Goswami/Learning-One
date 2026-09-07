@@ -3,12 +3,24 @@ import ProductListing from "./components/ProductListing";
 import Cart from "./components/Cart";
 import CheckoutForm from "./components/CheckoutForm";
 
+// A stand-in user id shared by every page, since this demo app has no real login.
 const DEMO_USER_ID = "guest";
 
+/**
+ * The root component of this online shopping app. It sets up the page's
+ * three routes — the product listing (home page), the cart, and
+ * checkout — and shares one demo user id across all of them, since this
+ * app doesn't have a real login system.
+ */
 export default function App() {
   return (
     <BrowserRouter>
-      {/* Skip link for keyboard users (WCAG 2.1 AA - 2.4.1 Bypass Blocks) */}
+      {/*
+        This hidden-until-focused link lets someone navigating with a
+        keyboard (instead of a mouse) jump straight to the main content,
+        skipping past the repeated header/nav links on every page —
+        an accessibility best practice for keyboard and screen-reader users.
+      */}
       <a href="#main-content" className="skip-link">
         Skip to main content
       </a>

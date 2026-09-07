@@ -2,23 +2,20 @@ package com.retailco.emailagent.guardrails;
 
 import java.util.Set;
 
-// CONCEPT: Guardrail via an allowlist enum -- documents exactly which
-// actions the agent is permitted to take (read inbox, read calendar,
-// draft a reply) and, just as importantly, which it is NOT (send email,
-// modify calendar). This is a safety pattern common to AI agents: limit
-// what the agent CAN do, don't just tell it what it SHOULD do.
 /**
- * Per the HLD's "allowlisted tool actions" guardrail: the agent may only
- * invoke a fixed, named set of read/draft actions -- never a generic
- * "execute this" capability. This is enforced structurally, not just by
- * policy: {@code agent.SchedulingAgent} has no method that takes an
- * arbitrary action name and dispatches it; every tool call in this
- * codebase is a direct, compile-time method call
- * ({@code inbox.getLatest()}, {@code calendar.findAvailableSlots(...)},
- * {@code draft.compose(...)}). This enum exists so that structural
- * guarantee is also machine-checkable and documented in one place, and so
- * a future actions-as-data dispatcher (if one is ever added) has
- * something to check against instead of re-deriving the allowlist.
+ * This lists every action our agent is allowed to take: read the inbox,
+ * check calendar availability, and draft a reply. Just as important as
+ * what's on this list is what's NOT — there's no "send email" or "modify
+ * calendar" option here at all.
+ * <p>
+ * This is a common safety idea for AI agents: instead of only telling the
+ * agent what it SHOULD do, you limit what it's even CAPABLE of doing.
+ * In this codebase, the agent never calls a generic "run this action"
+ * method — it only ever calls specific, fixed methods like
+ * {@code inbox.getLatest()} or {@code calendar.findAvailableSlots(...)}.
+ * This enum exists to write that safety boundary down clearly in one
+ * place, as documentation and as something future code changes can be
+ * checked against.
  */
 public enum ToolAllowlist {
     READ_INBOX,

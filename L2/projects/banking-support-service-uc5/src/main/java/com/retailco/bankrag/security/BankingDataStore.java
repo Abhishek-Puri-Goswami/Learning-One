@@ -6,22 +6,21 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-// CONCEPT: Repository pattern -- an in-memory stand-in for a real
-// database-backed repository (what would normally be a Spring Data JPA
-// `@Repository` talking to PostgreSQL).
-// PURPOSE: Provides accounts, transactions, and loans keyed by customer/
-// account id, using plain in-memory Maps seeded with demo data.
-// WHY the method contracts matter: findAccountsByCustomerId,
-// findTransactionsByAccountNumber, findLoansByCustomerId are written to
-// look exactly like what a real Spring Data JPA repository interface
-// would expose. That means a production version of this class could be
-// replaced by a real `@Repository` backed by PostgreSQL without changing
-// any of BankingToolService's calling code -- only this class's internals
-// would change from "look up a Map" to "run a SQL query."
-// IMPORTANT: this class holds no user input and no live external data --
-// its only job is to simulate what a database would return, so the
-// security/business logic above it (BankingToolService, PiiMasking) can
-// be developed and tested against realistic-shaped data.
+/**
+ * An in-memory stand-in for what would normally be a real database-backed
+ * repository. It provides accounts, transactions, and loans keyed by
+ * customer or account id, using simple in-memory maps seeded with demo
+ * data.
+ * <p>
+ * Its methods ({@code findAccountsByCustomerId},
+ * {@code findTransactionsByAccountNumber},
+ * {@code findLoansByCustomerId}) are written to look exactly like what a
+ * real database repository would expose. That means a production version
+ * of this class could later be swapped in — one backed by a real database
+ * — without any of {@code BankingToolService}'s calling code needing to
+ * change at all; only this class's own internals would change from
+ * "look up a map" to "run a query."
+ */
 public class BankingDataStore {
 
     public record Account(String accountNumber, String customerId, String accountType, BigDecimal balance, String currency) {

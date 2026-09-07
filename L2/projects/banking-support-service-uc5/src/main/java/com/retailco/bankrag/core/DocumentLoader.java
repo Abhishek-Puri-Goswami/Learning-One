@@ -7,17 +7,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-// CONCEPT: Data ingestion / document loading -- step 1 of a RAG pipeline.
-// PURPOSE: Reads raw text files off disk and wraps each one in a
-// SourceDocument (a small nested record: filename + full text), which is
-// the input the rest of the pipeline (Chunker, VectorStore) expects.
-// FLOW:
-// Directory of .txt files -> DocumentLoader -> List<SourceDocument> ->
-// Chunker.chunk(...) -> VectorStore.index(...)
-// WHY: Only plain .txt is supported here (the corpus is already extracted
-// text). A production system would add PDF/DOCX/HTML parsers at this same
-// point without touching anything downstream, because everything after
-// this class only depends on the simple SourceDocument shape.
+/**
+ * The very first step of our RAG pipeline: reading raw text files off
+ * disk. Each file becomes a {@code SourceDocument} — a simple pairing of
+ * its filename and its full text — which is exactly what the rest of the
+ * pipeline ({@code Chunker}, then {@code VectorStore}) expects as input.
+ * <p>
+ * Only plain {@code .txt} files are supported right now, since our sample
+ * documents are already plain text. A real system could add support for
+ * PDF or Word documents right here, and nothing downstream would need to
+ * change at all — every other class only ever depends on the simple
+ * "filename + text" shape this class produces.
+ */
 public class DocumentLoader {
 
     public record SourceDocument(String id, String text) {

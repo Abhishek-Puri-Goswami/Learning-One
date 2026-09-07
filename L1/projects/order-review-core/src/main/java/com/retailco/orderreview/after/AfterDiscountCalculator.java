@@ -2,16 +2,14 @@ package com.retailco.orderreview.after;
 
 import java.math.BigDecimal;
 
-// CONCEPT: The "after" refactor -- each coupon rule as its own small
-// method instead of one deeply nested block.
 /**
- * Pure-JDK port of {@code order-service-refactored}'s
- * {@code DiscountCalculator} (see
- * {@code ../../UC4-Code-Review-Quality-Governance/order-service-refactored/.../DiscountCalculator.java}),
- * with only the {@code @Component} annotation removed -- otherwise
- * unchanged, since the class had no Spring dependency to begin with. Each
- * coupon rule is its own small method instead of the nested if/else chain
- * in {@link com.retailco.orderreview.before.BeforeDiscountPricer}.
+ * This is the cleaned-up version of
+ * {@link com.retailco.orderreview.before.BeforeDiscountPricer}'s logic.
+ * Instead of one long chain of nested {@code if/else} statements, each
+ * coupon rule now gets its own small, clearly-named method
+ * ({@code applySave10}, {@code applyVip}). Reading {@code applyDiscount}
+ * below, you can immediately see which rule applies to which coupon
+ * code — no need to mentally untangle several layers of nesting.
  */
 public final class AfterDiscountCalculator {
 

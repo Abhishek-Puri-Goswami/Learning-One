@@ -1,5 +1,10 @@
-// role="alert" ensures assistive tech announces errors immediately
-// (WCAG 2.1 AA - 4.1.3 Status Messages / 3.3.1 Error Identification).
+/**
+ * Shows an error message (and, optionally, a "Retry" button) when
+ * something goes wrong. The {@code role="alert"} attribute makes screen
+ * readers announce the message right away, without the user needing to
+ * navigate to it first — so a visually impaired user finds out about the
+ * error at the same moment a sighted user would see it appear.
+ */
 export default function ErrorMessage({ error, onRetry }) {
   if (!error) return null;
 

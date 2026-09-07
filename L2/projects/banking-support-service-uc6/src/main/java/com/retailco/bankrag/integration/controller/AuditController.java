@@ -12,28 +12,25 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
-// CONCEPT: Method-level security with `@PreAuthorize` -- Spring Security's
-// annotation-based authorization check, evaluated BEFORE the method body
-// runs.
-// PURPOSE: Exposes the structured audit log (written by
-// BankingToolService/StructuredAuditLogger) for compliance/security
-// review -- exactly the kind of endpoint a real audit team would need.
-// HOW @PreAuthorize("hasRole('ADMIN')") WORKS: Spring Security intercepts
-// the call and checks whether the currently authenticated user's
-// authorities (set by JwtAuthenticationFilter from the JWT's roles,
-// prefixed "ROLE_") include ROLE_ADMIN. If not, the request is rejected
-// with a 403 before `tail()` ever executes -- the method body never has
-// to check this itself.
-// WHY THIS DIFFERS FROM SupportController (which relies on AccessPolicy
-// for its authorization logic instead): this endpoint's rule is simple
-// and fixed ("ADMIN only, no exceptions"), so a declarative annotation is
-// the clearest way to express it. AccessPolicy exists for the MORE
-// complex, business-specific "who can see whose banking data" decision
-// that a single annotation couldn't express as clearly.
-// IMPORTANT: this endpoint must never be reachable by a plain CUSTOMER
-// token, even a technically valid one -- @PreAuthorize enforces that
-// structurally, at the framework level, rather than relying on every
-// caller to remember a manual check.
+/**
+ * Lets an admin view the tail end of the structured audit log (the one
+ * {@code BankingToolService} and {@code StructuredAuditLogger} write to)
+ * for compliance and security review — exactly the kind of endpoint a
+ * real audit team would need.
+ * <p>
+ * {@code @PreAuthorize("hasRole('ADMIN')")} is what protects it: Spring
+ * Security checks whether the currently logged-in caller's roles include
+ * ADMIN, and if not, rejects the request before {@code tail()} ever
+ * runs — the method itself never has to check this manually. This
+ * endpoint's rule is simple and fixed ("admin only, no exceptions"), so
+ * a plain annotation is the clearest way to express it, unlike
+ * {@code SupportController}, which needs the more flexible
+ * {@code AccessPolicy} because its access rules depend on which customer
+ * is being asked about. A plain {@code CUSTOMER} token — even a
+ * perfectly valid one — can never reach this endpoint, and that's
+ * enforced by the framework itself rather than relying on anyone to
+ * remember a manual check.
+ */
 @RestController
 public class AuditController {
 

@@ -25,29 +25,26 @@ import org.springframework.context.annotation.Configuration;
 import java.math.BigDecimal;
 import java.nio.file.Path;
 
-// CONCEPT: A single, large `@Configuration` class as the "composition
-// root" of the whole application -- every object this integrated system
-// needs is created and wired together here, in dependency order.
-// PURPOSE: Builds the ENTIRE object graph, layer by layer:
-// EmbeddingModel/VectorStore (retrieval foundation) -> LlmClient/
-// TraceLogger/RagAssistant (RAG pipeline) -> QueryCache/MetricsRecorder/
-// CostEstimator/ObservableRagAssistant (observability wrapper) ->
-// JwtService/BankingDataStore/BankingToolService/IntentClassifier
-// (security + live-data tools) -> IntegratedBankingAssistant (the
-// top-level orchestrator that ties all of the above together).
-// HOW SPRING RESOLVES THIS: each @Bean method's parameters are OTHER
-// beans this class (or elsewhere) declares -- Spring inspects every
-// method signature, builds a dependency graph, and calls each method in
-// an order that guarantees every dependency exists before it's needed.
-// You never see an explicit "build order" list here; Spring computes it.
-// WHY ONE BIG CONFIG CLASS rather than several smaller ones: this mirrors
-// the module's own history -- rather than reorganizing bean definitions
-// as new use cases (UC1-UC5) were composed together, wiring simply grew
-// additively in one place. A larger production codebase would likely
-// split this into several @Configuration classes by concern (e.g.
-// SecurityBeansConfig, RagBeansConfig), but Spring treats a project's
-// @Configuration classes as one merged set regardless of how many files
-// they're split across.
+/**
+ * This one class is where every object the whole application needs gets
+ * created and wired together. It builds the full picture, piece by
+ * piece: first the embedding model and vector store (the search
+ * foundation), then the AI client and RAG assistant, then the caching
+ * and metrics wrapper around it, then the login/security pieces and the
+ * banking data tools, and finally {@code IntegratedBankingAssistant}, the
+ * top-level class that ties everything above it together.
+ * <p>
+ * You don't see an explicit "build this first, then that" list anywhere
+ * here — each {@code @Bean} method simply declares what other beans it
+ * needs as parameters, and Spring figures out the correct order on its
+ * own by looking at those method signatures.
+ * <p>
+ * Everything lives in one big configuration class here rather than being
+ * split into several smaller ones — in a larger production codebase it
+ * would likely make sense to split this up by concern, but Spring treats
+ * all of a project's configuration classes as one combined set no matter
+ * how many files they're spread across, so this works fine as-is.
+ */
 @Configuration
 public class IntegratedAssistantConfig {
 

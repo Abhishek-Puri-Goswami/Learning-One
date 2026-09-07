@@ -5,13 +5,13 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
-// CONCEPT: Request DTO with Bean Validation -- now with @NotNull/@Valid/
-// @Pattern annotations checked automatically before this data reaches
-// business logic.
 /**
- * FIX (was AI-QA-1 / squid:S2259, AI-QA-2): shippingAddress is now @NotNull
- * and @Valid so a missing/incomplete address is rejected with a clean 400
- * before it ever reaches OrderServiceImpl, instead of throwing a raw NPE.
+ * The request body a caller sends to place an order — the fixed version
+ * of this class. Notice the {@code @NotNull} and {@code @Valid}
+ * annotations on {@code shippingAddress} below: they mean Spring checks
+ * the address is present and complete BEFORE the request ever reaches our
+ * business logic, so a missing or incomplete address is now rejected with
+ * a clean 400 error instead of causing a confusing crash.
  */
 public class OrderRequest {
 

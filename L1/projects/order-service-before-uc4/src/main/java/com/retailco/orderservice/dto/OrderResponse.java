@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
-// CONCEPT: Response DTO -- what the checkout API returns to the caller.
+/** The JSON shape we send back to whoever calls our checkout API. */
 public class OrderResponse {
     private String id;
     private String status;

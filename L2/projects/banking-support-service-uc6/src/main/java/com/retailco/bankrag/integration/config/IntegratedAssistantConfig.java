@@ -26,25 +26,21 @@ import org.springframework.context.annotation.Configuration;
 import java.math.BigDecimal;
 import java.nio.file.Path;
 
-// CONCEPT: The "composition root" @Configuration class (same role as
-// UC5's version of this class -- see that one's comments for the full
-// dependency-graph explanation). This UC6 version adds the audit-logging
-// beans (auditLogPath, structuredAuditLogger) and threads
-// StructuredAuditLogger into BankingToolService's constructor, which is
-// what turns on the RBAC audit trail for every live-data access decision.
-// WHY a separate `Path auditLogPath()` bean rather than inlining the path
-// string directly into structuredAuditLogger(): it makes the log file's
-// location itself an independently-injectable, overridable value (Spring
-// could later supply a different Path bean, e.g. from configuration, with
-// no change to StructuredAuditLogger's own code).
 /**
- * Every bean this final integrated system needs, wired in one place --
- * the same central-configuration pattern used in every prior use case's
- * config class, now composing all of them: L2/UC1's VectorStore/
- * EmbeddingModel, UC2's RagAssistant, UC3's JwtService/BankingDataStore/
- * BankingToolService/IntentClassifier, UC4's QueryCache/MetricsRecorder/
- * CostEstimator/ObservableRagAssistant, and finally this use case's
- * IntegratedBankingAssistant tying them together.
+ * This is where every bean the final integrated system needs gets
+ * created and wired together, the same "one big configuration class"
+ * pattern used earlier in this project — now also creating the
+ * audit-logging beans ({@code auditLogPath}, {@code structuredAuditLogger})
+ * and passing {@code StructuredAuditLogger} into
+ * {@code BankingToolService}'s constructor, which is what turns on the
+ * audit trail for every live-data access decision.
+ * <p>
+ * {@code auditLogPath()} is kept as its own separate bean rather than
+ * hardcoding the file path directly inside
+ * {@code structuredAuditLogger()} — that way the log file's location is
+ * its own independently swappable value; Spring could later be told to
+ * supply a different path (say, from configuration) without touching
+ * {@code StructuredAuditLogger}'s own code at all.
  */
 @Configuration
 public class IntegratedAssistantConfig {

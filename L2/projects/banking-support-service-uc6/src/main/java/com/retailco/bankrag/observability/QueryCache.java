@@ -6,37 +6,38 @@ import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-// CONCEPT: Caching -- specifically an LRU (Least Recently Used) cache with
-// TTL (Time To Live) expiry, built from plain JDK collections (no external
-// cache library like Caffeine/Ehcache).
-// PURPOSE: Avoids re-running the full RagAssistant pipeline (retrieval +
-// LLM call) for a question that was already answered recently -- saving
-// latency and real API cost.
-//
-// HOW THE LRU WORKS (see the constructor below): a `LinkedHashMap` built
-// with `accessOrder=true` reorders itself so the most-recently-accessed
-// entry moves to the end every time `get()` is called. Overriding
-// `removeEldestEntry()` to return true once `size() > maxEntries` makes
-// the map automatically evict the entry at the front (the LEAST recently
-// used one) whenever a new entry would exceed capacity -- this is the
-// textbook pure-JDK way to build an LRU cache without any library.
-//
-// HOW TTL WORKS: each CacheEntry records when it was cached (cachedAt).
-// `get()` checks `isExpired()` before returning a hit -- an expired entry
-// is treated as a miss and removed, even though the LRU eviction alone
-// wouldn't have removed it yet.
-//
-// WHY normalize the cache key (see normalize()): "What is my balance?" and
-// "what is my balance?  " are the same question to a human, so treating
-// them as different cache keys would waste cache capacity and hit rate on
-// trivial formatting differences.
-//
-// IMPORTANT (scope boundary, a deliberate design decision): this cache
-// sits ONLY in front of RagAssistant.ask() (policy Q&A), never in front of
-// live banking data (account balance, transactions). Policy documents
-// don't change between requests, so caching them is safe; a cached
-// account balance could return stale/wrong financial data, which is
-// unacceptable for a security-sensitive banking use case.
+/**
+ * A cache that remembers recent question-and-answer pairs, so we don't
+ * have to re-run the whole retrieval + AI pipeline for a question that
+ * was already answered recently — saving both time and real API cost.
+ * This is an LRU ("Least Recently Used") cache with a time limit on how
+ * long entries stay valid, built entirely from plain Java collections,
+ * with no external caching library.
+ * <p>
+ * How the "least recently used" eviction works (see the constructor
+ * below): a {@code LinkedHashMap} with {@code accessOrder=true} quietly
+ * reorders itself so the most-recently-used entry always moves to the
+ * end every time it's read. Overriding {@code removeEldestEntry()} makes
+ * the map automatically remove the entry at the FRONT — the least
+ * recently used one — whenever it grows past the allowed size. This is
+ * the standard, library-free way to build an LRU cache in plain Java.
+ * <p>
+ * How the time limit works: each cached entry records when it was
+ * created. {@code get()} checks whether that entry is too old before
+ * returning it — an expired entry is treated as if it were never cached,
+ * even if the LRU logic hasn't gotten around to removing it yet.
+ * <p>
+ * Why we normalize the cache key: "What is my balance?" and
+ * "what is my balance?  " mean the same thing to a person, so treating
+ * them as different cache keys would waste cache space on trivial
+ * formatting differences.
+ * <p>
+ * An important, deliberate boundary: this cache is used ONLY for policy
+ * Q&A, never for live banking data like account balances. Policy
+ * documents don't change between requests, so caching them is safe — but
+ * a cached account balance could show a customer stale, wrong financial
+ * data, which is never acceptable.
+ */
 public class QueryCache {
 
     public record CacheEntry(RagAssistant.AssistantResponse response, Instant cachedAt) {
@@ -57,9 +58,10 @@ public class QueryCache {
     public QueryCache(int maxEntries, long ttlSeconds) {
         this.maxEntries = maxEntries;
         this.ttlSeconds = ttlSeconds;
-        // accessOrder=true turns this into a proper LRU: get() moves the
-        // entry to the end, so removeEldestEntry evicts the least-recently-
-        // used entry, not just the oldest-inserted one.
+        // accessOrder=true is what turns this into a proper LRU cache:
+        // every get() moves that entry to the end of the map, so the entry
+        // removed by removeEldestEntry() is always the one that hasn't
+        // been touched in the longest time — not just the oldest one added.
         this.store = new LinkedHashMap<>(16, 0.75f, true) {
             @Override
             protected boolean removeEldestEntry(Map.Entry<String, CacheEntry> eldest) {
@@ -90,12 +92,11 @@ public class QueryCache {
     }
 
     public void put(String rawQuery, RagAssistant.AssistantResponse response) {
-        // Guardrail-blocked and fallback responses ARE cached too -- a
-        // repeated prompt-injection attempt or a repeated weak-retrieval
-        // query shouldn't re-run the full pipeline any more than a
-        // successful answer should. Caching only "good" answers would
-        // under-count real savings and miss the actual point of this
-        // deliverable (reduce unnecessary API/compute calls generally).
+        // Blocked and fallback responses get cached too, not just
+        // successful answers — a repeated prompt-injection attempt
+        // shouldn't re-run the whole pipeline any more than a repeated
+        // real question should. Caching only the "good" answers would
+        // miss most of the real savings this cache is meant to provide.
         store.put(normalize(rawQuery), new CacheEntry(response, Instant.now()));
     }
 

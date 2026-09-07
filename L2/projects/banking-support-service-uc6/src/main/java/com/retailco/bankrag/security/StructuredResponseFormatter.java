@@ -2,20 +2,13 @@ package com.retailco.bankrag.security;
 
 import java.util.List;
 
-// CONCEPT: Response formatting / serialization -- turning domain objects
-// into JSON strings, hand-written (no Jackson) so it works in the
-// pure-JDK demo (Main.java) as well as inside Spring.
-// PURPOSE: Produces the exact JSON shape a REST client would receive for
-// account balances, transaction history, and loan data -- always using
-// the already-MASKED record types (MaskedAccount/MaskedTransaction/
-// MaskedLoan from BankingToolService), never the raw ones from
-// BankingDataStore.
-// WHY this exists separately from Spring's DTOs: Spring controllers
-// normally return a DTO object and let Spring's built-in Jackson
-// integration serialize it to JSON automatically. This class exists so
-// the pure-JDK demo (which has no Spring, no Jackson) can produce and
-// verify the identical response shape without needing a web framework at
-// all -- useful for testing the exact wire format independent of Spring.
+/**
+ * Hand-writes JSON strings (no library like Jackson) so this same code
+ * works both inside the plain-Java demo AND inside Spring. It produces
+ * the exact JSON shape a REST client would receive for account balances,
+ * transaction history, and loan data — always using the already-MASKED
+ * data (see {@code BankingToolService}), never the raw values.
+ */
 public final class StructuredResponseFormatter {
 
     private StructuredResponseFormatter() {

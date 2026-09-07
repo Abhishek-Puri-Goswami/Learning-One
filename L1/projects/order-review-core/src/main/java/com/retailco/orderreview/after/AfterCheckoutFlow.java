@@ -1,16 +1,17 @@
 package com.retailco.orderreview.after;
 
-// CONCEPT: Minimal reproduction of the FIX, so the "before had a bug,
-// after doesn't" claim is something a test can actually run and check.
 /**
- * Pure-JDK mirror of the FIX for AI-QA-1: in
- * {@code order-service-refactored}, {@code shippingAddress} is guaranteed
- * non-null by {@code @Valid @NotNull} on {@code OrderRequest} (Bean
- * Validation runs before the service layer is ever invoked), so
- * {@code OrderServiceImpl} needs no defensive null check of its own. This
- * class reproduces that guarantee explicitly (validate-then-resolve) so the
- * "guaranteed non-null" claim is something a test can actually exercise,
- * not just assert.
+ * The fixed version of {@link com.retailco.orderreview.before.BeforeCheckoutFlow}.
+ * In the real, fixed order-service, {@code shippingAddress} can never
+ * actually be null by the time it reaches this logic — Spring's
+ * {@code @Valid}/{@code @NotNull} validation on the request already
+ * rejects a request missing it, before our own code ever runs.
+ * <p>
+ * Still, this method checks for null anyway and throws a clear,
+ * descriptive error if it somehow got one. That's a good habit called
+ * "defense in depth": even when you're confident another layer already
+ * protects you, a cheap extra check here means this method never produces
+ * a confusing crash, no matter what calls it in the future.
  */
 public final class AfterCheckoutFlow {
 
@@ -19,10 +20,10 @@ public final class AfterCheckoutFlow {
 
     public static String resolveCity(ShippingAddressLike shippingAddress) {
         if (shippingAddress == null) {
-            // In the real service this branch is unreachable in practice
-            // (Bean Validation rejects the request first) -- but resolveCity
-            // itself no longer trusts that alone: it fails with a clear,
-            // named validation error instead of an opaque NPE either way.
+            // In practice this should never happen — validation catches a
+            // missing shipping address earlier — but if it ever does, we'd
+            // rather fail with a clear, specific message than an opaque
+            // NullPointerException.
             throw new IllegalArgumentException("shippingAddress must not be null");
         }
         return shippingAddress.getCity();

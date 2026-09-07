@@ -7,17 +7,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-// CONCEPT: Lexical (keyword) search -- the classic, non-ML baseline for
-// information retrieval.
-// PURPOSE: Scores a chunk by what fraction of the query's distinct words
-// it literally contains (case-insensitive). Doesn't understand meaning at
-// all -- "car" and "automobile" share zero overlap here -- but it's exact
-// and predictable, which makes it a useful baseline to compare semantic
-// search against (see HybridSearcher, which blends both).
-// WHY IT MATTERS: a good RAG system usually needs semantic search for
-// paraphrased questions AND keyword search for exact terms (account
-// numbers, policy codes, specific named products) that an embedding model
-// might blur together with similar-sounding text.
+/**
+ * The classic, simple way to search text: score each chunk by what
+ * fraction of the question's words it literally contains
+ * (case-insensitive). This has zero understanding of MEANING — "car" and
+ * "automobile" share no overlap here at all — but it's exact and
+ * predictable, which makes it useful to combine with semantic search
+ * (see {@code HybridSearcher}).
+ * <p>
+ * Why this still matters even with AI-powered search available: a good
+ * search system usually needs BOTH — semantic search for paraphrased
+ * questions, and keyword search for exact terms like account numbers,
+ * policy codes, or specific product names — the kind of exact strings an
+ * AI embedding model might blur together with similar-sounding text.
+ */
 public class KeywordSearcher {
 
     public List<ScoredChunk> search(List<Chunk> chunks, String query, int topK) {

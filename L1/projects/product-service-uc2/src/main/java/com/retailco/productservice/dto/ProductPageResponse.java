@@ -2,9 +2,13 @@ package com.retailco.productservice.dto;
 
 import java.util.List;
 
-// CONCEPT: Response DTO for a paginated list -- carries one "page" of
-// results plus metadata (page number, size, total count/pages) so a
-// caller knows how to fetch the next page.
+/**
+ * Instead of sending back EVERY product at once (which could be
+ * thousands), we send one "page" of results at a time, along with some
+ * extra info: which page this is, how big a page is, and how many pages
+ * there are in total. This lets the caller (like a web page showing a
+ * product list) know how to ask for the next page.
+ */
 public class ProductPageResponse {
 
     private List<ProductResponse> content;

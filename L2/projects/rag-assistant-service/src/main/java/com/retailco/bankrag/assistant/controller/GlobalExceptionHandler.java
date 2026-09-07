@@ -11,11 +11,11 @@ import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-// CONCEPT/PURPOSE: same centralized-exception-handling pattern as
-// rag-service's GlobalExceptionHandler (see that class's comments for the
-// full explanation of @RestControllerAdvice) -- turns exceptions thrown by
-// ANY controller in this module into a consistent structured JSON error
-// body, instead of each controller handling its own errors.
+/**
+ * Catches errors thrown anywhere in this module's controllers and turns
+ * each one into a consistent structured JSON error response, instead of
+ * every controller having to handle its own errors separately.
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 

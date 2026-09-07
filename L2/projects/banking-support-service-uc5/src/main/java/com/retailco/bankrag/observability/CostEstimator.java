@@ -4,19 +4,24 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 
-// CONCEPT: Cost estimation using BigDecimal (not double/float) for money math.
-// PURPOSE: Converts real token counts into an estimated USD cost, using a
-// configurable per-1000-token rate (separate rates for prompt vs.
-// completion tokens, since providers typically price them differently).
-// WHY BigDecimal instead of double: floating-point (double) arithmetic can
-// introduce small rounding errors that compound over many calculations --
-// unacceptable when the result represents money. BigDecimal with an
-// explicit RoundingMode/scale gives exact, predictable decimal arithmetic.
-// IMPORTANT: the per-1K-token rate is a configurable, disclosed
-// *placeholder* for illustration, not a live-priced API quote -- a real
-// deployment would source the actual rate from its provider/contract, but
-// the calculation logic itself (estimateCostUsd/projectMonthlyCost) would
-// stay the same.
+/**
+ * Turns real token counts into an estimated cost in US dollars, using a
+ * configurable rate per 1,000 tokens (a separate rate for prompt vs.
+ * completion tokens, since AI providers typically price them
+ * differently).
+ * <p>
+ * Notice this class uses {@code BigDecimal} for the money math, not the
+ * more common {@code double}. That's a deliberate choice: ordinary
+ * floating-point math ({@code double}) can introduce tiny rounding errors
+ * that add up over many calculations — unacceptable when the result
+ * represents real money. {@code BigDecimal} gives exact, predictable
+ * decimal arithmetic instead.
+ * <p>
+ * The rate used here is just a reasonable, illustrative placeholder, not
+ * a live-priced quote from a real provider — a real deployment would plug
+ * in its actual contracted rate, but the calculation logic itself would
+ * stay exactly the same.
+ */
 public class CostEstimator {
 
     private final BigDecimal costPer1kPromptTokens;

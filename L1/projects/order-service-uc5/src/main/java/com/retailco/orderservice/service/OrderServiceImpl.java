@@ -20,14 +20,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-// CONCEPT: Service layer -- orchestrates checkout: fetch cart, check
-// stock, price lines, charge, save order. Each step is its own small
-// private method (see below).
 /**
- * Carried forward from L1/UC4 (decomposed checkout(), externalized secrets,
- * propagated payment failures). L1/UC5 addition: a stock-revalidation step
- * (validateStock) now runs before payment is attempted, closing the
- * "out-of-stock" gap described in edge-cases/edge-case-catalog.md.
+ * Runs the checkout process, step by step: fetch the cart, check stock,
+ * work out pricing, charge the customer, and save the order. Each step
+ * has its own small, focused private method below. The newest addition
+ * here is {@code validateStock} — it re-checks real, current stock
+ * immediately before payment is attempted, so we never accidentally
+ * charge a customer for something that's actually sold out.
  */
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -56,9 +55,9 @@ public class OrderServiceImpl implements OrderService {
         PricedLines pricedLines = priceLines(cartItems, request.getCouponCode(),
                 request.getPaymentMethod(), city);
 
-        // Propagates PaymentFailedException on any error/timeout (see
-        // PaymentGatewayClient) -- an order is only ever built/saved below if
-        // this line does not throw.
+        // If the charge fails or times out, this line throws — and the
+        // order below only ever gets built and saved once we're sure the
+        // payment actually went through.
         paymentGatewayClient.charge(pricedLines.total(), request.getPaymentMethod());
 
         Order order = buildConfirmedOrder(request, pricedLines);
@@ -76,11 +75,12 @@ public class OrderServiceImpl implements OrderService {
     }
 
     /**
-     * L1/UC5 addition: re-checks live stock for every line immediately
-     * before charging. Cart's own quantity is a snapshot taken at add-to-cart
-     * time (see L1/UC1 architecture.json + L1/UC2 CartService) and can be
-     * stale by checkout time; this is where that staleness gets caught
-     * instead of silently charging for stock that no longer exists.
+     * Re-checks real, current stock for every item right before we
+     * charge the customer. The cart's own quantity is only a snapshot
+     * taken when the item was added, and stock can easily change by the
+     * time someone actually checks out — this is where we catch that and
+     * stop the order instead of quietly charging for something that's no
+     * longer available.
      */
     private void validateStock(List<CartItemDto> cartItems) {
         for (CartItemDto item : cartItems) {

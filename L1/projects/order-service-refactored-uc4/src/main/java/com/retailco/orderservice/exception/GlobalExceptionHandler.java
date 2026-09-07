@@ -11,11 +11,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.time.Instant;
 import java.util.List;
 
-// CONCEPT: Global exception handling -- converts exceptions from any
-// controller into a consistent JSON error response.
 /**
- * FIX (was AI-QA-2): order-service now has the same validation-error handling
- * pattern as product-service/cart-service in L1/UC2, for consistency.
+ * Catches errors thrown anywhere in our controllers and converts each one
+ * into the same consistent JSON error shape, matching the same pattern
+ * used by product-service and cart-service.
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -40,9 +39,10 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(PaymentFailedException.class)
     public ResponseEntity<ErrorResponse> handlePaymentFailed(PaymentFailedException ex, HttpServletRequest request) {
-        // 402 Payment Required communicates the specific failure mode instead
-        // of a generic 500, and (critically) is only ever reached now that
-        // PaymentGatewayClient actually propagates failures (see AI-SEC-2 fix).
+        // We use "402 Payment Required" here instead of a generic 500,
+        // since it tells the caller exactly what went wrong. This handler
+        // only ever gets reached because PaymentGatewayClient now properly
+        // throws on a failed charge instead of hiding it.
         return ResponseEntity.status(HttpStatus.PAYMENT_REQUIRED).body(new ErrorResponse(
                 Instant.now(), HttpStatus.PAYMENT_REQUIRED.value(), "Payment Required",
                 ex.getMessage(), request.getRequestURI(), List.of()));

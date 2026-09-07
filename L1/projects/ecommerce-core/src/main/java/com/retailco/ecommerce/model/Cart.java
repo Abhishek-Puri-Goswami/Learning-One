@@ -6,13 +6,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-// CONCEPT: Domain model -- one user's shopping cart, holding a list of
-// CartItem lines.
-// IMPORTANT: a Cart only stores a SNAPSHOT of price/product info taken
-// when each item was added. It is NOT the source of truth for current
-// price or stock -- ProductCatalog is. CheckoutService re-checks against
-// ProductCatalog before actually placing an order, so a cart can't be
-// used to buy at a stale price or buy more than is actually in stock.
+/**
+ * One customer's shopping cart — basically a list of items they've added,
+ * plus the user id it belongs to.
+ * <p>
+ * Important thing to remember: the price stored in each cart line is a
+ * <b>snapshot</b> taken at the moment the item was added, not a live,
+ * always-up-to-date price. {@code ProductCatalog} is the real source of
+ * truth for current prices and stock. That's why {@code CheckoutService}
+ * always double-checks against the catalog before actually placing an
+ * order — so nobody can check out at an old price or buy more than is
+ * really in stock.
+ */
 public class Cart {
 
     private final String userId;

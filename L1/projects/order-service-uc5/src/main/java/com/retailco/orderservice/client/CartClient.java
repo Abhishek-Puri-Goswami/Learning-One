@@ -7,13 +7,16 @@ import org.springframework.web.client.RestTemplate;
 import java.math.BigDecimal;
 import java.util.List;
 
-// CONCEPT: HTTP client wrapper -- calls cart-service over REST. This is
-// the FIXED version of this refactoring case study.
 /**
- * FIX (was AI-API-1 / hallucinated endpoint): now calls the REAL, contract-
- * defined GET /api/v1/cart/{userId} from L1/UC2's openapi/cart-service.yaml,
- * and maps the documented CartResponse shape (items[], subtotal, ...) rather
- * than an invented "/checkout-summary" response.
+ * This class talks to cart-service over HTTP to fetch a customer's cart.
+ * This is the fixed version of the file — compare it with
+ * {@code order-service-before-uc4}'s version to see the difference: that
+ * one called a URL, {@code /checkout-summary}, that cart-service never
+ * actually exposed. This version calls the REAL endpoint,
+ * {@code GET /api/v1/cart/{userId}}, and reads the response using the
+ * exact shape cart-service actually returns (a list of items plus a
+ * subtotal) — the lesson being: always build against the real, documented
+ * API of a service, not an assumption about what it might look like.
  */
 @Component
 public class CartClient {

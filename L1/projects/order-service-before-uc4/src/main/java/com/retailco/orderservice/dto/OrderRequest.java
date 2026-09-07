@@ -1,9 +1,12 @@
 package com.retailco.orderservice.dto;
 
-// CONCEPT: Request DTO -- the checkout request body. Notice this version
-// has NO validation annotations (@NotBlank, etc.) -- see
-// OrderController's FINDING comment for why that's a problem, and
-// order-service-refactored-uc4's version of this class for the fix.
+/**
+ * The request body a caller sends to place an order. Notice this version
+ * has no validation annotations at all (no {@code @NotBlank}, etc.) — see
+ * the comment on {@code OrderController.createOrder} for why that's a
+ * problem, and check {@code order-service-refactored-uc4}'s version of
+ * this same class to see how it's fixed.
+ */
 public class OrderRequest {
 
     private String userId;

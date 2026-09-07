@@ -12,12 +12,15 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
-// CONCEPT: Service layer -- holds the business logic between the
-// Controller and the Repository.
-// FLOW: Controller -> Service -> Repository -> storage
-// WHY: keeps the controller simple (just handles HTTP) and keeps rules
-// like "generate a new id and timestamps when creating a product" or
-// "404 if the product doesn't exist" in one testable place.
+/**
+ * This is the "Service" layer — where our actual business rules live, in
+ * between the Controller and the Repository:
+ * <pre>Controller → Service → Repository → storage</pre>
+ * Keeping the rules here (like "give every new product a fresh id and
+ * timestamp" or "throw a 404 if the product doesn't exist") means the
+ * controller can stay simple and focused only on handling HTTP requests,
+ * while all these rules live in one place that's easy to test on its own.
+ */
 @Service
 public class ProductServiceImpl implements ProductService {
 
@@ -81,10 +84,13 @@ public class ProductServiceImpl implements ProductService {
         return paginate(matches, page, size);
     }
 
-    // Manual pagination: slice the full list into one "page" of results and
-    // report how many pages exist in total. A real database-backed version
-    // would use Spring Data's Pageable instead of loading everything and
-    // slicing it in memory.
+    /**
+     * Cuts the full list of matching products down to just one "page" of
+     * results, and works out how many pages there are in total. This is a
+     * simple, manual version of pagination — a real database-backed
+     * version would use Spring Data's built-in {@code Pageable} feature
+     * instead of loading everything into memory and slicing it here.
+     */
     private ProductPageResponse paginate(List<Product> all, int page, int size) {
         int fromIndex = Math.min(page * size, all.size());
         int toIndex = Math.min(fromIndex + size, all.size());

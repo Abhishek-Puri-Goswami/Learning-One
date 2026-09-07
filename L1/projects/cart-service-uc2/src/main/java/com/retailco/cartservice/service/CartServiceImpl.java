@@ -18,13 +18,15 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
-// CONCEPT: Service layer -- business logic between Controller and Repository.
-// PURPOSE: Implements add/update/remove/get for a user's cart. Notice the
-// actual cart mutation logic (merging items, removing by line id) is NOT
-// reimplemented here -- it calls ecommerce-core's Cart methods
-// (addOrMergeItem, setItemQuantity, removeItemById), which are already
-// tested. This class's own job is: fetch the cart, call the right Cart
-// method, save it back, and convert to a response DTO.
+/**
+ * The business logic for a user's cart: add, update, remove, and get.
+ * Notice this class doesn't actually reimplement things like "merge two
+ * lines of the same product" itself — it calls {@code ecommerce-core}'s
+ * already-tested {@code Cart} methods ({@code addOrMergeItem},
+ * {@code setItemQuantity}, {@code removeItemById}) to do that. This
+ * class's own job is simpler: fetch the right cart, call the right
+ * method on it, save it, and convert the result into a response DTO.
+ */
 @Service
 public class CartServiceImpl implements CartService {
 

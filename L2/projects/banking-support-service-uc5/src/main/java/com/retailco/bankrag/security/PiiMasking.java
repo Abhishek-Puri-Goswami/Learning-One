@@ -1,20 +1,19 @@
 package com.retailco.bankrag.security;
 
-// CONCEPT: PII (Personally Identifiable Information) masking -- a security/
-// privacy technique for display data, distinct from encryption (the
-// underlying value still exists in full elsewhere; this only controls
-// what's SHOWN).
-// PURPOSE: Every method here takes a full sensitive value (account number,
-// mobile, email, government id) and returns a partially-hidden version
-// safe to show in logs, API responses, or a UI, following PCI-DSS-style
-// "show only the last 4 digits" conventions.
-// WHY pure, side-effect-free static methods: masking is a simple, stateless
-// text transformation -- no class needs to be instantiated, no dependency
-// injection is needed, and pure functions like these are trivially
-// unit-testable (same input always produces the same output).
-// WHERE THIS FITS: BankingToolService calls these methods before ever
-// returning account/transaction/loan data to a caller -- the RAW,
-// unmasked data (from BankingDataStore) never leaves that boundary.
+/**
+ * Hides part of sensitive personal information (PII) before it's shown
+ * anywhere. This is different from encryption — the real, full value
+ * still exists in full elsewhere; this class only controls what gets
+ * DISPLAYED. Every method here takes a full sensitive value (an account
+ * number, mobile number, email, or government id) and returns a
+ * partially-hidden version safe to show in logs, API responses, or a UI —
+ * following the common "show only the last 4 digits" style banks and
+ * card networks use.
+ * <p>
+ * {@code BankingToolService} calls these methods before ever returning
+ * account, transaction, or loan data to a caller — the raw, unmasked data
+ * never leaves that boundary.
+ */
 public final class PiiMasking {
 
     private PiiMasking() {

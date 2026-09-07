@@ -3,9 +3,15 @@ import LoadingSpinner from "./LoadingSpinner";
 import ErrorMessage from "./ErrorMessage";
 
 /**
- * Cart page/component.
- * WCAG 2.1 AA: quantity changes use a labelled <select>, removal buttons have
- * a descriptive accessible name via aria-label rather than an icon alone.
+ * Shows everything currently in the user's cart: each item's name,
+ * price, and quantity, plus a running subtotal. A shopper can change how
+ * many of an item they want, or remove it entirely.
+ * <p>
+ * Two small but important accessibility touches: the quantity control is
+ * a normal, labelled dropdown (not a custom widget a screen reader might
+ * not understand), and each "Remove" button has a full description like
+ * "Remove Blue T-Shirt from cart" attached to it — not just a bare
+ * "Remove" that would be confusing when a page has several of them.
  */
 export default function Cart({ userId = "guest" }) {
   const { cart, loading, error, busy, updateItemQuantity, removeItem } = useCart(userId);
@@ -80,10 +86,13 @@ export default function Cart({ userId = "guest" }) {
         Subtotal: <strong>{formatCurrency(cart.subtotal)}</strong>
       </p>
 
-      {/* RISK NOTE: subtotal shown here is CART-computed (see cart-service),
-          not authoritative — order-management-service revalidates price/stock
-          again before creating the order (see CheckoutForm.jsx and
-          ui-risk/ui-risk-report.md, "Stale price/stock" risk). */}
+      {/*
+        Good to know: this subtotal is just what the cart currently
+        thinks the price is. The order service double-checks the real
+        price and stock again when the order is actually placed, so if a
+        price changed in the meantime, the final order could differ
+        slightly from what's shown here.
+      */}
     </section>
   );
 }

@@ -10,22 +10,23 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-// CONCEPT: Controller layer (Spring MVC's `@RestController`) -- the thin
-// HTTP-facing layer that translates a REST request into a service call.
-// PURPOSE: Exposes POST /api/v1/rag/ingest, which loads a directory of
-// documents, chunks them, embeds them, and stores them in the VectorStore.
-// FLOW: HTTP request -> @RequestBody deserializes JSON into an
-// IngestRequest -> @Valid triggers bean-validation (see IngestRequest's
-// annotations) BEFORE this method body even runs -- an invalid request
-// never reaches ingestionService.ingest() -- -> IngestionController
-// delegates to IngestionService -> DocumentLoader -> Chunker ->
-// EmbeddingModel -> VectorStore.
-// WHY the controller has almost no logic of its own: this is the
-// Controller-Service separation pattern -- the controller's only job is
-// HTTP plumbing (deserialize request, call the service, wrap the result
-// in a 200 OK). All actual business logic (loading files, chunking,
-// indexing) lives in IngestionService, which makes that logic reusable
-// and testable independent of any HTTP framework.
+/**
+ * The thin, HTTP-facing entry point for {@code POST /api/v1/rag/ingest},
+ * which loads a directory of documents, chunks them, embeds them, and
+ * stores them for later searching.
+ * <p>
+ * Notice {@code @Valid} on the request parameter below — that triggers
+ * Spring's validation of {@code IngestRequest}'s fields BEFORE this
+ * method's body even runs, so an invalid request never even reaches
+ * {@code ingestionService.ingest()}.
+ * <p>
+ * This controller has almost no logic of its own on purpose — that's the
+ * "Controller-Service" separation pattern. The controller's only job is
+ * HTTP plumbing (read the request, call the service, wrap the result in a
+ * response); all the actual work (loading files, chunking, indexing)
+ * lives in {@code IngestionService}, which makes that logic reusable and
+ * easy to test without needing any HTTP framework at all.
+ */
 @RestController
 @RequestMapping("/api/v1/rag")
 public class IngestionController {

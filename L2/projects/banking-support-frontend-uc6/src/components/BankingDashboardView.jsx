@@ -1,19 +1,30 @@
 import { useState } from "react";
 import { askSupport, fetchDevToken, ApiError } from "../api";
 
-// The exact phrasings IntentClassifier.java's regexes route to each
-// LIVE_DATA intent -- see security/IntentClassifier.java's BALANCE_PATTERNS /
-// TRANSACTION_PATTERNS / LOAN_PATTERNS. The dashboard sends natural-language
-// queries, not a typed RPC call, on purpose: this is the same single
-// /api/v1/support/ask endpoint the policy-query view uses, just with a
-// token and customer id attached, matching L2 HLD UseCase5/6's "one unified
-// entry point" design.
+// These plain-English phrasings are what the backend recognizes as
+// "show me live banking data" questions. Even though this dashboard
+// looks like a set of dedicated buttons, under the hood each one sends a
+// normal question — the SAME endpoint the Policy Q&A tab uses — just
+// with a login token and customer id attached this time, since these
+// questions need to know who's asking.
 const ACTIONS = [
   { key: "balance", label: "Account balance", query: "What is my account balance?" },
   { key: "transactions", label: "Recent transactions", query: "Show me my recent transactions" },
   { key: "loan", label: "Loan outstanding", query: "How much is left on my loan?" },
 ];
 
+/**
+ * The "My Account" tab: a small dashboard of buttons for checking
+ * account balance, recent transactions, and loan details — all backed
+ * by real (masked) data, never anything generated or guessed by an AI
+ * model.
+ * <p>
+ * Using any of these requires a login token. In this demo, a "Get dev
+ * token" button can generate one instantly for testing — a real app
+ * would replace that with an actual sign-in screen. A token with the
+ * SUPPORT_AGENT or ADMIN role can look up another customer's data;
+ * a plain CUSTOMER token can only see its own.
+ */
 export default function BankingDashboardView() {
   const [customerId, setCustomerId] = useState("CUST1001");
   const [role, setRole] = useState("CUSTOMER");
@@ -32,7 +43,7 @@ export default function BankingDashboardView() {
     } catch (err) {
       setTokenError(
         err instanceof ApiError
-          ? `${err.message} (the /dev/token endpoint only exists when the backend runs with the "dev" Spring profile -- see DevTokenController.java)`
+          ? `${err.message} (the /dev/token endpoint only exists when the backend is running in its "dev" mode)`
           : "Could not reach the banking support service."
       );
     }
@@ -63,8 +74,8 @@ export default function BankingDashboardView() {
     <div className="panel">
       <h2>Banking dashboard</h2>
       <p className="hint">
-        Requires a JWT. Get a dev token below (dev/demo builds only -- see UC3's DevTokenController) or
-        paste a real one. A SUPPORT_AGENT or ADMIN token can view another customer's data (RBAC, L2/UC6);
+        Requires a login token. Get a dev token below (dev/demo builds only) or
+        paste a real one. A SUPPORT_AGENT or ADMIN token can view another customer's data;
         a plain CUSTOMER token only its own.
       </p>
 
@@ -111,6 +122,9 @@ export default function BankingDashboardView() {
   );
 }
 
+// Renders whatever came back from an action button: an "access denied"
+// message, a table of real data rows, or a raw JSON dump as a fallback
+// for any response shape not specifically handled above.
 function ResultView({ response }) {
   if (response.type === "ACCESS_DENIED") {
     return <div className="blocked-box">Access denied: {response.payload.reason}</div>;

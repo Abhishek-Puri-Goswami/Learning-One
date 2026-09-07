@@ -16,22 +16,30 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-// CONCEPT: Service layer -- orchestrates the checkout business process
-// across several other classes (ProductCatalog, PaymentGateway).
-// PURPOSE (see checkout() below, step by step):
-// 1. Reserve stock for every line in the cart.
-// 2. If any line can't be reserved, undo (release) whatever WAS already
-//    reserved in this same attempt, then fail -- a checkout must never
-//    leave a partial reservation behind.
-// 3. Build the Order and attempt payment.
-// 4. If payment succeeds: mark the order PAID and empty the cart.
-//    If payment fails: mark it PAYMENT_FAILED and release the stock back
-//    (a declined card must never permanently reduce stock).
-// WHY reserve stock BEFORE charging payment (not after): if payment ran
-// first, two people buying the last unit at the same time could both be
-// charged successfully before either one's stock check ran. Reserving
-// first means only one of them can actually get the stock -- the other
-// fails immediately with "insufficient stock," before any money moves.
+/**
+ * This class runs the whole checkout process, step by step, coordinating
+ * between the product catalog and the payment gateway. Here's what
+ * happens, in order, when {@link #checkout} is called:
+ * <ol>
+ *   <li>Try to reserve (set aside) enough stock for every item in the cart.</li>
+ *   <li>If any item can't be reserved (not enough stock), undo any
+ *       reservations already made in this same attempt and stop — we
+ *       never want to leave stock "half reserved."</li>
+ *   <li>Build the order and attempt to charge the customer.</li>
+ *   <li>If payment succeeds, mark the order as PAID and empty the cart.
+ *       If payment fails, mark it PAYMENT_FAILED and give the reserved
+ *       stock back — a declined card should never permanently shrink our
+ *       stock count.</li>
+ * </ol>
+ * <p>
+ * One important design choice: we reserve stock <b>before</b> charging
+ * the card, not after. Imagine two customers trying to buy the very last
+ * item at the same moment. If we charged their cards first and checked
+ * stock second, both charges could succeed before either stock check
+ * runs — and now we've sold one item to two people. By reserving stock
+ * first, only one of them can actually claim it; the other finds out
+ * immediately ("not enough stock") before any money changes hands.
+ */
 public class CheckoutService {
 
     private final ProductCatalog catalog;
@@ -62,8 +70,9 @@ public class CheckoutService {
                 reservedSoFar.add(item.getProductId());
             }
         } catch (InsufficientStockException e) {
-            // Roll back every reservation this checkout attempt already made --
-            // a partial reservation must never survive a failed checkout.
+            // Something couldn't be reserved. Give back everything we DID
+            // manage to reserve in this attempt, so we don't leave stock
+            // stuck in limbo after a failed checkout.
             for (String productId : reservedSoFar) {
                 CartItem matching = items.stream()
                         .filter(i -> i.getProductId().equals(productId)).findFirst().orElseThrow();
@@ -82,8 +91,9 @@ public class CheckoutService {
             cart.clear(Instant.now(clock));
         } else {
             order.setStatus(OrderStatus.PAYMENT_FAILED);
-            // Payment failed after stock was reserved -- release every line back
-            // to the catalog so a declined card never permanently shrinks stock.
+            // The card was declined, but we'd already reserved the stock
+            // for this order. Give it all back so a failed payment doesn't
+            // permanently shrink how much stock we have available.
             for (OrderLine line : lines) {
                 catalog.releaseStock(line.productId(), line.quantity());
             }

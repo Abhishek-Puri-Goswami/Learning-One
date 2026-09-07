@@ -1,6 +1,6 @@
 package com.retailco.emailagent.intent;
 
-// CONCEPT: Enum -- the fixed set of intents IntentClassifier can produce.
+/** The fixed set of intents {@code IntentClassifier} can decide an email has. */
 public enum EmailIntent {
     SCHEDULING_REQUEST,
     OTHER

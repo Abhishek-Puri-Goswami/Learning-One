@@ -13,18 +13,25 @@ const initialFormState = {
 };
 
 /**
- * Checkout form.
- *
- * UI risk mitigations (see ui-risk/ui-risk-report.md):
- * - Client-generated idempotency key (crypto.randomUUID()) sent with the
- *   order creation request, so a network retry or accidental double-click
- *   cannot create two orders (mirrors the idempotency-key requirement
- *   documented for order-management-service in L1/UC1 TR-04).
- * - Submit button is disabled while a request is in flight ("submitting")
- *   AND after a successful submission, closing the double-submit race window.
- * - Validation errors are field-scoped and linked via aria-describedby +
- *   aria-invalid so screen reader users get the same signal sighted users
- *   get from red border/text (WCAG 2.1 AA 3.3.1 Error Identification, 4.1.2).
+ * The checkout page: collects a shipping address and payment method,
+ * validates them, and places the order.
+ * <p>
+ * A few things worth understanding here:
+ * <ul>
+ *   <li>Before sending the order, we generate a random
+ *       "idempotency key" — a one-time id attached to this specific
+ *       checkout attempt. If the network hiccups and the same request
+ *       gets sent twice, or the user accidentally double-clicks
+ *       "Place order," the backend can recognize it's the same attempt
+ *       and avoid creating two separate orders.</li>
+ *   <li>The submit button disables itself both WHILE the order is being
+ *       placed and again AFTER it succeeds, closing the same
+ *       double-submit gap from the other direction.</li>
+ *   <li>Validation errors are attached to their specific field using
+ *       {@code aria-describedby} and {@code aria-invalid}, so a screen
+ *       reader user gets the same "this field has a problem" signal that
+ *       a sighted user gets from red text and a red border.</li>
+ * </ul>
  */
 export default function CheckoutForm({ userId = "guest" }) {
   const { cart, loading: cartLoading } = useCart(userId);
@@ -34,15 +41,16 @@ export default function CheckoutForm({ userId = "guest" }) {
   const [submitting, setSubmitting] = useState(false);
   const [orderConfirmation, setOrderConfirmation] = useState(null);
 
-  // Generated once per checkout attempt; regenerated only after a
-  // successful order so a resubmit of the SAME failed attempt reuses the
-  // same key (idempotent retry), while a fresh checkout gets a fresh key.
+  // This key is created once per checkout attempt. If the order fails and the
+  // user tries again with the SAME attempt, this stays the same key (so the
+  // backend still sees it as a retry, not a new order) — it only changes to a
+  // fresh value once an order has actually gone through successfully.
   const idempotencyKey = useMemo(() => crypto.randomUUID(), [orderConfirmation]);
 
   function handleChange(field) {
     return (event) => {
       const value = event.target.value;
-      setForm((prev) => ({ ...prev, [field]: value })); // never mutate prev directly
+      setForm((prev) => ({ ...prev, [field]: value })); // build a new object instead of editing prev in place
     };
   }
 
@@ -59,7 +67,7 @@ export default function CheckoutForm({ userId = "guest" }) {
 
   async function handleSubmit(event) {
     event.preventDefault();
-    if (submitting) return; // guards a race from rapid double Enter/click
+    if (submitting) return; // already submitting — ignore a second Enter/click before the first finishes
 
     const errors = validate(form);
     setFieldErrors(errors);
@@ -83,9 +91,9 @@ export default function CheckoutForm({ userId = "guest" }) {
           postalCode: form.postalCode
         },
         paymentMethod: form.paymentMethod
-        // NOTE: cart items are resolved server-side from the user's cart,
-        // and price/stock are revalidated there -- the client never sends
-        // prices, per ADR-003 (no client-trusted financial data) in L1/UC1.
+        // Notice we never send prices or item details here — the backend looks up
+        // the user's cart itself and re-checks prices and stock there. The
+        // frontend is never trusted to say how much something costs.
       });
       setOrderConfirmation(order);
       setForm(initialFormState);

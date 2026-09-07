@@ -4,16 +4,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-// CONCEPT: HTTP client wrapper -- calls product-service to check CURRENT
-// stock right before charging, instead of trusting a possibly-stale
-// snapshot from the cart.
 /**
- * L1/UC5 addition: order-service did not previously call product-service at
- * all -- it trusted cart-service's snapshot of price/name unconditionally
- * and never re-checked current stock. This client re-validates stock
- * immediately before payment (see edge-cases/edge-case-catalog.md,
- * "Out-of-stock"), consistent with L1/UC1's stated design: "Cart is
- * intentionally NOT the system of record for price/stock."
+ * Talks to product-service over HTTP to check the CURRENT stock level for
+ * a product, right before we charge the customer. Earlier, order-service
+ * never did this — it simply trusted whatever snapshot cart-service gave
+ * it, even though that snapshot could be old by the time checkout
+ * happens. This class closes that gap by re-checking real stock at the
+ * last possible moment, so we don't charge someone for an item that's
+ * actually sold out.
  */
 @Component
 public class ProductClient {

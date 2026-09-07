@@ -2,16 +2,23 @@ import { useCallback, useEffect, useState } from "react";
 import { CartApi } from "../api/apiClient";
 
 /**
- * Cart state + mutating actions for a given userId.
- *
- * UI risk mitigations (see ui-risk/ui-risk-report.md):
- * - Every mutation (add/update/remove) calls the backend first and then
- *   replaces state with the server's authoritative response, rather than
- *   optimistically mutating local state. This avoids client/server drift,
- *   since Cart is explicitly NOT the system of record for price/stock
- *   (see L1/UC1 architecture.json - cart-service risks).
- * - `busy` flag disables the UI during a mutation to prevent double-submit
- *   race conditions (e.g. rapid double-click on "Add to Cart").
+ * A custom React hook that holds a shopping cart's data and the actions
+ * that change it (add, update quantity, remove) for one user.
+ * <p>
+ * Two things worth understanding about how this hook stays safe from
+ * bugs:
+ * <ul>
+ *   <li>Every change (add/update/remove) calls the backend first, and
+ *       only THEN updates what's shown on screen — using the server's
+ *       response as the new truth, rather than guessing what the cart
+ *       looks like before the server confirms it. This matters because
+ *       the backend, not this component, is the real source of truth for
+ *       prices and stock — if we guessed locally and guessed wrong, the
+ *       screen could show something that doesn't match reality.</li>
+ *   <li>The {@code busy} flag disables the "Add to Cart" type buttons
+ *       while a change is in flight, so a user double-clicking quickly
+ *       can't accidentally submit the same action twice.</li>
+ * </ul>
  */
 export function useCart(userId) {
   const [cart, setCart] = useState(null);
@@ -44,7 +51,7 @@ export function useCart(userId) {
     setError(null);
     try {
       const updatedCart = await mutationFn();
-      setCart(updatedCart); // replace, never mutate in place
+      setCart(updatedCart); // always replace the whole cart object, never edit the old one in place
       return updatedCart;
     } catch (err) {
       setError(err);

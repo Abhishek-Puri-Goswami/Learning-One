@@ -5,15 +5,13 @@ import com.retailco.emailagent.model.EmailMessage;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-// CONCEPT: Intent classification -- deciding what KIND of request an
-// email is, before deciding what to do about it. Same idea as a router.
 /**
- * Rule-based intent classification (keyword/phrase matching), not an LLM
- * call -- disclosed as a stand-in the same way L2's UC3 live-data intent
- * routing is: this sandbox has no LLM API access, so the routing logic is
- * a deterministic, testable substitute for what a real system would ask an
- * LLM to classify. A production version would swap this class's internals
- * for a prompted LLM call behind the same {@link #classify} signature.
+ * Figures out what KIND of request an email is, before deciding what to
+ * do about it — like a router. This version just looks for known
+ * scheduling-related keywords and phrases, rather than calling an AI
+ * model to judge it. A production version could swap this class's
+ * internals for a real LLM call instead, and nothing calling
+ * {@link #classify} would need to change.
  */
 public class IntentClassifier {
 

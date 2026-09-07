@@ -10,32 +10,34 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-// CONCEPT: "Extractive" answer generation -- a rule-based algorithm that
-// mimics an LLM's output shape without any real language model.
-// PURPOSE: The automatic offline fallback for LlmClient, used whenever
-// OpenAiLlmClient.isConfigured() is false. It lets the full pipeline
-// (retrieval -> prompt -> "generation" -> citation -> guardrail -> trace
-// -> evaluation) run end-to-end with zero network calls and zero API key.
-//
-// HOW IT WORKS (see generate() below, step by step):
-// 1. Pull the QUESTION and the retrieved CONTEXT chunks back out of the
-//    already-built prompt string (extractSection/extractContextBlocks --
-//    simple string parsing, since this class never sees structured data,
-//    only the final prompt text PromptTemplate produced).
-// 2. Split each context chunk into sentences.
-// 3. Score every sentence by how many of the question's meaningful words
-//    (after removing STOPWORDS like "the", "is", "a") it contains.
-// 4. Keep the highest-scoring sentences (capped per chunk, so one chunk
-//    can't dominate the answer) and join them into a final answer string,
-//    each one tagged with its source [chunk-id] -- inline citations.
-//
-// WHY "extractive" rather than free-form text generation: it only ever
-// copies real sentences straight from the retrieved chunks, so its output
-// is trustworthy by construction -- there's no way for it to invent facts
-// the way a real LLM might hallucinate. IMPORTANT trade-off: it can't
-// paraphrase, summarize across sentences, or reason -- its answer quality
-// is not representative of a real LLM's (see the sibling OpenAiLlmClient
-// for the real generative implementation).
+/**
+ * This is our OFFLINE fallback for generating answers, automatically used
+ * whenever no OpenAI API key is configured. It lets the ENTIRE pipeline —
+ * from retrieving documents all the way to citing sources — run
+ * end-to-end without any network call or API key at all.
+ * <p>
+ * It's called "extractive" because instead of writing new sentences the
+ * way a real AI model would, it only ever copies real sentences straight
+ * out of the retrieved documents. Here's how, step by step (see
+ * {@code generate()} below):
+ * <ol>
+ *   <li>Pull the question and the retrieved context chunks back out of
+ *       the already-built prompt text.</li>
+ *   <li>Split each chunk of context into individual sentences.</li>
+ *   <li>Score every sentence by how many of the question's meaningful
+ *       words it contains (ignoring common filler words like "the" or
+ *       "is").</li>
+ *   <li>Keep only the best-scoring sentences, and join them together
+ *       into a final answer, tagging each one with which source
+ *       [chunk-id] it came from.</li>
+ * </ol>
+ * <p>
+ * Because it only ever copies real text, this stand-in can never invent
+ * facts the way a real AI model occasionally can. The trade-off: it can't
+ * paraphrase, summarize across sentences, or reason about the text — its
+ * answer quality is nowhere near what a real AI model produces (see the
+ * sibling class {@code OpenAiLlmClient} for the real one).
+ */
 public class ExtractiveStubLlmClient implements LlmClient {
 
     private static final int MAX_SENTENCES_PER_CHUNK = 2;
@@ -147,10 +149,13 @@ public class ExtractiveStubLlmClient implements LlmClient {
         return terms;
     }
 
+    /**
+     * A rough approximation of "how many tokens is this text," done by
+     * just counting words split on whitespace — the same simple method
+     * {@code Chunker} uses. It's not exactly how a real AI model counts
+     * tokens, but it's close enough to be a useful estimate.
+     */
     private int estimateTokens(String text) {
-        // Whitespace-token approximation, consistent with rag-core's Chunker
-        // (see design/chunking-configuration.md's disclosed limitation --
-        // same rationale applies to token/cost estimation in evaluation/).
         return Chunker.tokenize(text).length;
     }
 

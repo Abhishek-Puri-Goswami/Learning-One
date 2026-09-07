@@ -8,37 +8,31 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-// CONCEPT: Spring `@Configuration` class with `@Bean` factory methods --
-// the standard place to wire together objects Spring should manage,
-// especially when the CHOICE of implementation depends on runtime
-// conditions (here: whether an API key is present).
-// PURPOSE: This is the ONE place the concrete EmbeddingModel implementation
-// is decided for this whole application. No controller or service class
-// is ever allowed to write `new OpenAiEmbeddingModel()` or
-// `new LocalHashingEmbeddingModel()` itself -- they only ever declare a
-// dependency on the `EmbeddingModel` interface, and Spring injects
-// whatever this class's @Bean method produced.
-//
-// HOW @Bean WORKS: Spring calls embeddingModel() once (by default, a
-// singleton) during startup, and stores the returned object in its
-// "application context." Any other @Component/@Service/@Configuration
-// that declares an `EmbeddingModel` constructor parameter (like
-// vectorStore() just below) automatically receives that same instance --
-// this is Dependency Injection, one of Spring's core ideas.
-//
-// WHY the real/stub choice belongs HERE and nowhere else: it guarantees
-// the "same embedding model for indexing AND querying" rule (see
-// EmbeddingModel's own comments) is structurally impossible to violate --
-// there's only one bean, used everywhere `EmbeddingModel` is injected.
-//
-// FLOW: OpenAiEmbeddingModel.isConfigured() checks for OPENAI_API_KEY at
-// bean-creation time (application startup) -- real embeddings if present,
-// otherwise the offline LocalHashingEmbeddingModel stand-in.
-//
-// @Value("${bankrag.embedding.dimensions:256}"): pulls a value from
-// application.yml/properties (or environment/command-line overrides),
-// with 256 as the default if the property isn't set -- Spring's
-// externalized configuration mechanism.
+/**
+ * This is the ONE place that decides which concrete
+ * {@code EmbeddingModel} implementation the whole application uses — the
+ * real OpenAI one, or the offline stand-in. No controller or service
+ * class is ever allowed to create these directly; they only ever declare
+ * a dependency on the {@code EmbeddingModel} interface, and Spring
+ * automatically hands them whatever this class's {@code @Bean} method
+ * produced.
+ * <p>
+ * How {@code @Bean} works: Spring calls {@code embeddingModel()} once, at
+ * startup, and remembers the object it returns. Any other class that
+ * asks for an {@code EmbeddingModel} (like {@code vectorStore()} right
+ * below) automatically receives that exact same instance — this
+ * automatic wiring-together of objects is called Dependency Injection,
+ * one of Spring's core ideas.
+ * <p>
+ * Why this decision belongs HERE and nowhere else: it guarantees the
+ * "same embedding model for storing AND searching" rule can never
+ * accidentally be broken — there's only one bean, used everywhere an
+ * {@code EmbeddingModel} is needed.
+ * <p>
+ * The {@code @Value} annotation below pulls a setting from configuration
+ * (like {@code application.yml}), falling back to 256 if it isn't set —
+ * Spring's standard way of making settings configurable per environment.
+ */
 @Configuration
 public class RagCoreConfig {
 

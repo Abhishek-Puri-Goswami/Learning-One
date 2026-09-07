@@ -3,9 +3,13 @@ package com.retailco.productservice.dto;
 import java.time.Instant;
 import java.util.List;
 
-// CONCEPT: Structured error response DTO -- the same shape used by every
-// service's GlobalExceptionHandler, so API clients always get errors in
-// one consistent format (timestamp, status, error, message, path, details).
+/**
+ * This is the shape every error message from our API looks like — always
+ * the same fields (timestamp, status, error, message, path, details), no
+ * matter which endpoint failed or why. Every service in this project uses
+ * this same shape, so anyone calling our APIs only has to learn ONE error
+ * format, instead of a different one per service.
+ */
 public class ErrorResponse {
 
     private Instant timestamp;

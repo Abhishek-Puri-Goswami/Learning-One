@@ -11,8 +11,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.time.Instant;
 import java.util.List;
 
-// CONCEPT: Global exception handling. Converts exceptions thrown by any
-// controller into a consistent JSON error shape (ErrorResponse).
+/**
+ * Catches errors thrown anywhere in our controllers and converts each one
+ * into the same consistent JSON error shape ({@code ErrorResponse}).
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -40,18 +42,18 @@ public class GlobalExceptionHandler {
         return notFound(ex.getMessage(), request);
     }
 
-    // L1/UC5 addition: maps the new InvalidProductException (see
-    // ProductCatalogClient / edge-cases/edge-case-catalog.md "Invalid product
-    // ID") to a 404, distinct from a cart/cart-item not being found.
+    // A product id that doesn't exist in the catalog also becomes a 404 —
+    // a different situation from the cart or cart line not existing, but
+    // the same kind of response makes sense to the caller.
     @ExceptionHandler(InvalidProductException.class)
     public ResponseEntity<ErrorResponse> handleInvalidProduct(InvalidProductException ex,
                                                                 HttpServletRequest request) {
         return notFound(ex.getMessage(), request);
     }
 
-    // L1/UC5 addition: maps InvalidQuantityException (see "Large quantity")
-    // to a 400, mirroring the @Max Bean Validation error shape so both layers
-    // of the "large quantity" defense produce a consistent client response.
+    // An over-the-limit quantity becomes a 400, using the same error shape
+    // as the @Max validation error — so it doesn't matter to the caller
+    // which of our two "quantity too large" checks actually caught it.
     @ExceptionHandler(InvalidQuantityException.class)
     public ResponseEntity<ErrorResponse> handleInvalidQuantity(InvalidQuantityException ex,
                                                                  HttpServletRequest request) {

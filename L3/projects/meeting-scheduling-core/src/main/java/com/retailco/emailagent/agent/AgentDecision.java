@@ -2,11 +2,14 @@ package com.retailco.emailagent.agent;
 
 import com.retailco.emailagent.model.MeetingProposal;
 
-// CONCEPT: Sealed interface -- a fixed, closed set of possible outcomes.
-// PURPOSE: Every email the agent processes ends in exactly one of these 5
-// outcomes. A `switch` over an AgentDecision can be checked exhaustively
-// by the compiler (no forgotten case, no `default` needed), which is
-// safer than a boolean flag plus a nullable "reason" field.
+/**
+ * Every email our agent processes ends in exactly one of these five
+ * outcomes. Using a "sealed interface" here (a fixed, closed list of
+ * allowed implementations) means the compiler can check that a
+ * {@code switch} over an {@code AgentDecision} handles all five cases —
+ * which is safer than using a plain boolean plus a nullable "reason"
+ * field, where it's easy to forget to check something.
+ */
 public sealed interface AgentDecision {
 
     record Proposed(MeetingProposal proposal) implements AgentDecision {}

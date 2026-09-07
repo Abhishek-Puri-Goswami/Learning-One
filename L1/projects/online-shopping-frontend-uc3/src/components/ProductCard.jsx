@@ -1,3 +1,11 @@
+/**
+ * One product tile in the product grid: shows its name, description,
+ * price, and stock level, with an "Add to cart" button. The button
+ * automatically disables itself and shows "Unavailable" when the
+ * product is out of stock, or "Adding…" while a click is being
+ * processed, so a shopper can't add the same item twice by clicking
+ * repeatedly.
+ */
 export default function ProductCard({ product, onAddToCart, busy }) {
   const outOfStock = product.stockQuantity <= 0;
 

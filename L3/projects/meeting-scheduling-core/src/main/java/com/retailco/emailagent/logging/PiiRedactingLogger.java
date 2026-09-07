@@ -4,20 +4,15 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-// CONCEPT: PII redaction -- automatically scrubbing sensitive data (email
-// addresses) before it's stored anywhere, so nothing needs to remember to
-// do it manually every time.
-// IMPORTANT: `log()` is the only way to write a line, and it always calls
-// `redact()` first -- there's no method that writes unredacted text, so
-// this guarantee can't accidentally be skipped by a caller.
 /**
- * Per the HLD's "PII redaction in logs" guardrail: this agent's logs must
- * never contain a raw email address or the raw body text of a message --
- * only redacted summaries. Structural, like L2/UC6's
- * {@code StructuredAuditLogger}: this class's {@link #redact} method is
- * the only path anything reaches a log line through, and it always runs
- * the redaction regex before returning -- there is no bypass method that
- * writes raw text.
+ * A logger that automatically hides sensitive information (email
+ * addresses) before storing anything — so no one calling this class has
+ * to remember to scrub the data themselves every single time.
+ * <p>
+ * Notice {@code log()} is the ONLY way to add a line, and it always calls
+ * {@code redact()} first. There is no other method that stores raw,
+ * unredacted text — which means this protection can't accidentally be
+ * skipped by whoever uses this class.
  */
 public class PiiRedactingLogger {
 

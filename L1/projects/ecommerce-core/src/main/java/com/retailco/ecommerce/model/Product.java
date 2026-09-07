@@ -3,14 +3,23 @@ package com.retailco.ecommerce.model;
 import java.math.BigDecimal;
 import java.time.Instant;
 
-// CONCEPT: Domain model with self-validation in the constructor.
-// PURPOSE: Represents one product (id, name, price, stock, etc.) and makes
-// sure it can never exist in an invalid state -- the constructor rejects
-// a blank id, negative price, or negative stock right away.
-// WHY stock can only change via adjustStock(): keeping ALL stock changes
-// going through one method (rather than a public setter) is what lets
-// ProductCatalog guarantee stock never goes negative -- one choke point,
-// one place to enforce the rule.
+/**
+ * This class represents one product in our store — think of it as the
+ * blueprint for "a single item you could buy," holding its name, price,
+ * category and how many are left in stock.
+ * <p>
+ * Notice the constructor checks its inputs before creating the object: no
+ * blank id, no negative price, no negative stock. This is called
+ * "self-validation" — the object protects itself from ever being created
+ * in a broken state, so nothing else in the app has to double-check it later.
+ * <p>
+ * Stock quantity is special: it can only be changed through
+ * {@link #adjustStock}, never through a plain setter. Funnelling every
+ * stock change through one method is what lets {@code ProductCatalog}
+ * guarantee stock can never go below zero — there is exactly one place
+ * where that rule is enforced, instead of many places that could each
+ * forget to check it.
+ */
 public class Product {
 
     private final String id;
@@ -56,11 +65,16 @@ public class Product {
     public Instant getCreatedAt() { return createdAt; }
     public Instant getUpdatedAt() { return updatedAt; }
 
-    // The only way stock quantity ever changes. `delta` is negative when
-    // checkout reserves stock, positive when stock is restocked/released.
-    // Throws instead of silently clamping to 0, so the caller
-    // (ProductCatalog) can turn this into a proper error rather than let
-    // stock quietly go wrong.
+    /**
+     * The one and only way this product's stock count changes.
+     * Pass a negative {@code delta} to take stock away (e.g. a customer is
+     * buying some) or a positive one to add stock back (e.g. a return, or
+     * a cancelled order releasing it). If the result would go below zero,
+     * this method refuses and throws an error instead of quietly clamping
+     * to zero — that way, whoever called it finds out immediately that
+     * something doesn't add up, instead of the stock count silently
+     * becoming wrong.
+     */
     public void adjustStock(int delta, Instant now) {
         int next = this.stockQuantity + delta;
         if (next < 0) {

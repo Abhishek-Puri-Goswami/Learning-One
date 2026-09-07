@@ -9,12 +9,16 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-// CONCEPT: Repository pattern -- stores carts in memory, keyed by userId.
-// PURPOSE: save/find/get-or-create a Cart. Uses ecommerce-core's Cart
-// class directly rather than a separate copy, so there's only one Cart
-// model in the whole system.
-// WHY: production would use Redis instead (cart data is temporary and
-// benefits from automatic expiry) -- callers wouldn't need to change.
+/**
+ * Stores carts in memory, one per user id. It reuses {@code ecommerce-core}'s
+ * {@code Cart} class directly rather than keeping a separate copy of the
+ * same idea, so there's only ever one "Cart" concept in the whole system.
+ * <p>
+ * A real production system would likely store carts in Redis instead,
+ * since cart data is short-lived and benefits from automatically expiring
+ * after a while — but whoever calls this class wouldn't need to change
+ * anything if we made that switch.
+ */
 @Repository
 public class CartRepository {
 

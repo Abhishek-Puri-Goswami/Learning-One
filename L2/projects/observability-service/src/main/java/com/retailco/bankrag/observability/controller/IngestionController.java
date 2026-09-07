@@ -9,9 +9,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-// CONCEPT/PURPOSE: same thin Controller-layer ingestion pattern as the
-// other modules (loads a corpus into the shared VectorStore so /ask has
-// something to retrieve). All real work is in ObservabilityIngestionService.
+/**
+ * A thin controller that loads a corpus into the shared
+ * {@code VectorStore} so {@code /ask} has something to search through.
+ * All the real work is delegated to {@code ObservabilityIngestionService}.
+ */
 @RestController
 @RequestMapping("/api/v1/observability")
 public class IngestionController {

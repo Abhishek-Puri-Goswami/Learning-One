@@ -8,19 +8,23 @@ import java.time.Clock;
 import java.util.List;
 import java.util.Optional;
 
-// CONCEPT: Repository pattern -- the layer that talks to storage, hiding
-// HOW data is stored from the rest of the app.
-// PURPOSE: Provides save/find/search operations for products. Internally,
-// it just forwards to `ecommerce-core`'s ProductCatalog (a real,
-// already-tested in-memory store), and converts between this module's
-// `Product` DTO-like entity and ecommerce-core's own `Product` class.
-// WHY delegate instead of reimplementing storage here: reusing an
-// already-tested class means this repository doesn't need to re-prove
-// basic rules like "never oversell" or "lookup by id" -- it only needs to
-// get the conversion between the two `Product` shapes right.
-// IMPORTANT: production would swap this out for a real database
-// (PostgreSQL + Spring Data JPA) -- callers (ProductServiceImpl) would
-// not need to change, since they only depend on this class's methods.
+/**
+ * A "Repository" is the layer that knows how to save and load data,
+ * hiding the storage details from the rest of the app. This one doesn't
+ * reinvent storage itself — it forwards everything to
+ * {@code ecommerce-core}'s already-built and already-tested
+ * {@code ProductCatalog}, and just converts between that module's
+ * {@code Product} class and this service's own {@code Product} class.
+ * <p>
+ * Reusing that tested class means we don't have to re-prove basic rules
+ * like "never sell more stock than we have" — we only need to get the
+ * conversion between the two shapes right.
+ * <p>
+ * Later, this class could be swapped out for one backed by a real
+ * database (PostgreSQL, for example) without {@code ProductServiceImpl}
+ * having to change at all, since it only ever talks to this class's
+ * methods.
+ */
 @Repository
 public class ProductRepository {
 

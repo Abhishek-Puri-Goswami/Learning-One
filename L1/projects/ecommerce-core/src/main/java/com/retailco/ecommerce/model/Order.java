@@ -4,11 +4,13 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
-// CONCEPT: Domain model -- a placed order.
-// PURPOSE: Holds the order's lines and total, frozen at creation time.
-// Only `status` can change afterward (set by CheckoutService once payment
-// succeeds or fails) -- everything else about an order never changes once
-// it's placed.
+/**
+ * Represents an order that has actually been placed. Its items and total
+ * price are locked in the moment it's created — the only thing allowed to
+ * change afterward is its {@code status} (updated by {@code CheckoutService}
+ * once we know whether payment succeeded or failed). Everything else stays
+ * fixed forever, the way a real receipt would.
+ */
 public class Order {
 
     private final String orderId;

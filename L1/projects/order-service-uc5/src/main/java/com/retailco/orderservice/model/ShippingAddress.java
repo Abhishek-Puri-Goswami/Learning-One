@@ -1,6 +1,6 @@
 package com.retailco.orderservice.model;
 
-// CONCEPT: Domain model -- a simple value holder for where an order ships.
+/** A simple holder for the address an order should be shipped to. */
 public class ShippingAddress {
     private String fullName;
     private String addressLine1;

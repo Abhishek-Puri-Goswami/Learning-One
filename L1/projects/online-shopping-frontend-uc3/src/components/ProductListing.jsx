@@ -6,16 +6,13 @@ import LoadingSpinner from "./LoadingSpinner";
 import ErrorMessage from "./ErrorMessage";
 
 /**
- * Product listing page/component.
- *
- * Fulfils the exact requirements from the USE CASE 3 example prompt:
- *  - Accessible (WCAG 2.1 AA)              -> see accessibility/accessibility-audit.md
- *  - Handles loading and error states      -> useProducts() below
- *  - Avoid direct state mutation           -> all state updates go through
- *                                              setState with new objects (see useProducts/useCart)
- *  - Use API endpoint: /api/v1/products    -> via ProductApi.list() in api/apiClient.js
- *  - Explanation of potential UI risks     -> ui-risk/ui-risk-report.md (full doc);
- *                                              key risks are called out inline below.
+ * The main "shop" page: a search box plus a paginated grid of products,
+ * each with an "Add to cart" button.
+ * <p>
+ * It shows a spinner while products are loading, an error message (with
+ * a retry option) if the request fails, and otherwise the actual list of
+ * products with Previous/Next buttons underneath for paging through
+ * results.
  */
 export default function ProductListing({ userId = "guest" }) {
   const [searchInput, setSearchInput] = useState("");
@@ -25,10 +22,10 @@ export default function ProductListing({ userId = "guest" }) {
   const { data, loading, error } = useProducts({ query: committedQuery, page, size: 12 });
   const { addItem, busy: cartBusy } = useCart(userId);
 
-  // RISK: submitting the search form triggers a new fetch (via useProducts'
-  // effect dependency on `committedQuery`); if the user types quickly and
-  // submits multiple times, useProducts' requestId guard (see hooks/useProducts.js)
-  // ensures only the latest response is ever applied to state.
+  // Submitting the search box triggers a new fetch inside useProducts, because
+  // that hook watches `committedQuery` for changes. If the user searches
+  // multiple times quickly, useProducts already protects against an older,
+  // slower search response overwriting a newer one (see hooks/useProducts.js).
   function handleSearchSubmit(event) {
     event.preventDefault();
     setPage(0);
@@ -39,9 +36,9 @@ export default function ProductListing({ userId = "guest" }) {
     try {
       await addItem(productId, 1);
     } catch {
-      // Error surfaced via useCart's `error` state in the Cart component;
-      // this page-level catch just prevents an unhandled promise rejection
-      // from a stale click after navigating away.
+      // If this fails, the error already shows up through useCart's `error`
+      // state over on the Cart page — this empty catch here just stops an
+      // unhandled-promise warning if the user has already navigated away.
     }
   }
 

@@ -1,30 +1,32 @@
 package com.retailco.bankrag.core;
 
-// CONCEPT: Strategy pattern, expressed as a Java interface.
-// PURPOSE:
-// Defines the one contract every embedding implementation must satisfy:
-// turn text into a fixed-length numeric vector (embed) and report that
-// vector's length (dimensions). Nothing else in the codebase is allowed
-// to know HOW the vector is produced -- only that it can be produced.
-//
-// WHY an interface here: this is what lets the rest of the app (VectorStore,
-// Spring @Configuration classes) depend on "an EmbeddingModel" in the
-// abstract, while the concrete choice -- OpenAiEmbeddingModel (real) vs.
-// LocalHashingEmbeddingModel (offline stand-in) -- is decided in exactly
-// ONE place (see each module's *Config.java). Swapping implementations
-// never requires touching VectorStore, Chunker, or any business logic.
-//
-// IMPORTANT (L2 reference guide 3.1, "Same Embedding Model Requirement"):
-// whichever implementation is chosen MUST be used for BOTH indexing chunks
-// and embedding user queries. Cosine similarity between vectors produced
-// by two different embedding models is meaningless -- see VectorStore's
-// semanticSearch, which always calls embeddingModel.embed() for the query
-// using the exact same instance that indexed the chunks.
-//
-// SPRING BOOT CONCEPT TO LEARN: this interface is what Spring calls
-// "programming to an interface" -- the @Bean methods in *Config.java
-// decide which concrete class gets injected wherever `EmbeddingModel` is
-// a constructor/method parameter.
+/**
+ * This interface defines the ONE thing every "embedding model" must be
+ * able to do: turn a piece of text into a list of numbers (a "vector")
+ * that captures its meaning, and report how many numbers are in that
+ * vector. Nothing else in the codebase needs to know HOW that vector gets
+ * produced — only that it can be.
+ * <p>
+ * Why use an interface here at all? It lets the rest of the app (like
+ * {@code VectorStore}, or the Spring configuration classes) depend only
+ * on "some EmbeddingModel," without caring whether it's really talking to
+ * OpenAI's real embedding API or a simple offline stand-in. Deciding
+ * which one to actually use happens in exactly ONE place — the
+ * {@code *Config.java} file in each module — so swapping between them
+ * never requires touching this class or anything that uses it. This is a
+ * classic design idea called the "Strategy pattern."
+ * <p>
+ * One important rule: whichever implementation you pick MUST be used
+ * consistently for both storing documents AND searching for them. Mixing
+ * vectors from two different embedding models when comparing them for
+ * similarity produces meaningless results — see {@code VectorStore} for
+ * where that consistency is enforced.
+ * <p>
+ * Spring Boot concept to notice: this is called "programming to an
+ * interface" — the {@code @Bean} methods in each {@code *Config.java}
+ * class decide which real class gets plugged in wherever an
+ * {@code EmbeddingModel} is needed.
+ */
 public interface EmbeddingModel {
     double[] embed(String text);
 

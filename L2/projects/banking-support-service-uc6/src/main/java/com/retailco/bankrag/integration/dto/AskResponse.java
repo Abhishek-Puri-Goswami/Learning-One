@@ -1,16 +1,14 @@
 package com.retailco.bankrag.integration.dto;
 
-// CONCEPT: "Envelope" / discriminated-union response DTO -- one wire shape
-// representing several different possible outcomes, disambiguated by a
-// `type` string field.
 /**
- * A deliberately generic envelope: `type` names which UnifiedResponse
- * variant fired (POLICY_ANSWER, LIVE_DATA, ACCESS_DENIED, AMBIGUOUS), and
- * `payload` carries that variant's actual content (RagAssistant's
- * AssistantResponse, a masked data list, a denial reason, or a
- * clarification message respectively). Kept as Object rather than four
- * separate optional fields so the response shape doesn't grow a new null
- * field every time a new intent type is added.
+ * One shared response shape that can represent any of the four possible
+ * outcomes from {@code /ask}. {@code type} names which outcome happened
+ * ({@code POLICY_ANSWER}, {@code LIVE_DATA}, {@code ACCESS_DENIED}, or
+ * {@code AMBIGUOUS}), and {@code payload} carries that outcome's actual
+ * content. Keeping {@code payload} as a generic {@code Object} — instead
+ * of four separate optional fields, one per outcome — means the response
+ * shape doesn't grow a new always-empty field every time a new kind of
+ * outcome is added later.
  */
 public record AskResponse(String type, Object payload) {
 }

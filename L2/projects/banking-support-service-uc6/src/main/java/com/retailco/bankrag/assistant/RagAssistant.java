@@ -9,50 +9,49 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.List;
 
-// CONCEPT: Orchestrator / Facade -- the central class that ties every
-// other piece in this package together into one pipeline. This is the
-// class you should read FIRST to understand how the whole RAG assistant
-// fits together; everything else in this package exists to support one
-// step of ask() below.
-//
-// PURPOSE: Given a raw user query, produce a safe, grounded, cited
-// AssistantResponse -- or a clear reason why it couldn't.
-//
-// FLOW (see ask() below -- this is the full pipeline, step by step):
-//   1. PromptInjectionGuard checks the query for injection attempts.
-//      Blocked here -> return immediately, no retrieval, no LLM call.
-//   2. UnsafeQueryGuard checks for out-of-scope advice-seeking questions.
-//      Blocked here -> return immediately, same reasoning.
-//   3. HybridSearcher retrieves the top-K most relevant chunks (reusing
-//      UC1's VectorStore/KeywordSearcher).
-//   4. The retrieval guardrail checks whether the top result is both
-//      above `similarityThreshold` AND clearly ahead of the runner-up by
-//      `minScoreMargin`. If not ("weak retrieval"), return a fallback
-//      answer instead of letting the LLM guess from thin evidence.
-//   5. PromptTemplate builds the full prompt from the query + retrieved
-//      chunks, and llmClient.generate(prompt) produces the answer text.
-//   6. CitationExtractor pulls structured citations out of that answer.
-//   7. EvaluationHarness scores the answer's faithfulness/relevance.
-//   8. TraceLogger records everything about this run (query, prompt,
-//      answer, citations, guardrail decisions, latency, tokens) as one
-//      JSON line -- a local stand-in for LangSmith-style observability.
-//
-// WHY guardrails run BEFORE retrieval/generation: both are cheap checks
-// (no network calls), so a blocked query costs nothing -- no wasted
-// embedding call, no wasted (and possibly paid) LLM call.
-//
-// WHY the retrieval guardrail uses BOTH a threshold AND a margin: a high
-// absolute similarity score can still be misleading if a completely
-// unrelated chunk happens to score almost as high (ambiguous evidence) --
-// requiring the top result to also be clearly ahead of the runner-up
-// catches that case, which a threshold alone would miss.
-//
-// WHAT IF REMOVED: without this class, every other component here
-// (guards, retrieval, prompt building, citation extraction, evaluation,
-// tracing) would still work individually, but nothing would coordinate
-// them into one safe, observable request/response cycle -- callers
-// (Spring controllers) would have to reimplement this orchestration
-// themselves, and likely get the ordering (guardrails BEFORE cost) wrong.
+/**
+ * This is the heart of the whole RAG assistant — the class that ties
+ * every other piece in this package together into one working pipeline.
+ * Read this class first; everything else here exists to support one step
+ * of the {@link #ask} method below.
+ * <p>
+ * Given a raw question from a user, this class's job is to produce a
+ * safe, grounded, properly-cited answer — or a clear reason why it
+ * couldn't. Here's the full pipeline, step by step:
+ * <ol>
+ *   <li>{@code PromptInjectionGuard} checks the question for injection
+ *       attempts. If blocked, we return right away — no document lookup,
+ *       no AI call.</li>
+ *   <li>{@code UnsafeQueryGuard} checks for out-of-scope
+ *       advice-seeking questions. Blocked here too? Same early return.</li>
+ *   <li>{@code HybridSearcher} retrieves the most relevant document
+ *       chunks for the question.</li>
+ *   <li>A "weak retrieval" check makes sure the top result is both above
+ *       a minimum similarity score AND clearly better than the runner-up.
+ *       If not, we return an honest "I don't know" fallback instead of
+ *       letting the AI guess from thin evidence.</li>
+ *   <li>{@code PromptTemplate} builds the full prompt, and the AI
+ *       (real or offline stub) generates the answer text.</li>
+ *   <li>{@code CitationExtractor} pulls structured citations back out of
+ *       that answer.</li>
+ *   <li>{@code EvaluationHarness} scores how faithful and relevant the
+ *       answer actually is.</li>
+ *   <li>{@code TraceLogger} records everything about this run — the
+ *       question, the prompt, the answer, timing, and every guardrail
+ *       decision — as one line in a log file, so it can be reviewed
+ *       later.</li>
+ * </ol>
+ * <p>
+ * Why run the guardrails FIRST, before anything expensive: both checks
+ * are free (no network calls), so a blocked query costs nothing at all —
+ * no wasted document lookup, no wasted (and possibly paid) AI call.
+ * <p>
+ * Why the retrieval check uses BOTH a threshold AND a margin: a high
+ * similarity score alone can be misleading if a completely unrelated
+ * chunk happens to score almost as high — that's an ambiguous signal.
+ * Requiring the top result to also be clearly ahead of the second-best
+ * one catches that case, which checking the score alone would miss.
+ */
 public class RagAssistant {
 
     private final VectorStore vectorStore;
@@ -109,7 +108,7 @@ public class RagAssistant {
         // Step 2: retrieval
         List<ScoredChunk> retrieved = hybridSearcher.search(query, topK, 0.0);
 
-        // Step 3: retrieval guardrail (threshold + score-margin, per UC1's hallucination-risk-analysis.md)
+        // Step 3: retrieval guardrail (checks both the absolute score and the margin over the runner-up)
         Double topScore = retrieved.isEmpty() ? null : retrieved.get(0).score();
         Double margin = retrieved.size() >= 2 ? retrieved.get(0).score() - retrieved.get(1).score() : null;
         boolean weakRetrieval = topScore == null || topScore < similarityThreshold

@@ -7,21 +7,19 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-// CONCEPT: Simple rule-based text extraction (regex/keyword matching) --
-// pulls a rough day/time hint out of free-form email text.
-// WHY it prefers finding NOTHING over guessing wrong: CalendarTool treats
-// an empty hint as "no preference, just show me any slots" -- which is a
-// safe fallback. A wrong guess (e.g. misreading "not Monday" as "Monday")
-// would actively mislead the calendar search, which is worse than finding
-// nothing.
 /**
- * A deliberately conservative, rule-based (regex/keyword) date-time hint
- * extractor -- NOT a general NLP date parser. This sandbox has no LLM API
- * access, so a real "understand any phrasing of a date" system (what a
- * production version of this agent would use an LLM or a library like
- * duckling for) is out of scope; this class recognizes a bounded set of
- * common phrasings (day-of-week names, morning/afternoon/evening,
- * explicit "3pm"/"10:30am" times) and returns nothing rather than a wrong
+ * Pulls a rough hint about when the sender wants to meet out of an
+ * email's free-form text, using simple keyword and pattern matching —
+ * not a full natural-language date parser, and not an AI model. It only
+ * recognizes a handful of common phrasings: day-of-week names,
+ * morning/afternoon/evening, and explicit times like "3pm" or "10:30am."
+ * <p>
+ * Why it's better to find NOTHING than to guess wrong: if this class
+ * can't confidently tell what the sender meant, it returns an empty hint,
+ * and {@code CalendarTool} treats that as "no preference, just show me
+ * whatever's available" — a safe default. Guessing wrong (say, reading
+ * "not Monday" as if it meant "Monday") would actively point the search
+ * in the wrong direction, which is worse than finding no hint at
  * guess for anything else. {@code calendar.CalendarTool} treats an empty
  * {@link TimeHint} as "no preference -- offer the next available slots,"
  * so under-extraction degrades gracefully; over-extraction (a wrong

@@ -7,9 +7,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-// CONCEPT: Repository pattern -- stores orders in memory, keyed by order
-// id. Production would swap this for a real database; callers wouldn't
-// need to change.
+/**
+ * Stores orders in memory, keyed by order id. A production version of
+ * this class would use a real database instead — but since callers only
+ * ever talk to this class's methods, they wouldn't need to change at all
+ * if we made that switch.
+ */
 @Repository
 public class OrderRepository {
 

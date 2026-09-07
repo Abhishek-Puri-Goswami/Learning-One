@@ -3,11 +3,14 @@ package com.retailco.bankrag.observability;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-// CONCEPT: Spring Boot application entry point (see rag-service's
-// RagServiceApplication for the full explanation). Boots this module's
-// object graph: ObservabilityConfig's beans (EmbeddingModel, LlmClient,
-// RagAssistant, QueryCache, MetricsRecorder, CostEstimator,
-// ObservableRagAssistant) and the @RestController classes.
+/**
+ * The starting point of this application. Running this boots up the
+ * whole module: it discovers {@code ObservabilityConfig}'s beans
+ * ({@code EmbeddingModel}, {@code LlmClient}, {@code RagAssistant},
+ * {@code QueryCache}, {@code MetricsRecorder}, {@code CostEstimator},
+ * {@code ObservableRagAssistant}) and the REST controllers, and starts the
+ * built-in web server.
+ */
 @SpringBootApplication
 public class ObservabilityServiceApplication {
     public static void main(String[] args) {

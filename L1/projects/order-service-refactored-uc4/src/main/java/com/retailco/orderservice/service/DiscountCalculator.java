@@ -4,15 +4,13 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 
-// CONCEPT: Extracting a helper class to reduce complexity -- each pricing
-// rule (SAVE10, VIP) gets its own small method instead of one giant
-// method with nested if/else for everything.
 /**
- * FIX (part of resolving AI-QA "high complexity" / squid:S3776, squid:S138):
- * extracted from the original ~65-line checkout() method. Each coupon rule
- * is now its own small, independently testable method instead of a chain of
- * nested if/else blocks combining coupon + payment method + city + running
- * total in one branch tree.
+ * Works out the discount for one line of an order. This logic used to
+ * live buried inside {@code OrderServiceImpl}'s giant {@code checkout()}
+ * method, tangled up with everything else it was doing. Pulling it out
+ * into its own class, with a small dedicated method per coupon type
+ * ({@code applySave10}, {@code applyVip}), makes each pricing rule easy
+ * to read and test completely on its own.
  */
 @Component
 public class DiscountCalculator {

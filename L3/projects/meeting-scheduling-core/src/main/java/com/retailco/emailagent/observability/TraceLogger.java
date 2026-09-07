@@ -6,15 +6,12 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.time.Instant;
 
-// CONCEPT: Observability / tracing -- one JSON line per agent step, so a
-// run can be replayed and understood after the fact (same idea as L2's
-// TraceLogger, simpler here).
 /**
- * Hand-rolled JSONL trace logger -- same disclosed local-file stand-in
- * pattern L2/UC2 introduced for its LangSmith-equivalent tracing (this
- * sandbox has no reachable LangSmith endpoint). One line per agent step
- * (intent classification, calendar lookup, draft composed, dedupe
- * decision), so a run can be replayed step-by-step from the log file.
+ * Writes one line of a log file for every step the agent takes (checking
+ * intent, looking up the calendar, composing a draft, checking for
+ * duplicates). Because every step gets its own line, you can look back at
+ * this file afterward and replay exactly what the agent did, and why, for
+ * any given run.
  */
 public class TraceLogger {
 

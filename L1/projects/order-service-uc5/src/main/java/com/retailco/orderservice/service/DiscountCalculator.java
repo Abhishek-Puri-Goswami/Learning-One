@@ -6,16 +6,14 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.util.Set;
 
-// CONCEPT: Service helper class -- pricing/discount rules kept separate
-// from checkout logic, now with an explicit "known coupons" allowlist
-// instead of silently ignoring anything unrecognized.
 /**
- * Carried forward from L1/UC4 (extracted from checkout() to reduce
- * complexity). L1/UC5 fix (see edge-cases/edge-case-catalog.md, "Invalid
- * coupon"): an unrecognized coupon code now throws InvalidCouponException
- * instead of silently falling through to "no discount applied" -- the
- * previous behavior let a typo'd or expired code fail silently, which looks
- * to the customer like the coupon worked when it didn't.
+ * Works out the discount for one line of an order. This version keeps an
+ * explicit list of coupon codes we actually recognize
+ * ({@code KNOWN_COUPONS}) and throws {@link InvalidCouponException} for
+ * anything not on that list, instead of quietly applying no discount.
+ * That way a mistyped or expired coupon code is caught and reported
+ * clearly, rather than silently doing nothing while the customer assumes
+ * it worked.
  */
 @Component
 public class DiscountCalculator {
@@ -34,7 +32,7 @@ public class DiscountCalculator {
         return switch (couponCode) {
             case "SAVE10" -> applySave10(lineTotal, paymentMethod, totalSoFar);
             case "VIP" -> applyVip(lineTotal, city);
-            default -> lineTotal; // unreachable given the KNOWN_COUPONS guard above
+            default -> lineTotal; // can't actually happen -- the check above already rejects anything unrecognized
         };
     }
 

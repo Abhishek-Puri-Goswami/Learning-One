@@ -2,15 +2,14 @@ package com.retailco.bankrag.integration.dto;
 
 import jakarta.validation.constraints.NotBlank;
 
-// CONCEPT: Request DTO with optional fields whose relevance depends on
-// runtime routing -- a deliberate one-endpoint design (see SupportController).
 /**
- * Deliverable: "Fully functional AI Banking Support System" as one REST
- * contract. accountNumber is only required when the query resolves to a
- * TRANSACTION_HISTORY intent; requestedCustomerId is only required for any
- * LIVE_DATA intent -- both are optional here rather than split into
- * separate endpoints, since routing (and therefore which fields matter)
- * isn't known until IntentClassifier runs inside the service.
+ * The request body for {@code POST /api/v1/support/ask}. {@code query}
+ * is always required. {@code accountNumber} only matters when the
+ * question turns out to be about transaction history, and
+ * {@code requestedCustomerId} only matters for any live-data question —
+ * both are optional fields here, rather than split into separate
+ * endpoints, because which fields actually matter isn't known until
+ * {@code IntentClassifier} figures out what kind of question this is.
  */
 public record AskRequest(
         @NotBlank(message = "query is required") String query,

@@ -5,11 +5,13 @@ import com.retailco.bankrag.assistant.EvaluationHarness;
 
 import java.util.List;
 
-// CONCEPT: Response DTO -- deliberately a separate type from
-// RagAssistant.AssistantResponse even though the fields currently match.
-// WHY: this is the API's stable public contract; RagAssistant's internal
-// return type can be refactored freely as long as AskController keeps
-// mapping it onto this same AskResponse shape (see AskController.ask()).
+/**
+ * The JSON shape we send back for an answered question. This is
+ * deliberately a separate type from {@code RagAssistant.AssistantResponse},
+ * even though their fields currently match — this record is the API's
+ * stable public contract, so the internal class can keep changing freely
+ * as long as {@code AskController} keeps mapping it onto this shape.
+ */
 public record AskResponse(
         String query,
         String answer,

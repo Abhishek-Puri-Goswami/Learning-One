@@ -2,14 +2,15 @@ package com.retailco.bankrag.service.dto;
 
 import java.util.List;
 
-// CONCEPT: Response DTO carrying both the search results AND guardrail
-// metadata in one shape.
-// PURPOSE: `guardrailTriggered`/`guardrailMessage` let a caller (a
-// frontend, or another AI agent) know when a search result should NOT be
-// trusted as a confident answer, rather than silently returning weak
-// results indistinguishable from strong ones. `topScore`/`scoreMargin`
-// are exposed raw so a caller could apply its OWN confidence policy
-// instead of only trusting this service's guardrail decision.
+/**
+ * Carries both the search results AND some guardrail information in one
+ * response. {@code guardrailTriggered}/{@code guardrailMessage} let
+ * whoever's calling this know when a result should NOT be trusted as
+ * confident, instead of silently mixing weak results in with strong
+ * ones. {@code topScore}/{@code scoreMargin} are also exposed raw, so a
+ * caller could apply its own confidence rules instead of only trusting
+ * ours.
+ */
 public record SearchResponse(
         String query,
         String method,

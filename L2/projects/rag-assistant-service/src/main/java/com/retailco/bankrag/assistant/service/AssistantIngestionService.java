@@ -14,18 +14,11 @@ import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.util.List;
 
-// CONCEPT: Service layer -- prerequisite setup logic, kept separate from
-// the question-answering logic (AskController/RagAssistant).
-// PURPOSE: Loads the policy corpus into the shared VectorStore bean --
-// this MUST run (via POST /ingest) before /ask can retrieve anything
-// meaningful, since VectorStore starts out empty.
-// WHY this duplicates rag-service's IngestionService rather than sharing
-// code: this module has no Maven dependency on rag-service (each Spring
-// module in this submission copies rag-core's classes as source rather
-// than depending on a sibling module's jar) -- but the pipeline itself
-// (DocumentLoader -> Chunker -> VectorStore) is identical because the
-// retrieval foundation doesn't change between UC1 and UC2, only what's
-// built on top of it does.
+/**
+ * Loads documents into the shared {@code VectorStore} bean. This MUST run
+ * (by calling {@code POST /ingest}) before {@code /ask} can find anything
+ * useful, since the vector store starts out completely empty.
+ */
 @Service
 public class AssistantIngestionService {
 

@@ -17,27 +17,25 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-// CONCEPT: An "AI tool" -- a plain method the agent calls to get real
-// information (here: calendar availability), rather than the LLM
-// inventing an answer. HOW IT WORKS: searches business hours over the
-// next few days, scores each free slot by how well it matches the
-// sender's requested day/time (scoreSlot()), and widens the search window
-// automatically if fewer than 2 slots are found.
 /**
- * Stands in for the LLD's `/calendar/availability` tool contract: a
- * free/busy store per participant plus a slot-finding search. Mock/
- * simulated, per the HLD's explicit support for that -- a real adapter
- * would call Microsoft Graph's or Google Calendar's freebusy API with the
- * same {@code (participants, duration, searchWindow)} -> {@code List<CalendarSlot>}
- * shape.
- *
- * <p>Search window: business hours (9am-5pm UTC) over the next 5 business
- * days, scored by how well a slot matches the sender's {@link TimeHint}
- * (day-of-week match, part-of-day match, explicit-time proximity) -- this
- * is what lets the agent return "the 2 best" slots rather than just the
- * first 2 free ones. Guarantees the LLD Stage 1 acceptance criterion of
- * returning at least 2 valid slots whenever any exist at all, by widening
- * the search window if the first pass finds fewer than 2.
+ * This is what's called an "AI tool" — a plain, ordinary method the agent
+ * calls to get real, factual information (here, calendar availability)
+ * instead of letting an AI model just guess or make something up.
+ * <p>
+ * Right now this class simulates a calendar with a simple in-memory
+ * free/busy list per participant. A real version of this class would call
+ * Microsoft Graph's or Google Calendar's actual availability API instead
+ * — but it would return the exact same shape of answer, so nothing else
+ * in the codebase would need to change.
+ * <p>
+ * Here's how the search works: it looks at business hours (9am-5pm UTC)
+ * over the next several days, and scores each open slot by how well it
+ * matches what the sender asked for (same day of week, same part of day,
+ * how close to any specific time they mentioned — see
+ * {@code scoreSlot()}). That scoring is what lets us offer the "2 best"
+ * matching times instead of just the first 2 that happen to be free. If
+ * fewer than 2 slots turn up, the search automatically looks further
+ * ahead instead of giving up too early.
  */
 public class CalendarTool {
 

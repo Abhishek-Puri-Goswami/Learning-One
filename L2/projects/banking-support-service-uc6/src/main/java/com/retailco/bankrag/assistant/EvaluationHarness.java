@@ -8,36 +8,38 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-// CONCEPT: Automated evaluation / "LLM-as-judge" proxy metrics -- a
-// lightweight, code-only stand-in for what an LLM-based evaluator would do.
-// PURPOSE: Scores every answer on two axes: faithfulness (does the answer
-// actually say what its cited sources say?) and relevance (was the
-// retrieved context actually related to the question?). This is what lets
-// you measure RAG quality automatically instead of eyeballing outputs.
-//
-// HOW faithfulness is computed (see computeFaithfulness() below, step by
-// step -- this is the more interesting metric):
-// 1. Split the answer into sentences.
-// 2. For each sentence that carries a "[chunk-id]" citation, find that
-//    chunk's original text.
-// 3. Compute what fraction of the sentence's own words also appear in
-//    the cited chunk's text (lexical overlap, same technique as
-//    KeywordSearcher/ExtractiveStubLlmClient).
-// 4. Average that fraction across all cited sentences.
-// A real "groundedness" evaluator would use another LLM to judge semantic
-// entailment (does the source actually SUPPORT this claim, even if worded
-// differently?); this lexical-overlap version is a coarser, fully local,
-// zero-cost approximation of the same idea.
-//
-// WHY relevance is just "the top chunk's similarity score": it's a cheap,
-// already-computed proxy for "was the right information even found?" --
-// no additional computation needed, since VectorStore already produces it.
-//
-// IMPORTANT edge case (see the citations.isEmpty() branch): an answer with
-// NO citations is only treated as faithful (score 1.0) if it looks like a
-// fallback/decline ("I don't have...", "does not contain..."). Otherwise
-// it scores 0.0 -- a grounded assistant making an uncited claim is exactly
-// the failure mode this metric exists to catch.
+/**
+ * A lightweight, automatic way to score how good an answer actually was —
+ * without needing a human (or another AI) to review it. It measures two
+ * things: faithfulness (does the answer actually say what its cited
+ * sources say?) and relevance (was the retrieved information even related
+ * to the question?).
+ * <p>
+ * Here's how faithfulness is computed, step by step (see
+ * {@code computeFaithfulness()} below — this is the more interesting
+ * metric of the two):
+ * <ol>
+ *   <li>Split the answer into individual sentences.</li>
+ *   <li>For each sentence that has a "[chunk-id]" citation attached,
+ *       find that chunk's original text.</li>
+ *   <li>Work out what fraction of the sentence's own words also appear
+ *       in that cited chunk's text.</li>
+ *   <li>Average that fraction across every cited sentence.</li>
+ * </ol>
+ * A more sophisticated system might use another AI model to judge whether
+ * a source truly SUPPORTS a claim, even if worded differently. This
+ * simpler word-overlap version is a rougher approximation of the same
+ * idea, but it's free and runs instantly, with no extra AI calls needed.
+ * <p>
+ * Relevance is simply the top retrieved chunk's similarity score — a
+ * cheap, already-available signal for "did we even find the right
+ * information?"
+ * <p>
+ * One important edge case: an answer with NO citations at all is only
+ * treated as faithful if it looks like an honest "I don't know" — any
+ * other uncited answer scores 0, since an assistant making an uncited
+ * claim is exactly the kind of problem this metric exists to catch.
+ */
 public final class EvaluationHarness {
 
     public record EvaluationResult(
@@ -70,11 +72,10 @@ public final class EvaluationHarness {
     private double computeFaithfulness(String answer, List<CitationExtractor.Citation> citations,
                                         List<ScoredChunk> retrievedChunks) {
         if (citations.isEmpty()) {
-            // No citations at all is itself a faithfulness problem for a
-            // grounded-answer requirement, unless the answer is a fallback
-            // ("I don't know") -- callers should interpret a 0.0 score with
-            // an empty citation list plus a fallback-shaped answer as
-            // "correctly declined," not "unfaithful."
+            // No citations at all only counts as faithful if the answer
+            // looks like an honest "I don't know" — that's a correct
+            // decline, not an unfaithful answer. Any other uncited answer
+            // scores 0.
             return answer.toLowerCase().contains("don't have") || answer.toLowerCase().contains("does not contain")
                     ? 1.0 : 0.0;
         }
@@ -84,13 +85,12 @@ public final class EvaluationHarness {
             chunkTextById.put(sc.chunk().id(), sc.chunk().text());
         }
 
-        // Negative lookahead (?!\[) keeps a trailing "[chunk-id]" citation
-        // attached to the sentence it follows, rather than splitting it into
-        // its own citation-only fragment (which would leave that fragment
-        // with no content terms to check faithfulness against, and leave the
-        // actual claim sentence with no citation to check it against --
-        // found via this test actually failing on a legitimately faithful
-        // answer before this fix, not assumed).
+        // This regex is written carefully so a trailing "[chunk-id]"
+        // citation stays attached to the sentence it follows, instead of
+        // being split off into its own separate fragment (which would
+        // leave that fragment with no real words to check faithfulness
+        // against, and leave the actual sentence with no citation to
+        // check it against).
         String[] sentences = answer.split("(?<=[.!?])\\s+(?!\\[)");
         double totalScore = 0;
         int checkedSentences = 0;
@@ -99,7 +99,7 @@ public final class EvaluationHarness {
             String cited = citedChunkIdIn(sentence, citations);
             if (cited == null) continue;
             String chunkText = chunkTextById.get(cited);
-            if (chunkText == null) continue; // unresolvable citation -- excluded from the average, not rewarded
+            if (chunkText == null) continue; // an unresolvable citation is skipped, not rewarded, in the average
             Set<String> sentenceTerms = toTermSet(sentence);
             Set<String> chunkTerms = toTermSet(chunkText);
             if (sentenceTerms.isEmpty()) continue;

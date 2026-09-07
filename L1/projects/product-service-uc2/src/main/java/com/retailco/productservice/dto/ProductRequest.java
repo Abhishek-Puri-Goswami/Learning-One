@@ -8,13 +8,16 @@ import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
 
-// CONCEPT: Request DTO with Bean Validation annotations (@NotBlank,
-// @Min, etc.).
-// PURPOSE: Defines what a valid "create/update product" request looks
-// like. Spring checks these annotations automatically (because the
-// controller marks this parameter @Valid) before the request reaches any
-// business logic -- an invalid request (e.g. missing name, negative
-// price) is rejected with a 400 automatically.
+/**
+ * This class describes exactly what a "create or update a product"
+ * request must look like. The annotations you see below it, like
+ * {@code @NotBlank} and {@code @Min}, are validation rules — Spring
+ * checks them automatically before our own code ever runs (because the
+ * controller marks this parameter with {@code @Valid}). So if someone
+ * sends a request with no name or a negative price, it gets rejected
+ * right away with a clear 400 error, and our business logic never even
+ * sees the bad data.
+ */
 public class ProductRequest {
 
     @NotBlank(message = "name is required")

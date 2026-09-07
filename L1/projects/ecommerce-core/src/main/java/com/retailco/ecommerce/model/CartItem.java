@@ -2,9 +2,12 @@ package com.retailco.ecommerce.model;
 
 import java.math.BigDecimal;
 
-// CONCEPT: Domain model -- one line in a Cart (one product + quantity).
-// IMPORTANT: `unitPrice` is a snapshot of the price at the moment the item
-// was added, not a live lookup -- see Cart's comment for why that matters.
+/**
+ * One line inside a shopping cart: a single product plus how many of it
+ * the customer wants. The {@code unitPrice} field is a snapshot of the
+ * price at the moment this item was added — see {@link Cart}'s comment
+ * for why that matters.
+ */
 public class CartItem {
 
     private final String itemId;

@@ -2,9 +2,11 @@ package com.retailco.bankrag.assistant.dto;
 
 import jakarta.validation.constraints.NotBlank;
 
-// CONCEPT: Request DTO with Bean Validation (same @NotBlank + @Valid
-// pattern as rag-service's IngestRequest) -- an empty query is rejected
-// with a 400 before it ever reaches RagAssistant.ask().
+/**
+ * The request body for asking a question. An empty query is rejected with
+ * a clean 400 error before it ever reaches {@code RagAssistant.ask()},
+ * thanks to the {@code @NotBlank} validation below.
+ */
 public record AskRequest(
         @NotBlank(message = "query is required")
         String query

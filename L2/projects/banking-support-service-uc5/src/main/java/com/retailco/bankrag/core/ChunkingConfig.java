@@ -1,23 +1,24 @@
 package com.retailco.bankrag.core;
 
-// CONCEPT: Immutable configuration object with self-validation (compact
-// constructor), plus a "record pattern" for value-object validation.
-// PURPOSE:
-// Holds the two tunable knobs for splitting documents into chunks:
-// how big each chunk is (chunkSizeTokens) and how much consecutive chunks
-// overlap (overlapTokens). Overlap exists so a sentence that gets cut at a
-// chunk boundary still appears in full inside at least one chunk.
-//
-// WHY validate here (in the compact constructor below):
-// A `record`'s compact constructor `public ChunkingConfig { ... }` runs
-// before the fields are assigned, for every way the record can be built.
-// Putting the validation here (rather than in each caller) guarantees an
-// invalid ChunkingConfig can never exist anywhere in the program --
-// "make illegal states unrepresentable."
-//
-// IMPORTANT: token counts are approximate (see Chunker.tokenize -- simple
-// whitespace splitting, not a real BPE/subword tokenizer), so treat these
-// numbers as "roughly how much text," not an exact LLM token budget.
+/**
+ * Holds the two settings that control how documents get split into
+ * chunks: how big each chunk is ({@code chunkSizeTokens}) and how much
+ * consecutive chunks overlap ({@code overlapTokens}). The overlap exists
+ * so a sentence that happens to fall right on a chunk boundary still
+ * appears complete in at least one chunk, instead of being cut in half.
+ * <p>
+ * Notice the block below labeled {@code public ChunkingConfig { ... }} —
+ * that's a record's "compact constructor," and it runs automatically
+ * every single time one of these objects gets created, no matter how.
+ * Putting our validation there means an invalid {@code ChunkingConfig}
+ * (like a negative size) simply can never exist anywhere in the program —
+ * it gets rejected the moment someone tries to create one.
+ * <p>
+ * One thing to keep in mind: these token counts are approximate (see
+ * {@code Chunker.tokenize}, which just splits on whitespace rather than
+ * using a real AI-model tokenizer), so treat them as "roughly how much
+ * text," not an exact number.
+ */
 public record ChunkingConfig(int chunkSizeTokens, int overlapTokens) {
 
     public ChunkingConfig {

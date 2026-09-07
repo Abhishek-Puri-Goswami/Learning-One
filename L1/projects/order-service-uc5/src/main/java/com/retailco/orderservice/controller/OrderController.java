@@ -11,12 +11,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-// CONCEPT: Controller -- HTTP entry point for placing an order. FIXED
-// version of this refactoring case study.
 /**
- * FIX (was AI-QA-2 & AI-QA-3): @Valid added on the request body (consistent
- * with product-service/cart-service in L1/UC2), and the unused
- * java.util.List import has been removed.
+ * The HTTP entry point for placing an order — the fixed version of this
+ * file. Compare with {@code order-service-before-uc4}'s version: this one
+ * adds {@code @Valid} to the request body below, matching the pattern
+ * already used in product-service and cart-service, so a malformed
+ * request gets rejected with a clean 400 error instead of crashing
+ * business logic with a confusing exception.
  */
 @RestController
 @RequestMapping("/api/v1/orders")

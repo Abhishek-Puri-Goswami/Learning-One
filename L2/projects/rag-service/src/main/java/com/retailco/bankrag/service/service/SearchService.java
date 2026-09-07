@@ -11,25 +11,28 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-// CONCEPT: Service layer -- business logic for retrieval, including a
-// "weak retrieval" guardrail, kept separate from the HTTP controller.
-// PURPOSE: Lets a caller pick a search strategy (KEYWORD/SEMANTIC/HYBRID)
-// via one unified method, and applies a guardrail on top of the raw
-// scores so low-confidence results are flagged rather than silently
-// returned as if they were reliable.
-// HOW THE GUARDRAIL WORKS (see search() below): after getting ranked
-// results, check the top score against `similarityThreshold` (an absolute
-// floor) AND check the gap between the top and second result against
-// `minScoreMargin` (is the top result CLEARLY the best, or just barely
-// ahead of an unrelated runner-up?). Either failing sets
-// `guardrailTriggered=true` with an explanatory message -- the guardrail
-// only applies to SEMANTIC/HYBRID methods, since KEYWORD scores are literal
-// term-overlap fractions, not the kind of relevance signal this check is
-// designed to catch.
-// WHY @Value fields with defaults (e.g. "${bankrag.search.similarity-threshold:0.15}"):
-// this makes the thresholds tunable per-deployment via
-// application.yml/environment variables, without a code change or
-// redeploy for a new value.
+/**
+ * Contains the business logic for search, including a "weak retrieval"
+ * guardrail, kept separate from the HTTP controller. It lets a caller
+ * pick a search strategy through one unified method, and flags
+ * low-confidence results instead of silently returning them as if they
+ * were reliable.
+ * <p>
+ * How the guardrail works (see {@code search()} below): after getting
+ * ranked results, it checks the top score against a minimum threshold
+ * AND checks the gap between the top and second result — is the top
+ * result CLEARLY the best match, or just barely ahead of an unrelated
+ * runner-up? Either check failing flags the result as low-confidence.
+ * This guardrail only applies to SEMANTIC and HYBRID search, since
+ * keyword-search scores measure something different (literal word
+ * overlap) and aren't the kind of signal this check is designed to
+ * catch.
+ * <p>
+ * The {@code @Value} fields below pull their default thresholds from
+ * configuration, which makes them tunable per deployment through
+ * {@code application.yml} or environment variables — no code change or
+ * redeploy needed to adjust them.
+ */
 @Service
 public class SearchService {
 
@@ -69,10 +72,9 @@ public class SearchService {
                 ? results.get(0).score() - results.get(1).score()
                 : null;
 
-        // Guardrail only meaningfully applies to semantic/hybrid scores, which
-        // are the ones discussed in hallucination-risk-analysis.md -- keyword
-        // scores are literal term-overlap fractions, not a relevance signal
-        // this guardrail was designed to gate.
+        // This guardrail only meaningfully applies to semantic/hybrid
+        // scores — keyword scores are literal term-overlap fractions, a
+        // different kind of measurement this check isn't designed for.
         if (method != Method.KEYWORD) {
             if (results.isEmpty() || topScore < similarityThreshold) {
                 guardrailTriggered = true;
@@ -80,15 +82,13 @@ public class SearchService {
                         + "(top score below the " + similarityThreshold + " similarity threshold). "
                         + "This question may be outside the scope of the ingested policy corpus.";
             } else if (scoreMargin != null && scoreMargin < minScoreMargin) {
-                // Score-margin check per hallucination-risk-analysis.md
-                // Recommendation 2: a top score that clears the absolute
-                // threshold but is barely ahead of the runner-up is a weaker
-                // signal than the raw number alone suggests.
+                // A top score that clears the threshold but is barely
+                // ahead of the runner-up is a weaker signal than the raw
+                // number alone suggests — flag it too.
                 guardrailTriggered = true;
                 guardrailMessage = "Top result score is too close to the next-best result "
                         + "(margin " + String.format("%.3f", scoreMargin) + " < " + minScoreMargin
-                        + "). Treat this retrieval as low-confidence -- see "
-                        + "reports/hallucination-risk-analysis.md.";
+                        + "). Treat this retrieval as low-confidence.";
             }
         }
 

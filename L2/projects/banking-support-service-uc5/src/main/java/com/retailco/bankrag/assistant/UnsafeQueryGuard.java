@@ -3,29 +3,25 @@ package com.retailco.bankrag.assistant;
 import java.util.List;
 import java.util.regex.Pattern;
 
-// CONCEPT: Guardrail layer -- a scope guardrail (as opposed to
-// PromptInjectionGuard's security guardrail).
-// PURPOSE: Blocks questions asking for personalized financial/investment/
-// legal advice (e.g. "should I invest in mutual funds right now?"),
-// because a policy-document assistant should never answer those --
-// REGARDLESS of what the retriever happens to find. This is different
-// from a low-similarity-score guardrail: even if retrieval accidentally
-// returns a document that LOOKS related, this guard still blocks the
-// query, because the question TYPE itself is out of scope.
-//
-// HOW IT WORKS: same technique as PromptInjectionGuard -- match the raw
-// query against a fixed list of regex patterns for advice-seeking phrasing
-// ("should I invest...", "best mutual fund...", "is it a good time to
-// invest...") and return a blocking Verdict on the first match.
-//
-// WHY this exists as a SEPARATE guard from the similarity threshold: a
-// policy document might mention "mutual funds" in an unrelated compliance
-// paragraph, so a purely similarity-based check could let this kind of
-// question slip through with a misleadingly plausible-looking answer.
-// Blocking by query INTENT, independent of retrieval, closes that gap
-// (defense in depth: the prompt also tells the LLM not to give advice --
-// see PromptTemplate rule 1 -- so this is a second, earlier layer that
-// works even if the LLM ignored its instructions).
+/**
+ * A guardrail that blocks questions asking for personalized financial,
+ * investment, or legal advice — like "should I invest in mutual funds
+ * right now?" A policy-document assistant should never answer those,
+ * REGARDLESS of what the document search happens to find.
+ * <p>
+ * This is different from the retrieval guardrail (which blocks based on a
+ * weak similarity score). This one blocks based on what KIND of question
+ * was asked, independent of what got retrieved — because a compliance
+ * document might happen to mention "mutual funds" in an unrelated
+ * paragraph, and a purely similarity-based check alone could let a
+ * misleading, advice-shaped answer slip through.
+ * <p>
+ * It works the same way {@code PromptInjectionGuard} does: match the
+ * question against a fixed list of advice-seeking phrases, and block on
+ * the first match. This acts as an earlier, second layer of defense on
+ * top of the prompt itself also telling the AI not to give advice — so
+ * the block still works even if the AI ignored that instruction.
+ */
 public final class UnsafeQueryGuard {
 
     public record Verdict(boolean blocked, String reason) {

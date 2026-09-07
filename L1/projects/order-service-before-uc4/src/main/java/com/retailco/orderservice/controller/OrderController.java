@@ -10,13 +10,19 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-// FINDING: unused import (Sonar rule squid:S1128, "Unnecessary imports should
-// be removed") -- java.util.List is never referenced in this file.
+// A small extra thing to notice: this import isn't actually used
+// anywhere in the file below. Unused imports don't break anything, but
+// it's good practice to remove them so the code stays tidy and easy to
+// scan.
 import java.util.List;
 
-// CONCEPT: Controller -- HTTP entry point for placing an order. "Before"
-// version of this refactoring case study (missing request validation --
-// see FINDING comment below).
+/**
+ * The HTTP entry point for placing an order. This is the "before" version
+ * of this refactoring case study — see the comment on
+ * {@code createOrder} below for the specific problem it has, and compare
+ * with {@code order-service-refactored-uc4}'s version of this file for
+ * the fix.
+ */
 @RestController
 @RequestMapping("/api/v1/orders")
 public class OrderController {
@@ -27,10 +33,14 @@ public class OrderController {
         this.orderService = orderService;
     }
 
-    // FINDING: no @Valid / Bean Validation on the request body at all here
-    // (contrast with product-service/cart-service in L1/UC2, which validate
-    // every mutating endpoint) -- a malformed request reaches business logic
-    // and fails with a raw NullPointerException instead of a 400.
+    /**
+     * Notice this method has no {@code @Valid} annotation on its request
+     * body, unlike product-service and cart-service's endpoints. That
+     * means a malformed request (say, one missing the shipping address)
+     * isn't rejected up front — it gets passed straight through to the
+     * business logic, where it can cause a confusing crash instead of a
+     * clean "400 Bad Request" error.
+     */
     @PostMapping
     public ResponseEntity<OrderResponse> createOrder(@RequestBody OrderRequest request) {
         OrderResponse response = orderService.checkout(request);

@@ -16,33 +16,26 @@ import java.nio.file.StandardOpenOption;
 import java.time.Instant;
 import java.util.UUID;
 
-// CONCEPT: Cross-cutting HTTP request/response logging via a Spring
-// Security Filter (same base class and "runs once per request" mechanism
-// as JwtAuthenticationFilter, but for observability rather than auth).
-// PURPOSE: Logs one JSON line per HTTP request: method, path, status code,
-// and duration -- basic access-log data useful for debugging and traffic
-// analysis, generated automatically for every endpoint without each
-// controller needing to log anything itself.
-// HOW IT WORKS: wraps filterChain.doFilter() in a try/finally, so the log
-// line is written exactly once per request regardless of whether the
-// request succeeded, failed, or threw an exception (finally always runs).
-// A random correlationId ties this log line to the SAME request's audit
-// events (StructuredAuditLogger) and any other logs -- useful for tracing
-// one request's full story across multiple log files.
-// IMPORTANT (same PII-safety discipline as StructuredAuditLogger): only
-// request METADATA is logged (method, path, status, timing) -- never
-// headers (which would include the Authorization: Bearer token) or the
-// request/response body (which could include account numbers). This is a
-// deliberate, structural choice, not an oversight.
-//
-// One JSON line per HTTP request, written the same hand-rolled way as every
-// other JSON-emitting class in this submission (no Jackson/Logstash-encoder
-// reachable here -- see JwtService's Javadoc for the same reasoning applied
-// to JWT payloads). Deliberately logs only request metadata (method, path,
-// status, duration, a generated correlation id) -- never headers or body,
-// so a Bearer token or a request payload containing account numbers can
-// never end up in this log by construction, the same "no code path to leak
-// PII" guarantee StructuredAuditLogger documents for the audit trail.
+/**
+ * A filter that runs once per HTTP request and writes one JSON log line
+ * for it: the method, path, status code, and how long it took. This
+ * gives basic access-log data useful for debugging and traffic analysis,
+ * generated automatically for every endpoint, without any controller
+ * needing to log anything itself.
+ * <p>
+ * It wraps {@code filterChain.doFilter()} in a try/finally, so the log
+ * line gets written exactly once per request no matter whether the
+ * request succeeded, failed, or threw an exception. A randomly generated
+ * correlation id ties this log line to that same request's audit events
+ * in {@code StructuredAuditLogger} — handy for tracing one request's full
+ * story across different log files.
+ * <p>
+ * Just like {@code StructuredAuditLogger}, only request METADATA is
+ * logged here (method, path, status, timing) — never headers (which
+ * would include the Authorization token) or the request/response body
+ * (which could include account numbers). That's a deliberate choice, not
+ * an oversight.
+ */
 @Component
 public class HttpAccessLogFilter extends OncePerRequestFilter {
 

@@ -11,32 +11,27 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-// CONCEPT: Layered Spring Security configuration -- combining
-// path-based rules (`authorizeHttpRequests`) with method-level annotations
-// (`@EnableMethodSecurity` + `@PreAuthorize`, see AuditController) in the
-// SAME application. WHY two mechanisms instead of one: they suit different
-// shapes of rule -- path-based rules are simplest when "is this URL
-// reachable at all" is the question; method-level annotations are
-// simplest when "does THIS specific admin operation require a role" is
-// the question, especially when several different intents share one URL
-// (like /api/v1/support/ask) and can't be separated by path alone.
 /**
- * Same JWT wiring pattern as L2/UC3's SecurityConfig, narrowed to this
- * system's single unified endpoint, plus L2 HLD UseCase6's RBAC addition.
- *
- * Two RBAC enforcement layers, deliberately both present rather than
- * either/or:
- *   1. Service-layer RBAC (unchanged from UC3/UC5): {@code /api/v1/support/**}
- *      stays {@code permitAll()} at this gate because one endpoint serves
- *      both POLICY_QUESTION (no token needed) and LIVE_DATA (token-gated)
- *      intents -- {@code AccessPolicy}/{@code BankingToolService} make the
- *      real per-request decision, same as always.
- *   2. Method-level RBAC (new in UC6, {@code @EnableMethodSecurity}): admin
- *      endpoints that ARE single-purpose (e.g. AuditController's log-tail
- *      endpoint) use Spring Security's own {@code @PreAuthorize("hasRole(...)")}
- *      directly, because for those there's no per-intent nuance to
- *      delegate -- it's a flat "ADMIN or nothing" gate, which is exactly
- *      what annotation-based RBAC is for.
+ * The same JWT-based security setup used earlier in this project,
+ * plus one addition: role-based checks placed directly on individual
+ * methods (turned on by {@code @EnableMethodSecurity}), for endpoints
+ * where the rule is simple and fixed.
+ * <p>
+ * There are two layers of access control here, on purpose, not as a
+ * redundancy:
+ * <ol>
+ *   <li>Path-based rules, like before: {@code /api/v1/support/**} stays
+ *       open at this gate, because one endpoint serves both policy
+ *       questions (which need no token) and live-data questions (which
+ *       do) — {@code AccessPolicy} and {@code BankingToolService} make
+ *       the real per-request decision, same as always.</li>
+ *   <li>Method-level rules, new here: an admin-only endpoint (like
+ *       {@code AuditController}'s log-viewing endpoint) uses Spring
+ *       Security's own {@code @PreAuthorize("hasRole(...)")} directly,
+ *       because there's no per-question nuance to it — it's a flat
+ *       "admin, or nothing" gate, which is exactly what this kind of
+ *       annotation is for.</li>
+ * </ol>
  */
 @Configuration
 @EnableWebSecurity

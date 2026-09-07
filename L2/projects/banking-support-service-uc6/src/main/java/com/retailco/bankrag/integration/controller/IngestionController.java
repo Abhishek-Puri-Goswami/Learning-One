@@ -16,13 +16,17 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
 
-// CONCEPT/PURPOSE: same ingestion-endpoint pattern as the other modules'
-// IngestionController (loads a corpus into the shared VectorStore before
-// /ask can retrieve anything). IMPORTANT: here the request/response DTOs
-// are declared as small nested records INSIDE the controller itself,
-// rather than in a separate dto/ package -- a valid, simpler alternative
-// when a DTO is trivial and used by exactly one controller, though the
-// other modules in this submission use a separate dto/ package instead.
+/**
+ * Loads a folder of text documents into the shared search index (the
+ * {@code VectorStore}), so the {@code /ask} endpoint has something to
+ * search when answering policy questions. This has to run before
+ * {@code /ask} can find anything.
+ * <p>
+ * Here the request/response types are declared as small records nested
+ * right inside this controller, rather than in a separate {@code dto}
+ * package like other modules do — a fine, simpler choice for a DTO this
+ * small that's only ever used by one controller.
+ */
 @RestController
 @RequestMapping("/api/v1/support")
 public class IngestionController {

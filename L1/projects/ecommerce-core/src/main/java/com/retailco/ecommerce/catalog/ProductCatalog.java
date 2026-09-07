@@ -9,14 +9,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-// CONCEPT: In-memory repository -- stands in for a real database table.
-// PURPOSE: Stores products keyed by id and is the ONE place stock
-// quantities get checked and changed, via reserveStock()/releaseStock().
-// WHY `synchronized` on reserveStock/releaseStock/restock: several
-// requests could try to buy the same product at the same time. Without
-// synchronization, two threads could both "check stock is enough" before
-// either one decrements it, causing an oversell. `synchronized` makes the
-// whole check-then-decrement sequence atomic (one thread at a time).
+/**
+ * Think of this class as our in-memory "database table" of products —
+ * it stands in for a real database here, but its job is the same: store
+ * every product and be the single place where stock counts are checked
+ * and changed.
+ * <p>
+ * Notice {@code reserveStock}, {@code releaseStock} and {@code restock}
+ * are all marked {@code synchronized}. That keyword means "only one
+ * thread can run this method at a time." We need it because two
+ * customers could try to buy the last item at the exact same moment —
+ * without this protection, both could see "1 left" and both succeed,
+ * selling the same item twice. {@code synchronized} makes the
+ * "check stock, then reduce it" sequence happen as one uninterruptible
+ * step.
+ */
 public class ProductCatalog {
 
     private final Map<String, Product> products = new ConcurrentHashMap<>();
@@ -48,9 +55,12 @@ public class ProductCatalog {
         return List.copyOf(products.values());
     }
 
-    // Reduces stock for one product -- checks there's enough stock FIRST,
-    // then decrements, all inside one `synchronized` call so no other
-    // thread can interleave and cause an oversell.
+    /**
+     * Takes stock away for one product — but only after confirming there's
+     * enough left. Both the check and the reduction happen inside this one
+     * {@code synchronized} method, so no other request can sneak in
+     * between "checking" and "reducing" and cause us to oversell.
+     */
     public synchronized void reserveStock(String productId, int requestedQuantity) {
         if (requestedQuantity <= 0) {
             throw new IllegalArgumentException("requestedQuantity must be positive: " + requestedQuantity);

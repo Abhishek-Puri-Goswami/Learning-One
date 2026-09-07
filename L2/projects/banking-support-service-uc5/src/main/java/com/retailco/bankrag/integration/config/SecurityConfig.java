@@ -9,41 +9,42 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-// CONCEPT: Spring Security configuration -- declaring the HTTP security
-// filter chain: which paths need authentication, session policy, and
-// where custom filters (like JwtAuthenticationFilter) plug into Spring's
-// built-in filter chain.
-// PURPOSE: Configures this application as a stateless, JWT-based API (no
-// server-side sessions, no CSRF tokens needed since there are no
-// browser-form-based logins here).
-//
-// HOW THE FILTER CHAIN IS BUILT (see securityFilterChain() below, each
-// call configures one aspect):
-// - `.csrf(csrf -> csrf.disable())`: CSRF protection defends
-//   cookie/session-based browser logins; a stateless JWT API sending
-//   tokens in headers isn't vulnerable to that attack, so it's safely
-//   disabled here.
-// - `.sessionManagement(... STATELESS)`: tells Spring Security to never
-//   create or use an HttpSession -- every request must carry its own
-//   proof of identity (the JWT), matching how JwtAuthenticationFilter
-//   re-authenticates on every single request.
-// - `.authorizeHttpRequests(...)`: the actual access rules, checked
-//   top-to-bottom, first match wins. Notice `/api/v1/support/**` is
-//   `permitAll()` at THIS layer -- Spring Security lets the request
-//   through, but per-request authorization for LIVE_DATA intents still
-//   happens one layer down, inside BankingToolService. This is a
-//   deliberate design: a POLICY_QUESTION never needs a token at all, so
-//   this gate can't reject-by-default the way it could for an
-//   admin-only endpoint (compare AuditController's `@PreAuthorize`, a
-//   much simpler all-or-nothing rule).
-// - `.addFilterBefore(jwtFilter, ...)`: inserts JwtAuthenticationFilter
-//   into Spring's filter chain BEFORE the standard username/password
-//   filter, so JWT-based identity is established early, before any
-//   authorization checks run.
-//
-// SPRING BOOT CONCEPT TO LEARN: `@EnableWebSecurity` + a `SecurityFilterChain`
-// @Bean is the modern (Spring Security 6+) way to configure security --
-// replaces the older `WebSecurityConfigurerAdapter` subclassing style.
+/**
+ * Declares Spring Security's HTTP filter chain: which paths need a
+ * login token, the session policy, and where our custom
+ * {@code JwtAuthenticationFilter} plugs into Spring's built-in pipeline.
+ * This sets the application up as a stateless, token-based API — no
+ * server-side sessions and no CSRF tokens needed, since there's no
+ * browser-form-based login here at all.
+ * <p>
+ * Walking through {@code securityFilterChain()} below, one call at a
+ * time:
+ * <ul>
+ *   <li>{@code csrf().disable()}: CSRF protection defends against
+ *       attacks on cookie/session-based browser logins; a stateless
+ *       token-based API that sends its token in a header isn't
+ *       vulnerable to that particular attack, so it's safe to turn
+ *       off here.</li>
+ *   <li>{@code sessionManagement(... STATELESS)}: tells Spring Security
+ *       to never create or use a session — every request has to carry
+ *       its own proof of identity (the token), since
+ *       {@code JwtAuthenticationFilter} checks it fresh on every single
+ *       request.</li>
+ *   <li>{@code authorizeHttpRequests(...)}: the actual access rules,
+ *       checked top to bottom, first match wins. Notice
+ *       {@code /api/v1/support/**} is allowed through at this layer —
+ *       the real per-question authorization for live banking data still
+ *       happens one layer down, inside {@code BankingToolService}. This
+ *       is deliberate: a policy question never needs a token at all, so
+ *       this gate can't reject by default the way it safely could for
+ *       an endpoint that's always admin-only.</li>
+ *   <li>{@code addFilterBefore(jwtFilter, ...)}: inserts
+ *       {@code JwtAuthenticationFilter} into Spring's chain BEFORE the
+ *       standard username/password filter, so a caller's identity from
+ *       their token is established early, before any authorization
+ *       checks run.</li>
+ * </ul>
+ */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {

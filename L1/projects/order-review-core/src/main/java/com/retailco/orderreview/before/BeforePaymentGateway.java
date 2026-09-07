@@ -3,32 +3,32 @@ package com.retailco.orderreview.before;
 import java.math.BigDecimal;
 import java.util.function.BiConsumer;
 
-// CONCEPT: Minimal reproduction of a real bug -- an empty catch block that
-// swallows exceptions -- isolated so it can be demonstrated with a test.
 /**
- * Reproduces the exact bug AI review finding AI-SEC-2 describes in
- * {@code order-service-before}'s {@code PaymentGatewayClient.charge()}: any
- * exception from the underlying gateway call is swallowed by an empty catch
- * block, and the method returns {@code true} (payment succeeded)
- * unconditionally -- including on the failure path.
- *
- * <p>{@code gatewayCall} stands in for the real HTTP call
- * ({@code RestTemplate.postForObject}, blocked by Maven Central in this
- * sandbox); the bug being tested is in the surrounding control flow, not in
- * the HTTP client, so a pluggable failure-injecting stand-in is enough to
- * prove the defect is real, not just described.
+ * A tiny, standalone example of a real bug from
+ * {@code order-service-before}'s {@code PaymentGatewayClient.charge()}:
+ * if the underlying payment call throws an exception, this method catches
+ * it and does... nothing. It still returns {@code true} ("payment
+ * succeeded") no matter what — even when the payment actually failed!
+ * <p>
+ * {@code gatewayCall} here stands in for the real network call to a
+ * payment provider. What we're testing is the surrounding logic — the
+ * fact that an error gets swallowed and ignored — not the network call
+ * itself, so a simple pluggable stand-in is all we need to prove the bug
+ * is real.
  */
 public final class BeforePaymentGateway {
 
     private BeforePaymentGateway() {
     }
 
-    /** @return true always -- this is the bug under test, not a design choice. */
+    /** @return always {@code true} — that's the bug this class demonstrates, not intended behavior. */
     public static boolean charge(BigDecimal amount, String paymentMethod, BiConsumer<BigDecimal, String> gatewayCall) {
         try {
             gatewayCall.accept(amount, paymentMethod);
         } catch (Exception e) {
-            // FINDING AI-SEC-2: exception swallowed, no rethrow, no logging.
+            // This is the bug: the exception is caught here and simply
+            // thrown away — nothing is logged, nothing is re-thrown, and
+            // the method still reports success below regardless.
         }
         return true;
     }

@@ -3,7 +3,7 @@ package com.retailco.cartservice.dto;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
-// CONCEPT: Request DTO -- body for updating one cart line's quantity.
+/** The request body for changing how many of one item are in the cart. */
 public class CartItemUpdateRequest {
 
     @NotNull(message = "quantity is required")

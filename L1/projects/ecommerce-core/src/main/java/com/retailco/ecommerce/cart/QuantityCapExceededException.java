@@ -1,9 +1,12 @@
 package com.retailco.ecommerce.cart;
 
-// CONCEPT: Custom exception -- thrown when a cart line's quantity would
-// exceed CartService.MAX_QUANTITY_PER_LINE. Applies to the RUNNING TOTAL,
-// so adding 60 then 60 more of the same product fails on the second add,
-// not just a single add of over 99.
+/**
+ * Thrown when adding items to a cart would push one product's quantity
+ * past the allowed limit ({@code CartService.MAX_QUANTITY_PER_LINE}).
+ * This check looks at the running total, not just the current request —
+ * so if you add 60 of something and then try to add 60 more, the second
+ * request fails, even though neither request alone was over the limit.
+ */
 public class QuantityCapExceededException extends RuntimeException {
 
     private final String productId;

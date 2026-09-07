@@ -5,25 +5,32 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-// CONCEPT: Hybrid search -- combines two different ranking signals
-// (semantic/vector similarity and lexical/keyword overlap) into one score.
-// PURPOSE: Semantic search (VectorStore) is good at "meaning" but can miss
-// an exact rare term; keyword search (KeywordSearcher) is good at exact
-// terms but blind to synonyms/paraphrasing. Blending both compensates for
-// each one's weak spot.
-//
-// HOW IT WORKS (see search() below):
-// 1. Run semantic search AND keyword search independently, over ALL
-//    chunks (not just topK) so no candidate is prematurely excluded.
-// 2. Put each result set's scores in a map keyed by chunk id.
-// 3. For every chunk id that appears in EITHER result set (the `union`),
-//    compute a blended score: semanticWeight * semanticScore +
-//    keywordWeight * keywordScore (missing scores default to 0.0).
-// 4. Sort by blended score, descending, and keep only the top K.
-//
-// WHY these particular weights (0.6 semantic / 0.4 keyword): a tunable
-// starting point, not a hardcoded law -- callers pass their own weights in
-// the constructor, so this class stays reusable.
+/**
+ * Combines two different ways of finding relevant text into one better
+ * score. Semantic search (see {@code VectorStore}) understands MEANING —
+ * it can match a paraphrased question — but might miss an exact, rare
+ * term. Keyword search ({@code KeywordSearcher}) is the opposite: exact
+ * and predictable, but blind to synonyms. Blending both covers each one's
+ * weak spot.
+ * <p>
+ * Here's how {@code search()} below works, step by step:
+ * <ol>
+ *   <li>Run semantic search AND keyword search separately, over every
+ *       chunk (not just the top few), so nothing gets ruled out too
+ *       early.</li>
+ *   <li>Put each method's scores into a lookup table, keyed by chunk id.</li>
+ *   <li>For every chunk that showed up in EITHER search, combine its two
+ *       scores into one: {@code semanticWeight * semanticScore +
+ *       keywordWeight * keywordScore} (if a chunk only appeared in one
+ *       search, its missing score just counts as 0).</li>
+ *   <li>Sort everything by that combined score and keep only the best
+ *       few.</li>
+ * </ol>
+ * The weights (0.6 for semantic, 0.4 for keyword) are just a reasonable
+ * starting point, not a fixed rule — whoever creates this class passes in
+ * its own weights through the constructor, so it can be reused with
+ * different balances of the two search types.
+ */
 public class HybridSearcher {
 
     private final VectorStore vectorStore;

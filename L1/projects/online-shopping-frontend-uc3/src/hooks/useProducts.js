@@ -2,15 +2,18 @@ import { useEffect, useRef, useState } from "react";
 import { ProductApi } from "../api/apiClient";
 
 /**
- * Fetches the product listing (or search results) and exposes
- * { data, loading, error }.
- *
- * UI risk mitigations implemented here (see ui-risk/ui-risk-report.md):
- * 1. Race condition: if `query`/`page` changes before the previous fetch
- *    resolves, an AbortController cancels the stale request AND a
- *    `requestId` ref guards against a late response overwriting newer state.
- * 2. No direct state mutation: state is always replaced via setState with a
- *    new object/array, never mutated in place.
+ * A custom React hook that fetches the product listing (or search
+ * results, if a query is given) and hands back {@code { data, loading,
+ * error }} so a component can show a spinner, an error message, or the
+ * actual products.
+ * <p>
+ * One subtle bug this hook protects against: what if the user types a
+ * new search before the OLD search has even finished loading? Without
+ * protection, the old (slower) response could arrive AFTER the new one
+ * and overwrite it with stale results. This hook avoids that two ways:
+ * an {@code AbortController} cancels the previous request outright, and
+ * a {@code requestId} counter double-checks that only the MOST RECENT
+ * request is allowed to update what's shown on screen.
  */
 export function useProducts({ query = "", page = 0, size = 20 } = {}) {
   const [state, setState] = useState({ data: null, loading: true, error: null });
@@ -28,12 +31,13 @@ export function useProducts({ query = "", page = 0, size = 20 } = {}) {
 
     fetchPromise
       .then((result) => {
-        // Guard against out-of-order responses (race condition mitigation).
+        // If a newer request has started since this one began, ignore this
+        // (now stale) response instead of letting it overwrite fresher data.
         if (latestRequestId.current !== requestId) return;
         setState({ data: result, loading: false, error: null });
       })
       .catch((err) => {
-        if (err.name === "AbortError") return; // expected on cleanup/unmount
+        if (err.name === "AbortError") return; // this is expected when we cancel the request ourselves, not a real error
         if (latestRequestId.current !== requestId) return;
         setState({ data: null, loading: false, error: err });
       });

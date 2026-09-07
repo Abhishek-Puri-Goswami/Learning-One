@@ -2,13 +2,18 @@ import { useState } from "react";
 import { askSupport, ApiError } from "../api";
 
 /**
- * Deliverable 8.2 "Policy query UI." Sends a query with no Authorization
- * header and no customer id -- exactly how a POLICY_QUESTION intent is
- * meant to be asked (see IntegratedBankingAssistant's Javadoc: policy
- * questions never require a token). Renders the grounded answer plus its
- * citations, or the guardrail-block reason, or the cache-hit flag -- every
- * field RagAssistant.AssistantResponse actually returns, not a trimmed-down
- * subset.
+ * The "Policy Q&A" tab: a simple text box where the user can ask a
+ * general question, like "What documents are needed for KYC
+ * verification?" Notice this sends the question with no login token and
+ * no customer id at all — a policy question never needs one, since it's
+ * answered from public policy documents, not from anyone's personal
+ * account data.
+ * <p>
+ * The response can show up a few different ways: a normal answer with
+ * its supporting citations, a "served from cache" badge if this exact
+ * question was already answered recently, a warning badge if the answer
+ * is a low-confidence guess, or a "blocked" message if a safety
+ * guardrail decided the question shouldn't be answered at all.
  */
 export default function PolicyQueryView() {
   const [query, setQuery] = useState("What are home loan eligibility rules?");
@@ -36,7 +41,7 @@ export default function PolicyQueryView() {
     <div className="panel">
       <h2>Policy question</h2>
       <p className="hint">
-        Ask about loan eligibility, KYC, card issuance, or complaint escalation. No login required --
+        Ask about loan eligibility, KYC, card issuance, or complaint escalation. No login required —
         policy questions are answered from Secure Bank's public policy manual.
       </p>
       <form onSubmit={handleSubmit} className="query-form">

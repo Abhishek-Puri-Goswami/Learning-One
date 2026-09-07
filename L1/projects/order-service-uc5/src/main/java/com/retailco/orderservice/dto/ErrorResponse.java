@@ -3,8 +3,10 @@ package com.retailco.orderservice.dto;
 import java.time.Instant;
 import java.util.List;
 
-// CONCEPT: Structured error response DTO -- same consistent shape used
-// across every service's GlobalExceptionHandler.
+/**
+ * The consistent shape every error response from our API uses, no matter
+ * which service or endpoint produced it.
+ */
 public class ErrorResponse {
     private Instant timestamp;
     private int status;

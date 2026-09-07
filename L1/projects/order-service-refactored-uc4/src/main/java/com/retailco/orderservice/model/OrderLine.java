@@ -2,8 +2,10 @@ package com.retailco.orderservice.model;
 
 import java.math.BigDecimal;
 
-// CONCEPT: Domain model -- one line item on an order (product + price +
-// quantity, frozen at the time the order was placed).
+/**
+ * One item on a placed order — its product, price, and quantity, locked
+ * in at the moment the order was placed.
+ */
 public class OrderLine {
     private String productId;
     private String productName;

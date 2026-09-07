@@ -1,13 +1,11 @@
 package com.retailco.orderservice.exception;
 
-// CONCEPT: Custom exception -- thrown when checkout would sell more than
-// is actually in stock.
 /**
- * L1/UC5 addition (see edge-cases/edge-case-catalog.md, "Out-of-stock"):
- * order-service did not previously re-check stock at all before charging
- * the customer -- Cart is explicitly non-authoritative for stock (see L1/UC1
- * architecture.json), but nothing in checkout() ever re-validated it against
- * the Catalog, so an out-of-stock item could be charged and "confirmed."
+ * Thrown when checkout would sell more of a product than we actually have
+ * in stock. Since the cart only ever holds a snapshot (not a live check),
+ * this exception is what catches the case where stock has run out between
+ * when someone added an item to their cart and when they tried to pay for
+ * it.
  */
 public class OutOfStockException extends RuntimeException {
     public OutOfStockException(String productId, int requested, int available) {

@@ -1,16 +1,13 @@
 package com.retailco.orderservice.exception;
 
-// CONCEPT: Custom exception -- thrown for an unrecognized/expired coupon
-// code, so it fails loudly instead of silently applying no discount.
 /**
- * L1/UC5 fix (see edge-cases/edge-case-catalog.md, "Invalid coupon"): the
- * L1/UC4 DiscountCalculator silently ignored any coupon code it didn't
- * recognize (its `default -> lineTotal` branch), returning the full price
- * with no signal to the customer that "SAVE1O" (a typo) or an expired code
- * did nothing. That is a silent-failure UX/business bug -- the customer
- * believes a discount was applied and it wasn't. An unrecognized coupon now
- * throws this exception instead, surfaced to the client as a 400 with a
- * clear message.
+ * Thrown when a coupon code isn't one we recognize. An earlier version of
+ * {@code DiscountCalculator} just silently ignored any coupon it didn't
+ * know about and charged full price — which is a confusing experience for
+ * a customer who typed "SAVE1O" (with a letter O) instead of "SAVE10" and
+ * has no idea their coupon quietly did nothing. Throwing this exception
+ * instead means the customer gets told clearly that their coupon code
+ * wasn't valid.
  */
 public class InvalidCouponException extends RuntimeException {
     public InvalidCouponException(String couponCode) {

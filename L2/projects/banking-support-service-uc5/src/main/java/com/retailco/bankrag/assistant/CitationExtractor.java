@@ -9,26 +9,28 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-// CONCEPT: Post-processing / response parsing -- turning an LLM's raw text
-// output back into structured data.
-// PURPOSE: PromptTemplate instructs the LLM to cite sources inline as
-// "[chunk-id]" markers (e.g. "[loan_processing_policy.txt#2]"). This class
-// finds every such marker in the generated answer and resolves it back to
-// its full Citation (source document, chunk index, similarity score), so a
-// caller like a REST API/frontend gets structured citation data instead of
-// having to re-parse the answer text itself.
-//
-// HOW IT WORKS: a regex (CITATION_PATTERN) finds every "[...]" bracket
-// that looks like a chunk id, de-duplicates repeats of the same id, then
-// looks each one up in the map of chunks that were ACTUALLY retrieved for
-// this query.
-//
-// IMPORTANT (hallucinated-citation detection): if a citation's id is NOT
-// found in that map, it's flagged with `resolvable=false` rather than
-// silently dropped. A real generative LLM can occasionally invent a
-// plausible-looking citation to a chunk that was never actually retrieved
-// ("hallucinated citation") -- surfacing that instead of hiding it lets
-// callers detect when the LLM cited something it shouldn't have.
+/**
+ * The AI is instructed to cite its sources inline in its answer, like
+ * {@code "...minimum income is Rs.20,000 [loan_processing_policy.txt#2]."}.
+ * This class finds every one of those bracketed citations in the
+ * generated answer and turns each one into a proper, structured
+ * {@code Citation} object — so whoever displays the answer (a web page,
+ * for example) gets clean citation data instead of having to hunt through
+ * the raw text itself.
+ * <p>
+ * How it works: a pattern search finds every bracketed reference that
+ * looks like a chunk id, skips any repeats of the same citation, then
+ * looks each one up against the chunks that were ACTUALLY retrieved for
+ * this question.
+ * <p>
+ * One important safety check: if a citation doesn't match any chunk we
+ * actually retrieved, it's marked {@code resolvable=false} instead of
+ * being silently thrown away. Every so often, an AI model can "invent" a
+ * citation that sounds plausible but doesn't correspond to anything real
+ * — this is sometimes called a "hallucination." Flagging it clearly, like
+ * we do here, lets whoever's reading the answer notice when that's
+ * happened, rather than hiding the problem.
+ */
 public final class CitationExtractor {
 
     public record Citation(String chunkId, String sourceDocument, int chunkIndex,

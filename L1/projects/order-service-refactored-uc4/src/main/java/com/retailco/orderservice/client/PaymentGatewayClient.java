@@ -9,21 +9,21 @@ import org.springframework.web.client.RestTemplate;
 import java.math.BigDecimal;
 import java.util.Map;
 
-// CONCEPT: HTTP client wrapper -- calls an external payment gateway. This
-// is the FIXED version: config-driven API key, and failures now throw
-// instead of being silently swallowed.
 /**
- * FIX (was AI-SEC-1 / squid:S2068): the API key is no longer a source-code
- * literal. It is injected from configuration (@Value), which in turn should
- * be sourced from an environment variable or a secrets manager (Vault, AWS
- * Secrets Manager, etc.) in every real environment -- never committed to
- * git. See application.yml / application-example.env in this module.
- *
- * FIX (was AI-SEC-2, squid:S1166, squid:S3516): failures are no longer
- * swallowed. Any exception from the gateway call is wrapped in a
- * PaymentFailedException and propagated to the caller, so a failed charge
- * can never be recorded as a successful order (see ADR-003, L1/UC1: payment
- * decision logic must be deterministic and auditable, not "best effort").
+ * This class talks to an external payment gateway over HTTP. This is the
+ * fixed version of the file, and it fixes two real problems from the
+ * "before" version:
+ * <ol>
+ *   <li>The API key is no longer typed directly into the source code.
+ *       Instead, it's read from configuration using {@code @Value} — in a
+ *       real deployment, that value would come from an environment
+ *       variable or a secrets manager, never be committed to git.</li>
+ *   <li>If the call to the gateway fails, this class now throws a
+ *       {@link PaymentFailedException} instead of quietly hiding the
+ *       error. That means whoever calls {@code charge()} — namely
+ *       {@code OrderServiceImpl} — is forced to deal with the failure,
+ *       so a failed charge can never be mistaken for a successful one.</li>
+ * </ol>
  */
 @Component
 public class PaymentGatewayClient {

@@ -22,33 +22,45 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-// CONCEPT: AI Agent orchestrator -- the class to read FIRST to understand
-// this whole module. An "agent" here just means: read input (emails),
-// decide what to do (classify intent), call tools (calendar lookup), and
-// produce an action (a draft reply) -- all coordinated by one class.
-//
-// FLOW (see processOne() below, step by step):
-// 1. Classify the email's intent. Not a scheduling request? Stop here.
-// 2. Check the email body for prompt-injection attempts (a guardrail) --
-//    blocked? Stop here.
-// 3. Extract a rough time hint from the email text (e.g. "Tuesday
-//    afternoon").
-// 4. Ask the calendar tool for available slots (with automatic retry).
-// 5. Fewer than 2 slots found? Stop here.
-// 6. Compose a draft reply referencing the top slots.
-// 7. Check the dedupe guard so the same proposal isn't drafted twice.
-// 8. Return a Proposed decision -- a DRAFT only.
-//
-// IMPORTANT: this agent NEVER sends an email or books a calendar slot on
-// its own -- every path either stops early or ends in a draft awaiting
-// human approval. There is no "send" tool available to it at all (see
-// ToolAllowlist), so this is a safety property enforced by what tools
-// exist, not just by how this class happens to be written.
-//
-// WHY every step calls traceLogger/auditLog: this makes the agent's
-// reasoning inspectable after the fact -- you can see exactly why it did
-// or didn't act on a given email, which matters a lot for an autonomous
-// system making decisions on someone's behalf.
+/**
+ * This is the heart of the whole module — read this class first to
+ * understand how everything fits together. An "AI agent," in the simplest
+ * sense, is just something that: reads its input (here, emails), decides
+ * what to do about it (classifies the request), calls out to tools to get
+ * real information (checks the calendar), and produces an action (drafts
+ * a reply). This class is what coordinates all of that.
+ * <p>
+ * Here's exactly what happens, step by step, inside {@link #processOne}:
+ * <ol>
+ *   <li>Figure out what kind of email this is. If it's not a scheduling
+ *       request, we stop right here.</li>
+ *   <li>Check the email's text for anything that looks like an attempt to
+ *       trick the agent into doing something it shouldn't (a "guardrail").
+ *       If something suspicious is found, we stop.</li>
+ *   <li>Pull out a rough hint about when the sender wants to meet (like
+ *       "Tuesday afternoon").</li>
+ *   <li>Ask the calendar tool for available time slots, automatically
+ *       retrying if the call fails.</li>
+ *   <li>If fewer than two slots are available, we stop — there's nothing
+ *       good to offer.</li>
+ *   <li>Write a draft reply that mentions the best available slots.</li>
+ *   <li>Check we haven't already drafted this exact same proposal before,
+ *       so we don't send the person two nearly-identical drafts.</li>
+ *   <li>Return a "Proposed" result — just a DRAFT, nothing more.</li>
+ * </ol>
+ * <p>
+ * A very important safety property: this agent can NEVER send an email or
+ * book a meeting on its own. Every path through this method either stops
+ * early or ends in a draft that's still waiting for a human to approve
+ * it. That's not just a promise made in this comment — there is literally
+ * no "send" capability available anywhere in this code for the agent to
+ * call (see {@code ToolAllowlist}).
+ * <p>
+ * You'll also notice every step logs what it's doing. That's on purpose:
+ * it means we can always look back afterward and see exactly why the
+ * agent did (or didn't) act on a particular email — important for
+ * anything that makes decisions automatically on someone's behalf.
+ */
 public class SchedulingAgent {
 
     private static final Duration DEFAULT_MEETING_DURATION = Duration.ofMinutes(30);

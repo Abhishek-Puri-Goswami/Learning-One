@@ -3,22 +3,25 @@ package com.retailco.bankrag.service;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-// CONCEPT: Spring Boot application entry point.
-// PURPOSE: `@SpringBootApplication` is a combination of three annotations
-// (@Configuration, @EnableAutoConfiguration, @ComponentScan) that tells
-// Spring Boot to: treat this class as a source of bean definitions, guess
-// and auto-configure sensible defaults (embedded Tomcat, JSON support,
-// etc.) based on what's on the classpath, and scan this package and its
-// sub-packages for @Component/@Service/@Controller/@Configuration classes
-// to register as Spring beans.
-// FLOW: `SpringApplication.run(...)` boots the whole application context:
-// it discovers RagCoreConfig's @Bean methods, wires them into
-// IngestionService/SearchService, registers the @RestController classes,
-// and starts an embedded web server -- all from this one method call.
-// WHY this file is so small: that's the point of Spring Boot's
-// auto-configuration -- almost everything else in this module (beans,
-// routing, JSON handling) is declared declaratively elsewhere
-// (@Configuration, @Bean, @RestController), not wired manually here.
+/**
+ * The starting point of this application. {@code @SpringBootApplication}
+ * combines three annotations that together tell Spring Boot to: treat
+ * this class as a source of bean definitions, automatically configure
+ * sensible defaults (an embedded web server, JSON support, etc.) based on
+ * what's on the classpath, and scan this package (and everything under
+ * it) for our {@code @Component}/{@code @Service}/{@code @Controller}/
+ * {@code @Configuration} classes to register.
+ * <p>
+ * Calling {@code SpringApplication.run(...)} boots the ENTIRE
+ * application: it discovers {@code RagCoreConfig}'s beans, wires them
+ * into our services, registers the REST controllers, and starts the web
+ * server — all from this one method call.
+ * <p>
+ * Notice how small this file is. That's exactly the point of Spring
+ * Boot's auto-configuration: almost everything else (beans, routing,
+ * JSON handling) is declared elsewhere, using annotations, rather than
+ * wired together manually here.
+ */
 @SpringBootApplication
 public class RagServiceApplication {
     public static void main(String[] args) {

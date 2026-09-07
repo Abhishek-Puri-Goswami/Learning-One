@@ -2,17 +2,17 @@ package com.retailco.emailagent.resilience;
 
 import java.util.function.Supplier;
 
-// CONCEPT: Retry-with-backoff -- a standard resilience pattern for calls
-// that might fail transiently (a real API can time out occasionally).
-// HOW IT WORKS: calls `action`, and if it throws, waits a bit longer each
-// time (linear backoff: baseDelay * attempt number) before trying again,
-// up to maxAttempts. If every attempt fails, the last failure is rethrown.
 /**
- * A small, real retry-with-backoff wrapper for tool calls that might fail
- * transiently (a real calendar/inbox API can time out or 5xx). Not a
- * circuit breaker or a full resilience library -- deliberately minimal,
- * matching this submission's "real but simple, disclosed" components
- * elsewhere (e.g. L2/UC6's audit logger, L1's StubPaymentGateway).
+ * Automatically retries a call that might fail temporarily — a real
+ * external API can occasionally time out or have a brief hiccup, and we
+ * don't want one bad moment to fail the whole operation.
+ * <p>
+ * Here's how it works: it calls {@code action}, and if that throws an
+ * error, it waits a little longer each time (this is called "linear
+ * backoff" — the wait time grows with each attempt) before trying again,
+ * up to a maximum number of attempts. If every single attempt fails, the
+ * last failure is thrown for real, so the caller still finds out
+ * something went wrong.
  */
 public class RetryingExecutor {
 

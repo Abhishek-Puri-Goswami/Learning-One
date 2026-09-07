@@ -10,17 +10,19 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-// CONCEPT: Controller layer -- the REST entry point for the entire RAG
-// assistant pipeline.
-// PURPOSE: POST /api/v1/assistant/ask takes a user's question and runs
-// RagAssistant's full pipeline (guardrails -> retrieval -> prompt ->
-// generation -> citation -> trace -> evaluation) for it, then maps the
-// internal `AssistantResponse` onto the public `AskResponse` DTO.
-// WHY map AssistantResponse -> AskResponse here rather than returning
-// AssistantResponse directly: it keeps the internal RagAssistant class
-// free to evolve its own return shape without being constrained by "this
-// is also our public API contract" -- the controller is the one place
-// that decides what's actually exposed over HTTP.
+/**
+ * The REST entry point for the whole RAG assistant pipeline. Sending
+ * {@code POST /api/v1/assistant/ask} runs {@code RagAssistant}'s full
+ * pipeline (guardrails → retrieval → prompt → answer → citations →
+ * tracing → evaluation) on the question, then maps the internal
+ * {@code AssistantResponse} onto the public {@code AskResponse} DTO.
+ * <p>
+ * Why bother converting between two very similar-looking types instead
+ * of just returning {@code AssistantResponse} directly: it means
+ * {@code RagAssistant} stays free to change its own internal return shape
+ * later without breaking our public API — this controller is the one
+ * place that decides exactly what gets exposed over HTTP.
+ */
 @RestController
 @RequestMapping("/api/v1/assistant")
 public class AskController {

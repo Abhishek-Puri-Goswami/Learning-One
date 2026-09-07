@@ -4,27 +4,30 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-// CONCEPT: In-memory vector database (a dev/local stand-in for a real
-// vector store like pgvector, Pinecone, or Weaviate).
-// PURPOSE: Stores every indexed Chunk alongside its embedding vector, and
-// answers "which chunks are most similar to this query?" using cosine
-// similarity -- the core retrieval step of RAG.
-//
-// FLOW: Chunker produces Chunks -> index(chunk) embeds and stores each one
-// -> semanticSearch(query, ...) embeds the query the SAME way and ranks
-// every stored chunk by similarity -> the top matches get sent to the LLM
-// as grounding context (see RagAssistant in the assistant/ package).
-//
-// WHY in-memory: two parallel lists (`chunks` and `embeddings`, same index
-// = same chunk) keep this class dependency-free so the whole pipeline is
-// runnable without a database. A production system would replace this
-// class's storage with a real vector database, but the semanticSearch
-// contract (query in, ranked ScoredChunks out) would stay the same --
-// that's the value of hiding this behind a class boundary.
-//
-// IMPORTANT: cosineSimilarity only makes sense when the query and the
-// chunks were embedded by the exact same EmbeddingModel instance -- see
-// EmbeddingModel's Javadoc for why.
+/**
+ * A simple, in-memory stand-in for a real vector database (like
+ * pgvector, Pinecone, or Weaviate). It stores every chunk alongside its
+ * embedding vector, and answers the key question of retrieval: "which
+ * stored chunks are most similar to this question?"
+ * <p>
+ * The flow: {@code Chunker} produces Chunks → {@code index(chunk)}
+ * embeds and stores each one → {@code semanticSearch(query, ...)} embeds
+ * the incoming question the exact same way and ranks every stored chunk
+ * by similarity → the best matches get sent to the AI model as context
+ * for answering (see {@code RagAssistant} in the assistant package).
+ * <p>
+ * Why in-memory: two lists that stay in sync ({@code chunks} and
+ * {@code embeddings}, where the same position in each list refers to the
+ * same chunk) keep this class dependency-free, so the whole thing runs
+ * without needing a real database. A production system could swap this
+ * class's internals for a real vector database without anything else in
+ * the app needing to change — that's the benefit of keeping storage
+ * details hidden behind one class.
+ * <p>
+ * One important rule: comparing vectors only makes sense if the query and
+ * the stored chunks were embedded using the exact same model — see
+ * {@code EmbeddingModel} for why.
+ */
 public class VectorStore {
 
     private final EmbeddingModel embeddingModel;

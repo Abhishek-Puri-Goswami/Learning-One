@@ -3,9 +3,13 @@ package com.retailco.productservice.dto;
 import java.math.BigDecimal;
 import java.time.Instant;
 
-// CONCEPT: Response DTO -- the JSON shape returned to API callers.
-// PURPOSE: Kept separate from the `Product` entity so the API's public
-// shape can stay stable even if the internal entity changes.
+/**
+ * This is the JSON shape we send back to whoever calls our API when they
+ * ask about a product. It's a separate class from {@code Product} on
+ * purpose: if we ever need to change how we store products internally,
+ * our public API can stay exactly the same, because it's built from this
+ * class instead of directly from the internal one.
+ */
 public class ProductResponse {
 
     private String id;

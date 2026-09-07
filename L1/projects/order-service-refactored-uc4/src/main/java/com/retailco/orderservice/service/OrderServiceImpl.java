@@ -18,24 +18,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-// CONCEPT: Service layer, refactored into small single-purpose private
-// methods (fetchNonEmptyCart, priceLines, buildConfirmedOrder, toResponse)
-// instead of one long method -- each step of checkout is readable and
-// testable on its own.
 /**
- * FIX (was AI-QA / squid:S3776, squid:S138 "high complexity"): checkout() is
- * decomposed into small, single-purpose private methods, each independently
- * readable and testable. Discount logic moved entirely into
- * DiscountCalculator. Cyclomatic complexity of checkout() itself is now ~4
- * (down from 19); cognitive complexity ~5 (down from 24).
- *
- * FIX (was AI-SEC-2): payment failures now propagate as PaymentFailedException
- * (see PaymentGatewayClient) instead of being swallowed; an order is only ever
- * saved with status CONFIRMED after a successful charge.
- *
- * FIX (was AI-QA-1 / squid:S2259): shippingAddress is guaranteed non-null by
- * @Valid on OrderRequest (see dto/OrderRequest.java), so no defensive null
- * check is even needed here -- the validation layer owns that concern.
+ * This is the fixed version of our checkout logic. Instead of one long
+ * method trying to do everything, {@code checkout()} now reads almost
+ * like a checklist, and each step has its own small, focused method below
+ * it: {@code fetchNonEmptyCart}, {@code priceLines},
+ * {@code buildConfirmedOrder}, {@code toResponse}. All the discount math
+ * has moved out entirely into {@code DiscountCalculator}. Each of these
+ * pieces can now be read, understood, and tested completely on its own.
+ * <p>
+ * Two other things worth noticing: a failed payment now throws a
+ * {@code PaymentFailedException} instead of being silently ignored — so
+ * an order is only ever saved once we KNOW the charge succeeded. And
+ * there's no manual null check for the shipping address here anymore,
+ * because {@code @Valid} on {@code OrderRequest} already guarantees it
+ * can't be missing by the time this code runs.
  */
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -62,8 +59,9 @@ public class OrderServiceImpl implements OrderService {
         PricedLines pricedLines = priceLines(cartItems, request.getCouponCode(),
                 request.getPaymentMethod(), city);
 
-        // Propagates PaymentFailedException on any error (see PaymentGatewayClient) --
-        // an order is only ever built/saved below if this line does not throw.
+        // If the charge fails, this line throws PaymentFailedException,
+        // which stops execution right here — the order below only ever
+        // gets built and saved if this call succeeds.
         paymentGatewayClient.charge(pricedLines.total(), request.getPaymentMethod());
 
         Order order = buildConfirmedOrder(request, pricedLines);

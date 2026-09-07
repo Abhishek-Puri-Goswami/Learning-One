@@ -7,36 +7,38 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
-// CONCEPT: "Tool calling" -- exposing a fixed set of safe, deterministic
-// operations (get_account_balance, get_transaction_history,
-// get_loan_outstanding) instead of letting an LLM generate live data.
-// PURPOSE: This is the ONE place live banking data leaves the system.
-// Every public method: (1) authenticates + authorizes via
-// verifyAndAuthorize() (now backed by AccessPolicy's RBAC decision, see
-// below), (2) fetches raw data from BankingDataStore, (3) masks sensitive
-// fields via PiiMasking before returning, (4) emits a structured audit
-// record of the access decision.
-//
-// WHY SECURITY-CRITICAL: no method here ever routes through an LlmClient
-// -- every value traces directly back to BankingDataStore. There is no
-// code path by which a generative model could fabricate a balance.
-//
-// WHAT CHANGED FROM UC5 (see verifyAndAuthorize() below): UC5 checked
-// "is this an ADMIN role?" inline. Here, that decision is delegated to
-// AccessPolicy.evaluate(), a separately testable RBAC policy function that
-// also understands SUPPORT_AGENT (read-only cross-customer access). This
-// method's own job shrank to: verify the token itself (authentication),
-// then call AccessPolicy for the authorization decision, then always emit
-// an audit record either way (ALLOWED_SELF/ALLOWED_ELEVATED/
-// DENIED_AUTHENTICATION/DENIED_AUTHORIZATION) -- see StructuredAuditLogger
-// for where that record ends up.
-//
-// IMPORTANT (constructor overload for backward compatibility): the
-// 2-argument constructor delegates to the 3-argument one with a null
-// auditLogger, and audit() checks for null before logging. This lets
-// older call sites that don't wire in an audit logger keep compiling and
-// running with RBAC enforcement fully intact -- logging is treated as an
-// optional add-on, never a security dependency.
+/**
+ * This is the ONE place live banking data ever leaves the system. Each
+ * public method — getting an account balance, transaction history, or
+ * loan info — does the same four things, in order: (1) authenticate and
+ * authorize the caller (now backed by {@link AccessPolicy}'s RBAC
+ * decision, see below), (2) fetch the raw data from
+ * {@code BankingDataStore}, (3) mask the sensitive fields before
+ * returning anything, (4) write a structured audit record of the access
+ * decision.
+ * <p>
+ * Why this is security-critical: no method here ever routes through an
+ * AI model — every value traces directly back to {@code BankingDataStore},
+ * so there's no way a generative model could invent or misstate a
+ * balance.
+ * <p>
+ * What's different from the earlier version of this project: previously,
+ * the check was just "does this token have the ADMIN role?" inline. Now
+ * that decision is handed off to {@code AccessPolicy.evaluate()}, a
+ * separately testable policy function that also understands a
+ * {@code SUPPORT_AGENT} role (read-only access across customers). This
+ * method's own job shrank down to: verify the token itself
+ * (authentication), ask {@code AccessPolicy} for the authorization
+ * decision, then always write an audit record either way — see
+ * {@code StructuredAuditLogger} for where that record ends up.
+ * <p>
+ * One detail worth noticing: there's a 2-argument constructor that
+ * simply calls the 3-argument one with a {@code null} audit logger, and
+ * {@code audit()} checks for {@code null} before logging anything. This
+ * lets older code that doesn't wire in an audit logger keep working
+ * exactly as before — logging is treated as an optional extra, never
+ * something the security checks depend on.
+ */
 public class BankingToolService {
 
     private final JwtService jwtService;
@@ -48,12 +50,11 @@ public class BankingToolService {
     }
 
     /**
-     * L2 HLD UseCase6 constructor: wires in the structured audit trail
-     * (docs/secure-backend-integration-design.md's "every access decision is
-     * logged" requirement). {@code auditLogger} is nullable so every UC3/UC5
-     * call site that predates this use case keeps compiling and running
-     * unchanged -- RBAC enforcement below does not depend on logging being
-     * configured.
+     * Constructor that also wires in the structured audit trail, so every
+     * access decision gets logged. {@code auditLogger} can be {@code null}
+     * so any older code that doesn't pass one keeps compiling and
+     * running unchanged — the security checks below never depend on
+     * logging being configured.
      */
     public BankingToolService(JwtService jwtService, BankingDataStore dataStore, StructuredAuditLogger auditLogger) {
         this.jwtService = jwtService;
@@ -133,12 +134,11 @@ public class BankingToolService {
         }
         JwtService.Claims claims = ((JwtService.Valid) result).claims();
 
-        // L2 HLD UseCase6 RBAC: the authorization decision itself now lives
-        // in AccessPolicy (independently unit-tested), not inline here --
-        // this method's remaining job is auth (token validity) + emitting
-        // the structured audit record, same split UC3 already had between
-        // JwtService (authn) and this method (authz), just with authz's
-        // logic extracted one level further.
+        // The actual authorization decision now lives in AccessPolicy
+        // (its own independently-tested class) instead of being written
+        // inline here. This method's job is simpler now: check the token
+        // itself is valid, ask AccessPolicy who's allowed to see what,
+        // and write an audit record either way.
         AccessPolicy.Decision decision = AccessPolicy.evaluate(claims.subject(), claims.roles(), requestedCustomerId);
         if (decision instanceof AccessPolicy.Denied denied) {
             audit(correlationId, claims.subject(), claims.roles(), requestedCustomerId, tool, "DENIED_AUTHORIZATION", denied.reason());

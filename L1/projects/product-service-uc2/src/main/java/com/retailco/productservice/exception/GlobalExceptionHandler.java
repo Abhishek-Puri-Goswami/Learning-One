@@ -11,12 +11,15 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.time.Instant;
 import java.util.List;
 
-// CONCEPT: Global exception handling with @RestControllerAdvice.
-// PURPOSE: Catches exceptions thrown anywhere in this app's controllers
-// and turns each one into a consistent JSON error response (same shape
-// every time: timestamp, status, error, message, path). Without this,
-// every controller method would need its own try/catch, and error
-// responses would look different everywhere.
+/**
+ * Think of this class as a safety net that catches every error thrown
+ * anywhere in our controllers and turns it into a clean, consistent JSON
+ * error response — same shape every time. The {@code @RestControllerAdvice}
+ * annotation is what tells Spring "watch every controller in this app for
+ * errors and send them here." Without this class, every single controller
+ * method would need its own try/catch block, and every one might format
+ * its errors a little differently.
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 

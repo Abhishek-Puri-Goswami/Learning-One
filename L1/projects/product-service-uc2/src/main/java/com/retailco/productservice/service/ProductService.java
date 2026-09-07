@@ -4,11 +4,14 @@ import com.retailco.productservice.dto.ProductPageResponse;
 import com.retailco.productservice.dto.ProductRequest;
 import com.retailco.productservice.dto.ProductResponse;
 
-// CONCEPT: Service interface -- defines WHAT operations exist, not HOW.
-// PURPOSE: ProductController depends only on this interface, not on
-// ProductServiceImpl directly. This makes it easy to swap the
-// implementation (e.g. for a test with a fake) without touching the
-// controller.
+/**
+ * This interface just lists WHAT the product service can do (list, get,
+ * create, update, search) — not HOW it does it. {@code ProductController}
+ * depends only on this interface, never on {@code ProductServiceImpl}
+ * directly. That makes it easy to swap in a different implementation
+ * later (for example, a fake one used only in tests) without touching the
+ * controller at all.
+ */
 public interface ProductService {
 
     ProductPageResponse listProducts(int page, int size, String category);

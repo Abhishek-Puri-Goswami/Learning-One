@@ -11,21 +11,29 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-// CONCEPT: Service layer -- business logic for managing shopping carts.
-// PURPOSE: Add/remove items, get-or-create a cart per user. Reads the
-// current price/name from ProductCatalog when adding an item (a snapshot,
-// see CartItem), but does NOT check or reserve stock here -- stock is only
-// checked at checkout (CheckoutService). That matches how a real cart
-// works: you can add more than what's in stock, and find out at checkout.
-// WHY the per-user lock in addItem(): several requests could add the same
-// product to the same user's cart at the same time. Locking per user
-// (not globally) means different users never block each other, but two
-// requests for the SAME user are handled one at a time -- so merging
-// quantities into one line never loses an update.
+/**
+ * This is the "service layer" for shopping carts — the place where the
+ * actual business rules for adding, removing, and clearing cart items
+ * live, separate from how carts are stored or shown to the user.
+ * <p>
+ * When you add an item, this class looks up its current price and name
+ * from {@code ProductCatalog} and copies them into the cart line. It
+ * deliberately does NOT check whether there's enough stock — that check
+ * only happens later, at checkout. This matches how real shopping carts
+ * behave: you can add more of something than is actually in stock, and
+ * you only find out if that's a problem when you try to pay.
+ * <p>
+ * One detail worth understanding: {@code addItem} locks per user, not
+ * globally. That means if two different customers are shopping at the
+ * same time, they never block each other. But if the SAME customer sends
+ * two "add this product" requests at almost the same moment (e.g. from a
+ * double click), those two requests are handled one after another instead
+ * of at the same time — otherwise we could lose one of the quantity
+ * updates.
+ */
 public class CartService {
 
-    // Business rule: a single cart line can't exceed this quantity, even
-    // after merging repeated "add this product again" calls.
+    /** A single cart line can never hold more than this many units of one product. */
     public static final int MAX_QUANTITY_PER_LINE = 99;
 
     private final Map<String, Cart> cartsByUserId = new ConcurrentHashMap<>();
@@ -48,11 +56,11 @@ public class CartService {
         }
         Product product = catalog.get(productId); // throws ProductNotFoundException if unknown
 
-        // One lock object per userId so concurrent adds to DIFFERENT users'
-        // carts never contend, but concurrent adds to the SAME user's cart
-        // (e.g. the same product added by 20 threads at once) are strictly
-        // serialized -- this is what makes the merge in Cart.addOrMergeItem
-        // race-free instead of losing updates.
+        // We give each user their own lock object. That way, two different
+        // users adding items at the same time never wait on each other —
+        // but if the SAME user's cart is being updated by two requests at
+        // once, those two requests take turns instead of overlapping,
+        // which is what keeps the quantity merge below accurate.
         Object lock = locksByUserId.computeIfAbsent(userId, id -> new Object());
         synchronized (lock) {
             Cart cart = getOrCreateCart(userId);

@@ -4,10 +4,13 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-// CONCEPT: Domain model -- one user's cart (a list of CartItem lines).
-// IMPORTANT: a Cart is only a snapshot of price/product info, not the
-// live source of truth (that's the product catalog) -- see
-// CartServiceImpl for where price is re-fetched.
+/**
+ * One user's shopping cart — a list of {@link CartItem} lines. Keep in
+ * mind that a cart only holds a snapshot of price and product info; it's
+ * not the live, always-current source of truth for that data (the
+ * product catalog is). See {@code CartServiceImpl} for where the current
+ * price actually gets looked up.
+ */
 public class Cart {
 
     private String userId;

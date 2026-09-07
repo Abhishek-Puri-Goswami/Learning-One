@@ -15,25 +15,29 @@ import org.springframework.context.annotation.Configuration;
 
 import java.nio.file.Path;
 
-// CONCEPT: Spring `@Configuration` class -- the central wiring point for
-// this whole module's object graph (same philosophy as rag-service's
-// RagCoreConfig, extended here with an LlmClient and the full RagAssistant).
-// PURPOSE: Decides, ONCE, which concrete EmbeddingModel and LlmClient
-// implementations the entire application uses (real OpenAI-backed vs.
-// offline stand-ins), based on whether OPENAI_API_KEY is present -- see
-// each *.isConfigured() check below. No controller or other class is
-// ever allowed to construct these directly.
-// HOW THE BEANS CHAIN TOGETHER (dependency injection, see the method
-// signatures below): embeddingModel() has no dependencies -> vectorStore()
-// depends on embeddingModel -> ragAssistant() depends on vectorStore,
-// llmClient, AND traceLogger. Spring resolves this whole dependency graph
-// automatically at startup, in the correct order, just from each method's
-// parameter types -- you never manually call one @Bean method from another.
-// WHY the numeric/string @Value fields matter: every tunable knob for the
-// RAG pipeline (thresholds, weights, topK, trace log path) is externalized
-// to application.yml/environment variables here, rather than hardcoded
-// inside RagAssistant itself -- so behavior can be tuned per environment
-// without touching business logic code.
+/**
+ * This is the central wiring point for this whole module — the ONE place
+ * that decides which real objects get created and connected together.
+ * Notably, it decides which {@code EmbeddingModel} and {@code LlmClient}
+ * the whole application uses — the real OpenAI-backed ones, or the
+ * offline stand-ins — based on whether an API key is configured. No
+ * controller or other class is ever allowed to create these objects
+ * itself.
+ * <p>
+ * Notice how the {@code @Bean} methods below chain together:
+ * {@code embeddingModel()} needs nothing else, {@code vectorStore()}
+ * needs an {@code EmbeddingModel}, and {@code ragAssistant()} needs a
+ * {@code VectorStore}, an {@code LlmClient}, AND a {@code TraceLogger}.
+ * Spring automatically works out the right order to build all of these in
+ * — just by looking at each method's parameters — so we never have to
+ * manually call one {@code @Bean} method from another.
+ * <p>
+ * The {@code @Value} fields below pull their values from configuration
+ * (like {@code application.yml}) rather than being hardcoded — that way,
+ * every tunable setting (thresholds, weights, how many results to
+ * retrieve) can be changed for a different environment without touching
+ * any business logic code.
+ */
 @Configuration
 public class AssistantConfig {
 

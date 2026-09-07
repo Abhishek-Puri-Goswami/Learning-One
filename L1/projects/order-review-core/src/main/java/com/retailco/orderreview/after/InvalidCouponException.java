@@ -1,13 +1,11 @@
 package com.retailco.orderreview.after;
 
-// CONCEPT: Custom exception -- thrown for an unrecognized coupon code.
 /**
- * Mirrors L1/UC5's edge-case catalog: an unrecognized coupon code (e.g. a
- * typo, "SAVE1O" with a letter O instead of zero) must be rejected with a
- * clear error BEFORE payment is attempted -- not silently treated as "no
- * discount" and charged at full price with no explanation. A blank/absent
- * coupon code is a different case entirely (the customer didn't intend to
- * use one) and is NOT an error -- see {@link CouponPolicy#validate}.
+ * Thrown when a coupon code isn't one we recognize — for example, a typo
+ * like "SAVE1O" (letter O instead of zero). This should be rejected with
+ * a clear error before payment is attempted, rather than silently
+ * charging full price with no explanation to the customer. See
+ * {@link CouponPolicy#validate} for where this gets thrown.
  */
 public class InvalidCouponException extends RuntimeException {
     public InvalidCouponException(String couponCode) {

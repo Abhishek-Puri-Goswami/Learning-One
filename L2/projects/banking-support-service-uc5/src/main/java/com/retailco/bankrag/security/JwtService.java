@@ -11,46 +11,46 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-// CONCEPT: Security -- JSON Web Token (JWT) issuance and verification,
-// implemented from scratch with HS256 (HMAC-SHA256) signing.
-// PURPOSE: Proves a request is authenticated as a specific subject
-// (customer id) with specific roles, without a server-side session store
-// -- the token itself carries and cryptographically protects that
-// information. JwtAuthenticationFilter calls verify() on every incoming
-// request to establish who the caller is.
-//
-// HOW A JWT WORKS (the classic 3-part structure, see issueToken() below):
-// header.payload.signature, each part Base64URL-encoded.
-// 1. header: fixed algorithm info ({"alg":"HS256","typ":"JWT"}).
-// 2. payload: the claims -- subject, roles, issued-at, expiry.
-// 3. signature: HMAC-SHA256 of "header.payload", signed with a secret key
-//    only the server knows. Anyone can READ a JWT's payload (it's just
-//    Base64, not encrypted) but only the server can produce a VALID
-//    signature for it -- that's what prevents tampering.
-//
-// HOW verify() WORKS (step by step): split the token into its 3 parts,
-// recompute the expected signature from header+payload using the same
-// secret, and compare it to the token's actual signature. If they match
-// (constantTimeEquals -- see below for WHY), parse the claims and check
-// expiry. Any mismatch or expiry returns an `Invalid` result with a reason.
-//
-// IMPORTANT (constant-time comparison): naive byte-array comparison
-// (`Arrays.equals` or a manual loop with early `return false`) can leak
-// timing information -- an attacker measuring how fast rejection happens
-// could learn how many leading bytes matched. `constantTimeEquals` always
-// checks every byte and only combines results at the end, so the time
-// taken doesn't reveal partial matches. This is a standard, well-known
-// hardening technique for any secret-comparison code, not specific to JWT.
-//
-// WHY hand-rolled instead of a library (e.g. jjwt): this module is
-// intentionally dependency-free; every piece HS256 needs (Base64URL,
-// HMAC-SHA256 via javax.crypto.Mac) already ships in the JDK.
-//
-// sealed interface VerificationResult permits Valid, Invalid: this is a
-// Java "sealed" type -- the compiler knows verify() can only ever return
-// one of exactly these two record types, which lets a `switch` over the
-// result be checked exhaustively (no `default` case needed, no forgetting
-// to handle a case).
+/**
+ * This class creates and checks JWTs (JSON Web Tokens), implemented from
+ * scratch using the HS256 signing algorithm. A JWT proves a request comes
+ * from a specific, authenticated customer with specific roles — without
+ * needing a server-side session store, since the token itself securely
+ * carries that information. {@code JwtAuthenticationFilter} calls
+ * {@code verify()} on every incoming request to figure out who's calling.
+ * <p>
+ * How a JWT is structured (see {@code issueToken()} below): it's three
+ * parts joined by dots — {@code header.payload.signature}.
+ * <ol>
+ *   <li>The header: fixed info about which algorithm is used.</li>
+ *   <li>The payload: the actual claims — who this is, what roles they
+ *       have, when it was issued, and when it expires.</li>
+ *   <li>The signature: a cryptographic "seal" computed from the header
+ *       and payload using a secret key only the server knows. Anyone can
+ *       READ a token's payload (it's just encoded, not encrypted), but
+ *       only the server can produce a VALID signature — which is exactly
+ *       what stops someone from tampering with it.</li>
+ * </ol>
+ * <p>
+ * How {@code verify()} works, step by step: split the token into its 3
+ * parts, recompute what the signature SHOULD be using our own secret key,
+ * and compare it to the signature the token actually has. If they match,
+ * read the claims out and check the token hasn't expired. Any mismatch or
+ * expired token returns an {@code Invalid} result with a clear reason.
+ * <p>
+ * One important detail: the comparison in {@code constantTimeEquals}
+ * deliberately checks every single byte before deciding match/no-match,
+ * instead of stopping early at the first difference. A naive comparison
+ * that returns as soon as it finds a mismatch can leak timing
+ * information — a clever attacker measuring how LONG the check takes
+ * could learn how many leading bytes were correct. Taking the same amount
+ * of time regardless of where a mismatch occurs is a standard security
+ * hardening technique, not something specific to JWTs.
+ * <p>
+ * Why this is all hand-written instead of using an existing library: this
+ * module is intentionally dependency-free, and everything HS256 needs is
+ * already built into the JDK.
+ */
 public class JwtService {
 
     private static final String ALG_HEADER_JSON = "{\"alg\":\"HS256\",\"typ\":\"JWT\"}";
@@ -91,6 +91,11 @@ public class JwtService {
         return signingInput + "." + signatureB64;
     }
 
+    // This is a Java "sealed interface" — it means verify() can ONLY
+    // ever return one of exactly these two types (Valid or Invalid),
+    // never anything else. That lets code checking the result (with a
+    // switch statement) be verified complete by the compiler — there's
+    // no way to forget to handle one of the cases.
     public sealed interface VerificationResult permits Valid, Invalid {
     }
 

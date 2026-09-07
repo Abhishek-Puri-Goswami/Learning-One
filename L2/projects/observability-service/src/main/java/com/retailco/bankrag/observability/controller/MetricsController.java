@@ -8,17 +8,19 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-// CONCEPT: A read-only "reporting" endpoint -- exposes internal metrics
-// state as a GET response instead of only writing it to logs/files.
-// PURPOSE: Lets a caller (dashboard, monitoring tool, curl) see live cache
-// hit rates and aggregate query metrics (tokens, latency percentiles,
-// cost) without restarting the app or reading a log file. A real
-// production deployment would typically export these same numbers to
-// Prometheus/Grafana instead of (or in addition to) a custom endpoint like
-// this; the underlying data is identical either way.
-// NOTE: `MetricsReport` is a small record declared INSIDE the controller,
-// since it exists purely to bundle this one endpoint's two pieces of data
-// (cache + query stats) and has no other use elsewhere.
+/**
+ * A read-only endpoint that exposes our internal metrics as a simple GET
+ * response, instead of only writing them to a log file. This lets anyone
+ * (a dashboard, a monitoring tool, or just curl) see live cache hit rates
+ * and aggregate stats (tokens, latency, cost) without restarting the app
+ * or digging through a log. A real production system would typically also
+ * export these same numbers to a dedicated monitoring tool like
+ * Prometheus or Grafana.
+ * <p>
+ * {@code MetricsReport} is declared right inside this controller, since
+ * it exists only to bundle this one endpoint's two pieces of data
+ * together and has no other use anywhere else.
+ */
 @RestController
 @RequestMapping("/api/v1/observability")
 public class MetricsController {

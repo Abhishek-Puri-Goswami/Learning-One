@@ -2,14 +2,12 @@ package com.retailco.emailagent.model;
 
 import java.time.Instant;
 
-// CONCEPT: Value object (record) with self-validation -- a candidate
-// meeting time window plus a relevance score.
 /**
- * A candidate meeting slot returned by the calendar tool. Field names match
- * the LLD's `/calendar/availability` response shape (`start`, `end`,
- * `score`) so a real Graph/Google Calendar adapter would produce the same
- * wire shape -- only the transport (a mock, in-memory free/busy store here)
- * differs.
+ * One candidate meeting time returned by the calendar tool — a start
+ * time, an end time, and a score showing how well it matches what the
+ * sender asked for. The constructor below checks that {@code end} always
+ * comes after {@code start}, so this object can never represent a
+ * nonsensical time range.
  */
 public record CalendarSlot(Instant start, Instant end, double score) {
 

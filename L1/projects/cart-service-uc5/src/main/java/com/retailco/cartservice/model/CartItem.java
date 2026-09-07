@@ -2,10 +2,13 @@ package com.retailco.cartservice.model;
 
 import java.math.BigDecimal;
 
-// CONCEPT: Domain model -- one line in a Cart (a product + quantity +
-// price snapshot). getLineTotal() computes unitPrice * quantity on demand
-// rather than storing it, so it's always consistent with the current
-// unitPrice/quantity values.
+/**
+ * One line inside a shopping cart — a product, a quantity, and the price
+ * it had when added. Notice {@code getLineTotal()} calculates
+ * {@code unitPrice * quantity} fresh every time it's called, instead of
+ * storing the total as its own field. That way it's never possible for
+ * the stored total to fall out of sync with the actual price/quantity.
+ */
 public class CartItem {
 
     private String itemId;

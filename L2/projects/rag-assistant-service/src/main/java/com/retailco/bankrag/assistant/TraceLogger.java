@@ -12,35 +12,29 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
-// CONCEPT: Observability / tracing -- a local, file-based stand-in for a
-// distributed tracing system (LangSmith-style: one structured record per
-// pipeline run).
-// PURPOSE: Every call to RagAssistant.ask() ends by writing one JSON line
-// here, capturing EVERYTHING about that run: the query, what was
-// retrieved (with scores), the exact prompt sent to the LLM, the raw and
-// final answer, citations, which guardrail (if any) fired, latency, and
-// token counts. This turns every run into something you can debug and
-// audit after the fact, instead of only seeing the final answer.
-//
-// HOW IT WORKS: `log()` serializes a TraceRecord to a single-line JSON
-// string (toJson(), hand-written -- see the field()/escape() helpers) and
-// appends it to a file with StandardOpenOption.APPEND, so the file grows
-// into a JSON-Lines (.jsonl) log where each line is one independent,
-// parseable run record.
-//
-// WHY append to a plain file instead of a real tracing service: this
-// keeps the module dependency-free and instantly runnable, while still
-// producing REAL, inspectable evidence of every run (not a mockup). The
-// TraceRecord's field names (run_id, run_type, inputs/outputs, latency,
-// error) intentionally mirror LangSmith's actual run schema, so swapping
-// this class's file-write for a real LangSmith API call would be a
-// mechanical, low-risk change -- nothing calling `log()` would need to
-// change.
-//
-// WHAT IF REMOVED: the assistant would still function correctly, but
-// every run's history (what was retrieved, why a guardrail fired, how
-// long it took) would be lost the moment the response was returned --
-// no way to debug a bad answer after the fact.
+/**
+ * Every single call to {@code RagAssistant.ask()} ends by writing one line
+ * to a log file here, capturing EVERYTHING about that run: the question,
+ * what was retrieved (with scores), the exact prompt sent to the AI, the
+ * final answer, citations, which guardrail (if any) fired, how long it
+ * took, and how many tokens were used. This turns every single run into
+ * something you can look back at and debug afterward, instead of only
+ * ever seeing the final answer with no idea how it got there.
+ * <p>
+ * How it works: {@code log()} turns a {@code TraceRecord} into one line of
+ * JSON text and appends it to a file. Because we always APPEND (never
+ * overwrite), the file grows into a log where each line is one
+ * independent, readable record of a single run.
+ * <p>
+ * Why write to a plain file instead of using a real observability service:
+ * it keeps this module free of external dependencies while still
+ * producing REAL, inspectable evidence of every run — not just a mockup.
+ * The field names chosen here (run id, inputs, outputs, latency, error)
+ * intentionally match the shape a real observability tool would expect,
+ * so swapping this class's file-write for a real API call later would be
+ * a small, low-risk change — nothing that calls {@code log()} would need
+ * to change at all.
+ */
 public final class TraceLogger {
 
     private final Path logFile;

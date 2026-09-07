@@ -11,10 +11,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.time.Instant;
 import java.util.List;
 
-// CONCEPT: Global exception handling -- converts exceptions from any
-// controller into a consistent JSON error response. Each new exception
-// type added over time (OutOfStock, InvalidCoupon) gets its own handler
-// mapped to the most fitting HTTP status.
+/**
+ * Catches errors thrown anywhere in our controllers and converts each one
+ * into a consistent JSON error response. As new kinds of errors were
+ * added over time (like out-of-stock or invalid-coupon), each one got its
+ * own handler method below, mapped to whichever HTTP status fits it best.
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -34,9 +36,9 @@ public class GlobalExceptionHandler {
         return badRequest(ex.getMessage(), request);
     }
 
-    // L1/UC5 addition: OutOfStockException -> 409 Conflict (the cart's
-    // contents conflict with current catalog state), distinct from a plain
-    // validation error.
+    // We map this to "409 Conflict" rather than a plain 400 — the request
+    // itself was well-formed, but it conflicts with the current stock
+    // level, which is exactly what 409 means.
     @ExceptionHandler(OutOfStockException.class)
     public ResponseEntity<ErrorResponse> handleOutOfStock(OutOfStockException ex, HttpServletRequest request) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorResponse(
@@ -44,7 +46,6 @@ public class GlobalExceptionHandler {
                 ex.getMessage(), request.getRequestURI(), List.of()));
     }
 
-    // L1/UC5 addition: InvalidCouponException -> 400.
     @ExceptionHandler(InvalidCouponException.class)
     public ResponseEntity<ErrorResponse> handleInvalidCoupon(InvalidCouponException ex, HttpServletRequest request) {
         return badRequest(ex.getMessage(), request);

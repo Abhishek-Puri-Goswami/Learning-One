@@ -1,11 +1,18 @@
-// Deliverable: "Frontend Interface" (L2 HLD UseCase6, 8.2). Talks to
-// exactly one endpoint -- POST /api/v1/support/ask -- matching
-// SupportController.java's contract byte-for-byte:
-//   request:  { query, requestedCustomerId?, accountNumber? }
-//   response: { type: "POLICY_ANSWER" | "LIVE_DATA" | "ACCESS_DENIED" | "AMBIGUOUS", payload }
-// No client-side routing logic decides POLICY vs LIVE_DATA -- that
-// decision is made once, server-side, by IntentClassifier (L2/UC3). The
-// frontend's only job is to render whichever `type` comes back.
+/**
+ * This is the one place where the frontend talks to the backend.
+ * {@code askSupport} sends a question to a single endpoint,
+ * {@code POST /api/v1/support/ask}, and gets back a response shaped like
+ * {@code { type, payload }}, where {@code type} is one of
+ * {@code "POLICY_ANSWER"}, {@code "LIVE_DATA"}, {@code "ACCESS_DENIED"},
+ * or {@code "AMBIGUOUS"}.
+ * <p>
+ * Notice there's no logic here deciding whether a question is a policy
+ * question or a live banking-data question — that decision is made once,
+ * on the server, before this frontend ever sees the response. This
+ * file's only job is to send the question and hand back whatever comes
+ * back, so the component using it can decide how to display each
+ * {@code type}.
+ */
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8085";
 

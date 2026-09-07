@@ -17,14 +17,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-// CONCEPT: Service layer -- but this is the deliberately BUGGY "before"
-// version of the checkout logic, used as a refactoring case study (see
-// the FINDING comments throughout this file for each specific problem:
-// missing null checks, an untested/hallucinated API call, one giant
-// method doing five different jobs, and a payment result that's trusted
-// even when it shouldn't be). Compare with
-// order-service-refactored-uc4/.../OrderServiceImpl.java to see the fix
-// for each of these.
+/**
+ * This is the "before" version of our checkout logic — kept as a teaching
+ * example of a method with several real problems, each explained where it
+ * happens below: a missing null check, a call to an API endpoint that
+ * doesn't actually exist, one giant method trying to do five different
+ * jobs at once, and a payment result that gets trusted even when it
+ * shouldn't be. Compare this file with
+ * {@code order-service-refactored-uc4}'s version of the same class to see
+ * exactly how each of these gets fixed.
+ */
 @Service
 public class OrderServiceImpl implements OrderService {
 
@@ -39,26 +41,30 @@ public class OrderServiceImpl implements OrderService {
         this.paymentGatewayClient = paymentGatewayClient;
     }
 
-    // FINDING (see reviews/): high cyclomatic/cognitive complexity (Sonar rule
-    // squid:S3776, "Cognitive Complexity of methods should not be too high").
-    // This single method mixes cart retrieval, discount logic, membership-tier
-    // logic, address validation, and payment -- five responsibilities in one
-    // ~70-line method with deeply nested conditionals. Measured cyclomatic
-    // complexity: 19 (threshold for a "should fix" flag is typically 10-15).
+    /**
+     * This one method tries to do too much at once: fetch the cart, work
+     * out discounts, apply membership-tier pricing, validate the address,
+     * AND process payment — all in roughly 70 lines with several layers
+     * of nested {@code if} statements. This is a common code smell called
+     * "doing too many things in one place." It works, but it's hard to
+     * read, hard to test one piece at a time, and easy to introduce a bug
+     * into without noticing. See the refactored version of this class for
+     * how splitting it into several small, focused methods fixes that.
+     */
     @SuppressWarnings("unchecked")
     @Override
     public OrderResponse checkout(OrderRequest request) {
-        // FINDING: missing null check (Sonar rule squid:S2259, "Null pointers
-        // should not be dereferenced"). If shippingAddress is omitted from the
-        // request, this throws an unhandled NullPointerException with a 500
-        // error and no useful message, instead of a clean 400 validation error.
+        // Here's a real bug: if the request doesn't include a shipping
+        // address at all, calling .getCity() on it below crashes with a
+        // NullPointerException — an ugly, unhelpful 500 error — instead of
+        // a clean "please provide a shipping address" message.
         String city = request.getShippingAddress().getCity();
 
         Map<String, Object> cartSummary = cartClient.getCheckoutSummary(request.getUserId());
-        // FINDING: no null check on cartSummary either -- if the (hallucinated)
-        // endpoint 404s, RestTemplate throws before we even get here in some
-        // configurations, but if it were ever changed to return null on empty
-        // cart, the next line would NPE too.
+        // Same issue here: there's no check that cartSummary actually came
+        // back with data before we try to read from it. If the cart lookup
+        // ever returns nothing, this next line would also crash instead of
+        // failing gracefully.
         List<Map<String, Object>> rawItems = (List<Map<String, Object>>) cartSummary.get("items");
 
         List<OrderLine> lines = new ArrayList<>();
@@ -72,7 +78,11 @@ public class OrderServiceImpl implements OrderService {
 
             BigDecimal lineTotal = unitPrice.multiply(BigDecimal.valueOf(quantity));
 
-            // Deeply nested discount / membership-tier logic (complexity driver).
+            // This block of nested if/else statements is exactly the kind
+            // of "hard to follow" logic mentioned above — it's figuring out
+            // a discount based on the coupon code, how much has been spent
+            // so far, the payment method, AND the city, all tangled
+            // together.
             if (request.getCouponCode() != null) {
                 if (request.getCouponCode().equals("SAVE10")) {
                     if (total.compareTo(BigDecimal.valueOf(50)) > 0) {
@@ -101,11 +111,11 @@ public class OrderServiceImpl implements OrderService {
             total = total.add(lineTotal);
         }
 
-        // FINDING: charge() return value is trusted unconditionally, and (per
-        // PaymentGatewayClient's own bug) always returns true even on a
-        // caught exception -- so a failed payment is recorded as a successful
-        // order. This is a correctness + financial-risk defect, not just a
-        // style issue.
+        // This line trusts whatever charge() returns without question.
+        // Combined with PaymentGatewayClient's own bug (it always returns
+        // true, even when the actual charge failed), this means a failed
+        // payment could get recorded here as a successful order — a real
+        // financial risk, not just a style nitpick.
         boolean paid = paymentGatewayClient.charge(total, request.getPaymentMethod());
 
         Order order = new Order(

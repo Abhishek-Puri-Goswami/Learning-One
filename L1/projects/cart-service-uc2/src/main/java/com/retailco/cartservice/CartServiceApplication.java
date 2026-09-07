@@ -5,8 +5,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.client.RestTemplate;
 
-// CONCEPT: Spring Boot entry point. Boots the app and scans for
-// @Controller/@Service/@Repository classes to wire together.
+/**
+ * The starting point of this application. Running this class boots up
+ * Spring Boot, which starts a web server and automatically finds and
+ * connects all our {@code @Controller}, {@code @Service}, and
+ * {@code @Repository} classes.
+ */
 @SpringBootApplication
 public class CartServiceApplication {
 

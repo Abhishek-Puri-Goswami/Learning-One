@@ -3,26 +3,20 @@ package com.retailco.bankrag.security;
 import java.util.List;
 import java.util.Set;
 
-// CONCEPT: Policy object pattern -- centralizing an authorization decision
-// into one pure function instead of scattering `if` checks across callers.
-// PURPOSE: Answers exactly one question: "can this subject, given these
-// roles, access this customer's data?" -- and returns a `Decision` (a
-// sealed interface, same pattern as JwtService's VerificationResult) that
-// forces callers to explicitly handle both Allowed and Denied outcomes.
-// WHY centralize this: the permission matrix in the Javadoc below is only
-// trustworthy if there's exactly ONE place that implements it -- if every
-// caller re-implemented "is this ADMIN or SUPPORT_AGENT or self-access"
-// inline, the matrix could silently drift out of sync with the actual code.
-// FLOW: BankingToolService calls AccessPolicy.evaluate(...) for every
-// request before returning any data -- see that class for where this
-// Decision is consumed.
 /**
- * Deliverable: "RBAC." Centralizes the one decision UC3 previously made
- * inline inside {@code BankingToolService.verifyAndAuthorize} ("is this
- * subject allowed to see this customer's data") into a single, independently
- * testable policy function, so the permission matrix documented in
- * docs/secure-backend-integration-design.md is provably what the code does
- * -- not just what the doc claims it does.
+ * Answers exactly one question, in exactly one place: "given this
+ * subject and these roles, can they access this customer's data?" It
+ * returns a {@code Decision} — either {@code Allowed} or {@code Denied} —
+ * which forces every caller to explicitly handle both outcomes instead
+ * of accidentally forgetting one.
+ * <p>
+ * Centralizing this check matters because the permission matrix below is
+ * only trustworthy if there is exactly ONE place that implements it — if
+ * every caller re-implemented "is this admin, or support staff, or the
+ * customer themself" inline, the matrix could quietly drift out of sync
+ * with what the code actually does. {@code BankingToolService} calls
+ * {@code AccessPolicy.evaluate(...)} for every request before returning
+ * any data.
  *
  * Permission matrix:
  * <pre>
@@ -54,9 +48,9 @@ public final class AccessPolicy {
 
         boolean isSelf = subject != null && subject.equals(requestedCustomerId);
         if (isSelf) {
-            // Self-access is always allowed regardless of role -- even a
-            // token with no recognized role can still act as its own
-            // customer, matching UC3's original behavior.
+            // A customer can always see their own data, no matter what
+            // role their token carries — even a token with no recognized
+            // role at all can still act as its own customer.
             return new Allowed("subject matches requested customer", roles.contains(Role.CUSTOMER) ? Role.CUSTOMER : firstOrCustomer(roles), false);
         }
 
@@ -74,11 +68,10 @@ public final class AccessPolicy {
     }
 
     /**
-     * Unrecognized role strings (e.g. a future role a client sends that this
-     * version of the service doesn't know about) are silently dropped rather
-     * than rejected outright -- forward-compatible, and they simply grant no
-     * additional access since {@link #evaluate} only ever expands access for
-     * roles it recognizes.
+     * A role string this version of the service doesn't recognize is
+     * quietly ignored rather than rejected outright — it simply grants no
+     * extra access, since {@link #evaluate} only ever expands access for
+     * roles it actually knows about.
      */
     private static Set<Role> parseRoles(List<String> roleStrings) {
         if (roleStrings == null) return Set.of();
